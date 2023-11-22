@@ -56,4 +56,5 @@ dkms.conf
 *.synctex.gz
 */sol/*.pdf
 
-HongluMa_7055053_CamiloMartinez_7057573.zip
+# Packed files
+*.zip
