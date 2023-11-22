@@ -143,6 +143,84 @@
 
 \begin{homeworkProblem}{- Linear Regression}
 
+    \subsection*{(a)}
+
+    \subsection*{(b)}
+
+    \subsection*{(c)}
+    The Mean Squared Error (MSE) equation is given by:
+    
+    \[
+        \mathrm{MSE}_{train} = \frac{1}{m}\sum_{i=1}^m {(\hat{y}_{train}^{(i)} - y_{train}^{(i)})^2}
+    \]
+    
+    for a linear regression model \(Y = wX + b\), where \(\hat{y}_{train}^{(i)}\) is the predicted value, \(y_{train}^{(i)}\) is the actual value, and \(m\) is the number of training examples.\\
+    
+    To minimize this equation, we need to find the value of \(w\) where the gradient of MSE with respect to \(w\) is equal to zero. For that, we calculate the derivative of MSE with respect to \(w\) and set it to zero:
+    
+    \begin{equation}\label{first}
+        \frac{\partial \mathrm{MSE}_{train}}{\partial w} = 0 \rightarrow 
+        \frac{\partial}{\partial w} 
+        \begin{bmatrix}
+            \frac{1}{m}\sum_{i=1}^m {(\hat{y}_{train}^{(i)} - y_{train}^{(i)})^2}
+        \end{bmatrix} = 0
+    \end{equation}
+    
+    From the linear regression model equation, we know that \(\hat{y}_{train}^{(i)} = wX^{(i)} + b\). We can plug this into (\ref{first}):
+
+    \begin{equation}\label{first}
+        \begin{split}
+            \frac{\partial}{\partial w} 
+            \begin{bmatrix}
+                \frac{1}{m}\sum_{i=1}^m {(wX^{(i)} + b - y_{train}^{(i)})^2}
+            \end{bmatrix} = \frac{2}{m} \sum_{i=1}^m (\hat{y}_{train}^{(i)} - y_{train}^{(i)})X^{(i)}
+        \end{split}
+    \end{equation}
+
+    
+    
+    3. **Setting the Derivative to Zero:**
+    \[
+    \frac{2}{m} \sum_{i=1}^m (\hat{y}_{train}^{(i)} - y_{train}^{(i)})X^{(i)} = 0
+    \]
+    
+    4. **Simplify the Equation:**
+    \[
+    \sum_{i=1}^m (\hat{y}_{train}^{(i)} - y_{train}^{(i)})X^{(i)} = 0
+    \]
+    
+    5. **Expand the Summation:**
+    \[
+    \sum_{i=1}^m \hat{y}_{train}^{(i)}X^{(i)} - \sum_{i=1}^m y_{train}^{(i)}X^{(i)} = 0
+    \]
+    
+    6. **Move the Second Term to the Other Side:**
+    \[
+    \sum_{i=1}^m \hat{y}_{train}^{(i)}X^{(i)} = \sum_{i=1}^m y_{train}^{(i)}X^{(i)}
+    \]
+    
+    7. **Substitute \(\hat{y}_{train}^{(i)} = wX^{(i)} + b\):**
+    \[
+    \sum_{i=1}^m (wX^{(i)} + b)X^{(i)} = \sum_{i=1}^m y_{train}^{(i)}X^{(i)}
+    \]
+    
+    8. **Expand the First Term:**
+    \[
+    \sum_{i=1}^m w(X^{(i)})^2 + bX^{(i)} = \sum_{i=1}^m y_{train}^{(i)}X^{(i)}
+    \]
+    
+    9. **Move the Second Term to the Other Side:**
+    \[
+    \sum_{i=1}^m w(X^{(i)})^2 = \sum_{i=1}^m y_{train}^{(i)}X^{(i)} - bX^{(i)}
+    \]
+    
+    10. **Divide by the Sum of Squares of \(X^{(i)}\):**
+    \[
+    w = \frac{\sum_{i=1}^m y_{train}^{(i)}X^{(i)} - bX^{(i)}}{\sum_{i=1}^m (X^{(i)})^2}
+    \]
+    
+    This is the expression for \(w\) that minimizes the MSE.
+
 \end{homeworkProblem}
 
 \begin{homeworkProblem}{ - PCA as Autoencoder}
