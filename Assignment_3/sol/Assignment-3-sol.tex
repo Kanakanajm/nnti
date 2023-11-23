@@ -247,8 +247,8 @@ We minimize the reconstruction error by solving $\nabla_c||x - Dc||_2^2  = 0$:
 
 \newcommand{\argmind}{\underset{D}{\rm argmin}\,}
 \newcommand{\argmaxd}{\underset{D}{\rm argmax}\,}
-
 \newcommand{\argmaxsd}{\underset{d}{\rm argmax}\,}
+
 \subsection*{(b)}
 Firstly we show that $\argmind||X-XDD^\top||_F^2 = \argmaxd\sum_{i=1}^{m}D_{.i}^\top X^\top XD_{.i}$
 \begin{align*}
@@ -259,19 +259,19 @@ Firstly we show that $\argmind||X-XDD^\top||_F^2 = \argmaxd\sum_{i=1}^{m}D_{.i}^
 &= \argmind-Tr(X^\top XDD^\top) - Tr((DD^\top X^\top X)^\top) + Tr(DD^\top X^\top XDD^\top)\\
 &= \argmind-Tr(X^\top XDD^\top) - Tr(X^\top XDD^\top) + Tr(DD^\top X^\top XDD^\top)\\
 &= \argmind-2Tr(X^\top XDD^\top) + Tr(DD^\top X^\top XDD^\top)\\
-\intertext{since $DD^\top X^\top X \in\mathbb{R}^{m\times m}, DD^\top \in\mathbb{R}^{m\times m}$}\\
+\intertext{since $DD^\top X^\top X \in\mathbb{R}^{m\times m}, DD^\top \in\mathbb{R}^{m\times m}$}
 &= \argmind-2Tr(X^\top XDD^\top) + Tr(DD^\top DD^\top X^\top X)\\
-\intertext{since $DD^\top DD^\top \in\mathbb{R}^{m\times m},X^\top X \in\mathbb{R}^{m\times m}$}\\
+\intertext{since $DD^\top DD^\top \in\mathbb{R}^{m\times m},X^\top X \in\mathbb{R}^{m\times m}$}
 &= \argmind-2Tr(X^\top XDD^\top) + Tr(X^\top X DD^\top DD^\top)\\
 &= \argmind-2Tr(X^\top XDD^\top) + Tr(X^\top X DI_lD^\top)\\
 &= \argmind-2Tr(X^\top XDD^\top) + Tr(X^\top X DD^\top)\\
 &= \argmind-Tr(X^\top XDD^\top)\\
 &= \argmaxd Tr(X^\top XDD^\top)\\
-\intertext{since $X^\top X D \in \mathbb{R}^{m \times l}, D^\top \in \mathbb{R}^{l \times m}$}\\
+\intertext{since $X^\top X D \in \mathbb{R}^{m \times l}, D^\top \in \mathbb{R}^{l \times m}$}
 &= \argmaxd Tr(D^\top X^\top XD)\\
 &= \argmaxd ||XD||_F^2\\
-\intertext{we know that $XD = (D^\top X^\top)^\top$ and $D^\top X^\top$ gives a matrix where the every column is a compressed $x^{(i)}$, i.e. $c^{(i)}$ and the Frobenius norm is just summing the square of all elements of $c^{(i)}$ for all i. With $\sum_{i = 1}^m D^\top_{.i} X^\top$ we get the sum of all elements of all $c$ and with $\sum_{i = 1}^m D^\top_{.i} X^\top X D_{.i}$ we get the sum of the square of all elements of all $c$}\\
-&= \argmaxd \sum_{i = 1}^m D^\top_{.i} X^\top X D_{.i}\\
+\intertext{we know that $XD = (D^\top X^\top)^\top$ and $D^\top X^\top$ gives a matrix where the every column is a compressed $x^{(i)}$, i.e. $c^{(i)}$ and the Frobenius norm is just summing the square of all elements of $c^{(i)}$ for all i. With $\sum_{i = 1}^m D^\top_{.i} X^\top$ we get the sum of all elements of all $c$ and with $\sum_{i = 1}^m D^\top_{.i} X^\top X D_{.i}$ we get the sum of the square of all elements of all $c$.}
+&= \argmaxd \sum_{i = 1}^m D^\top_{.i} X^\top X D_{.i}
 \end{align*}
 Now we can instead show the matrix $D$ whose columns are the eigenvectors of $X^\top X$ solves $\argmaxd \sum_{i = 1}^m D^\top_{.i} X^\top X D_{.i}$ for $D D^T D = I_l, l > 0$ by induction on $l$.\\\\
 \textbf{Base Step} $d^\top d = 1$\\
@@ -282,7 +282,7 @@ Since d is now a vector, we get $\argmaxsd \sum_{i = 1}^m d^\top_{.i} X^\top X d
 &\Rightarrow X^\top Xd + (X^\top X)^\top d = 2kd\\
 &\Rightarrow 2X^\top Xd = 2kd\\
 &\Rightarrow X^\top Xd = kd\\
-\intertext{so that $k$ is a eigenvalue of $X^\top X$ and $d$ is the eigenvector. We have $d^\top X^\top Xd = d^\top kd = k d^\top d = k$ thus $k$ must be the largest eigenvalue and $d$ be the corresponding eigenvector}.
+\intertext{so that $k$ is a eigenvalue of $X^\top X$ and $d$ is the eigenvector. We have $d^\top X^\top Xd = d^\top kd = k d^\top d = k$ thus $k$ must be the largest eigenvalue and $d$ be the corresponding eigenvector.}
 \end{align*}
 \textbf{Induction Step}\\
 Now assume that for $D_n^\top D_n = I_n, \sum_{i = 1}^m D^\top_{n.i} X^\top X D_{n.i}$ has maximum when $D_{n.i}$ are the n largest eigenvectors of $X^\top X$. We want to show that it is also the case for $D_{n+1}^\top D_{n+1} = I_{n+1}$ where the first n columns of $D_{n+1}$ are the same as the ones in $D_{n}$ and the last column is the $(n+1)^{th}$ largest eigenvector of $X^\top X$.
