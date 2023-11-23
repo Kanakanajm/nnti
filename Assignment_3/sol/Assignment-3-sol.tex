@@ -163,8 +163,9 @@ The point (3, 6) does not lie on the line above. \\
     $$X_{train}^\top X_{train}w = X_{train}^\top y_{train}$$\\
     so\\
     $$w = (X_{train}^\top X_{train})^{-1} X_{train}^\top y_{train}$$\\
+    Note the $w$ here is a vector and the `$w$' represents weight in the equation is actually the second element of the vector and the noise $b$ is the first element given that $X$ is padded with a $1$ in the first row.
     
-    \subsection*{(c)}
+    \subsection*{(c, expanded form)}
     The Mean Squared Error (MSE) equation is given by:
     
     \begin{equation}\label{first}
@@ -287,10 +288,9 @@ Since d is now a vector, we get $\argmaxsd \sum_{i = 1}^m d^\top_{.i} X^\top X d
 Now assume that for $D_n^\top D_n = I_n, \sum_{i = 1}^m D^\top_{n.i} X^\top X D_{n.i}$ has maximum when $D_{n.i}$ are the n largest eigenvectors of $X^\top X$. We want to show that it is also the case for $D_{n+1}^\top D_{n+1} = I_{n+1}$ where the first n columns of $D_{n+1}$ are the same as the ones in $D_{n}$ and the last column is the $(n+1)^{th}$ largest eigenvector of $X^\top X$.
 \begin{align*}
 \sum_{i = 1}^m D^\top_{n+1.i} X^\top X D_{n+1.i} &= \sum_{i = 1}^m D^\top_{n.i} X^\top X D_{n.i} + D^\top_{n+1.n+1} X^\top X D_{n+1.n+1}\\
-\intertext{notice that the term $\sum_{i = 1}^m D^\top_{n.i} X^\top X D_{n.i}$ is already the largest by the induction hypothesis, now the question is reduced to finding $\rm argmax\,D^\top_{n+1.n+1} X^\top X D_{n+1.n+1} $. Since $D_{n+1.n+1}$ is a vector we can repeat the steps of our base case to get that $D_{n+1.n+1}$ is a eigenvector of $X^\top X$. To not violate the orthogonality constraint we know that $D_{n+1.n+1}$ must be the corresponding eigenvector of the $(n+1)^{th}$ largest eigenvalue.}\\
+\intertext{notice that the term $\sum_{i = 1}^m D^\top_{n.i} X^\top X D_{n.i}$ is already the largest by the induction hypothesis, now the question is reduced to finding $\rm argmax\,D^\top_{n+1.n+1} X^\top X D_{n+1.n+1} $. Since $D_{n+1.n+1}$ is a vector we can repeat the steps of our base case to get that $D_{n+1.n+1}$ is a eigenvector of $X^\top X$. To not violate the orthogonality constraint we know that $D_{n+1.n+1}$ must be the corresponding eigenvector of the $(n+1)^{th}$ largest eigenvalue. If the two columns in $D$ are the same, in $D^\top$ there will be two identical rows which can be reduced to 0's by substracting them which implies the determinant of the matrix is 0, i.e. not orthogonal.}\\
 \end{align*}
  
-
 \end{homeworkProblem}
 
 \begin{homeworkProblem}{- PCA}
