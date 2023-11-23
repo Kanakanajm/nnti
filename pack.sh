@@ -19,7 +19,7 @@ fi
 zip_name="HongluMa_7055053_CamiloMartinez_7057573.zip"
 
 # Create a zip archive with the contents of the folder
-cd "$folder_name" && zip -r "../$zip_name" .
+zip -j $zip_name ./$folder_name/sol/*.pdf ./$folder_name/code/*.ipynb
 
 # Check if the zip operation was successful
 if [ $? -eq 0 ]; then
