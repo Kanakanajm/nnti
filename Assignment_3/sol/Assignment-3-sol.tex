@@ -155,11 +155,9 @@ w &= \frac{1}{2}\\
 b &= 3
 \end{align*}
     \subsection*{(b)}
-It does not lie on the line above. \\
-Proof by contradiction:\\
-Assume that the point lies on the line, it must satisfy the equation $Y = \frac{1}{2}X+3$.\\
-Plug the point in the equation, we get: $\frac{9}{2} = 6$ which is false.
-    \subsection*{(c, short)}
+The point (3, 6) does not lie on the line above. \\
+\textbf{Proof by contradiction}: Assume that the point lies on the line, it must satisfy the equation $Y = \frac{1}{2}X+3$. Plug the point in the equation, which yields: $\frac{9}{2} = 6$, which is false.
+    \subsection*{(c, matrix form)}
     By using the result we get from Exercise 2d in Assignment 2 $$f(x) = ||Bx - c||_2^2, \nabla_xf(x) = 2B^\top(Bx - c)$$ we get:
     $$\nabla_w\mathrm{MSE}_{train} = \nabla_w\frac{1}{m}||X_{train}w - y_{train}||_2^2 = \frac{1}{m}(2X_{train}^\top(X_{train}w - y_{train})) = X_{train}^\top X_{train}w - X_{train}^\top y_{train} = 0$$\\ which can be written as\\
     $$X_{train}^\top X_{train}w = X_{train}^\top y_{train}$$\\
@@ -169,81 +167,65 @@ Plug the point in the equation, we get: $\frac{9}{2} = 6$ which is false.
     \subsection*{(c)}
     The Mean Squared Error (MSE) equation is given by:
     
-    \[
+    \begin{equation}\label{first}
         \mathrm{MSE}_{train} = \frac{1}{m}\sum_{i=1}^m {(\hat{y}_{train}^{(i)} - y_{train}^{(i)})^2}
-    \]
+    \end{equation}
     
     for a linear regression model \(Y = wX + b\), where \(\hat{y}_{train}^{(i)}\) is the predicted value, \(y_{train}^{(i)}\) is the actual value, and \(m\) is the number of training examples.\\
+
+    From the linear regression model equation, we know that \(\hat{y}_{train}^{(i)} = wX^{(i)} + b\). We can plug this into (\ref{first}) and get:
     
-    To minimize this equation, we need to find the value of \(w\) where the gradient of MSE with respect to \(w\) is equal to zero. For that, we calculate the derivative of MSE with respect to \(w\) and set it to zero:
-    
-    \begin{equation}\label{first}
-        \frac{\partial \mathrm{MSE}_{train}}{\partial w} = 0 \rightarrow 
-        \frac{\partial}{\partial w} 
-        \begin{bmatrix}
-            \frac{1}{m}\sum_{i=1}^m {(\hat{y}_{train}^{(i)} - y_{train}^{(i)})^2}
-        \end{bmatrix} = 0
+    \begin{equation}\label{second}
+        \mathrm{MSE}_{train} = \frac{1}{m}\sum_{i=1}^m {(wX^{(i)} + b - y_{train}^{(i)})^2}
+    \end{equation}
+
+    To minimize (\ref{second}) and find the optimal weight $w$, we first need to find the optimal value of $b$. To do this, we calculate the derivative of MSE with respect to \(b\) and set it to zero:
+    \begin{alignat*}{2}
+        \frac{\partial \mathrm{MSE}_{train}}{\partial b} &= 0\\
+        \Rightarrow\quad \frac{2}{m} \sum_{i=1}^m {(wX^{(i)} + b - y_{train}^{(i)})} &= 0\\
+        \Rightarrow\quad \sum_{i=1}^m {w(X^{(i)})} + \sum_{i=1}^m {b} &= \sum_{i=1}^m {y_{train}^{(i)}}\\
+        \Rightarrow\quad m b & = \sum_{i=1}^m {y_{train}^{(i)}} - \sum_{i=1}^m {w(X^{(i)})}\\
+        \Rightarrow\quad b & = \frac{1}{m}\sum_{i=1}^m {y_{train}^{(i)}} - w \frac{1}{m} \sum_{i=1}^m {X^{(i)}}
+    \end{alignat*}
+
+    If we define \(\bar{y} = \frac{1}{m}\sum_{i=1}^m {y_{train}^{(i)}}\) and \(\bar{X} = \frac{1}{m} \sum_{i=1}^m {X^{(i)}}\), which respectively are the average of all training outputs \(y_{train}\) and average of all training inputs $X$, we can express the previous equation as:
+
+    \begin{equation}\label{third}
+        b = \bar{y} - w \bar{X}    
     \end{equation}
     
-    From the linear regression model equation, we know that \(\hat{y}_{train}^{(i)} = wX^{(i)} + b\). We can plug this into (\ref{first}):
+    Now, we can plug (\ref{third}) into (\ref{second}), calculate the derivative with respect to $w$ and set it to zero to calculate the optimal value of $w$.
 
-    \begin{equation}\label{first}
+    \[
         \begin{split}
-            \frac{\partial}{\partial w} 
+            \frac{\partial}{\partial w}
             \begin{bmatrix}
-                \frac{1}{m}\sum_{i=1}^m {(wX^{(i)} + b - y_{train}^{(i)})^2}
-            \end{bmatrix} = \frac{2}{m} \sum_{i=1}^m (\hat{y}_{train}^{(i)} - y_{train}^{(i)})X^{(i)}
+                \frac{1}{m} \sum_{i=1}^m {(wX^{(i)} + \bar{y} - w \bar{X} - y_{train}^{(i)})^2}
+            \end{bmatrix}
+            &= 0\\
+            \Rightarrow\quad \frac{\partial}{\partial w}
+            \begin{bmatrix}
+                \frac{1}{m} \sum_{i=1}^m {(w(X^{(i)} - \bar{X}) - (y_{train}^{(i)} - \bar{y}))^2}
+            \end{bmatrix} 
+            &= 0\\
+            \Rightarrow\quad \frac{2}{m} \sum_{i=1}^m {(w(X^{(i)} - \bar{X}) - (y_{train}^{(i)} - \bar{y}))(X^{(i)} - \bar{X})}
+            & = 0\\
+            \Rightarrow\quad w \sum_{i=1}^m {(X^{(i)} - \bar{X})^2} 
+            &= \sum_{i=1}^m {(y_{train}^{(i)} - \bar{y})(X^{(i)} - \bar{X})}
         \end{split}
-    \end{equation}
-
-    
-    
-    3. **Setting the Derivative to Zero:**
-    \[
-    \frac{2}{m} \sum_{i=1}^m (\hat{y}_{train}^{(i)} - y_{train}^{(i)})X^{(i)} = 0
     \]
     
-    4. **Simplify the Equation:**
+    Finally, we get the expression for \(w\) that minimizes the MSE:
+    
     \[
-    \sum_{i=1}^m (\hat{y}_{train}^{(i)} - y_{train}^{(i)})X^{(i)} = 0
+        w = \frac{\sum_{i=1}^m {(y_{train}^{(i)} - \bar{y})(X^{(i)} - \bar{X})}}{ \sum_{i=1}^m {(X^{(i)} - \bar{X})^2}}
     \]
     
-    5. **Expand the Summation:**
-    \[
-    \sum_{i=1}^m \hat{y}_{train}^{(i)}X^{(i)} - \sum_{i=1}^m y_{train}^{(i)}X^{(i)} = 0
-    \]
-    
-    6. **Move the Second Term to the Other Side:**
-    \[
-    \sum_{i=1}^m \hat{y}_{train}^{(i)}X^{(i)} = \sum_{i=1}^m y_{train}^{(i)}X^{(i)}
-    \]
-    
-    7. **Substitute \(\hat{y}_{train}^{(i)} = wX^{(i)} + b\):**
-    \[
-    \sum_{i=1}^m (wX^{(i)} + b)X^{(i)} = \sum_{i=1}^m y_{train}^{(i)}X^{(i)}
-    \]
-    
-    8. **Expand the First Term:**
-    \[
-    \sum_{i=1}^m w(X^{(i)})^2 + bX^{(i)} = \sum_{i=1}^m y_{train}^{(i)}X^{(i)}
-    \]
-    
-    9. **Move the Second Term to the Other Side:**
-    \[
-    \sum_{i=1}^m w(X^{(i)})^2 = \sum_{i=1}^m y_{train}^{(i)}X^{(i)} - bX^{(i)}
-    \]
-    
-    10. **Divide by the Sum of Squares of \(X^{(i)}\):**
-    \[
-    w = \frac{\sum_{i=1}^m y_{train}^{(i)}X^{(i)} - bX^{(i)}}{\sum_{i=1}^m (X^{(i)})^2}
-    \]
-    
-    This is the expression for \(w\) that minimizes the MSE.
     \subsection*{(d)}
     The difference between the line and x value can be seen as $f^{-1}(y_{train}) - X_{train}$ where we use the intercept $y$ to get the feature $X$ which is not what we want to achieve.
 \end{homeworkProblem}
 
-\begin{homeworkProblem}{ - PCA as Autoencoder}
+\begin{homeworkProblem}{- PCA as Autoencoder}
 \subsection*{(a)}
 We minimize the reconstruction error by solving $\nabla_c||x - Dc||_2^2  = 0$:
 \begin{alignat*}{2}
@@ -257,9 +239,10 @@ We minimize the reconstruction error by solving $\nabla_c||x - Dc||_2^2  = 0$:
    \Rightarrow\quad & & \nabla_c\,x^\top x - 2x^\top Dc + c^\top I_l c& = 0\\
    \Rightarrow\quad & & \nabla_c\,x^\top x - 2x^\top Dc + c^\top c& = 0\tag{3}\\
    \Rightarrow\quad & & 0 - 2 D^\top x + 2c & = 0\tag{4}\\
-   \Rightarrow\quad & & c & = D^\top x \\
+   \Rightarrow\quad & & c & = D^\top x
 \end{alignat*}
-Clarification of Step 0 to 1: because $(Dc)^\top x$ is a scalar so $(Dc)^\top x = ((Dc)^\top x)^\top$; clarification of Step 2 to 3: we calculate the gradient with respect to $c$; the first term $\nabla_c\,x^\top x = 0$ because it does not have $c$ term, it acts as a constant; the second term can be rewritten as $\nabla_c\, -2(D^\top x)^\top c$ so that we can apply the result of Exercise 2a in Assignment 2, we get $\nabla_c\, -2(D^\top x)^\top c = D^\top x$; the third term can be rewritten as $\nabla_c c^\top I_l c$ and by the result of Exercise 2b in Assignment 2 we know that $\nabla_c c^\top I_l c = I_l c + I_l^\top c = 2c$
+\textbf{Clarification of Step 0 to (1)}: because $(Dc)^\top x$ is a scalar so $(Dc)^\top x = ((Dc)^\top x)^\top$.\\
+\textbf{Clarification of Step (2) to (3)}: we calculate the gradient with respect to $c$; the first term $\nabla_c\,x^\top x = 0$ because it does not have $c$ term, it acts as a constant; the second term can be rewritten as $\nabla_c\, -2(D^\top x)^\top c$ so that we can apply the result of Exercise 2a in Assignment 2, we get $\nabla_c\, -2(D^\top x)^\top c = D^\top x$; the third term can be rewritten as $\nabla_c c^\top I_l c$ and by the result of Exercise 2b in Assignment 2 we know that $\nabla_c c^\top I_l c = I_l c + I_l^\top c = 2c$
 
 \newcommand{\argmind}{\underset{D}{\rm argmin}\,}
 \newcommand{\argmaxd}{\underset{D}{\rm argmax}\,}
