@@ -14,6 +14,8 @@
 
 \usetikzlibrary{automata,positioning}
 
+\usepackage{biblatex} 
+\addbibresource{bibliography.bib} % Import the bibliography file
 
 %
 % Basic Document Settings
@@ -143,14 +145,21 @@
 
 \begin{homeworkProblem}{- Bias and Variance}
 
-\subsection*{a)}
-Bias indicates how well the model predicts and Variance is a measurement of how similar the models trained with different training set behaves. A complex model results in a low bias and a high variance and a simple model results in a high bias and a low variance.
+\subsection*{(a)}
+If $\hat{f}$ is the predicted function by our linear regression model, then the variance refers to the amount by which $\hat{f}$ would change if we estimated it using a different training data set. Since the training data are used to fit the statistical learning method, different training data sets will result in a different $\hat{f}$. But ideally the estimate for $f$ should not vary too much between training sets. In other words, high variance implies that small changes in the training data can result in large changes in our predicted function $\hat{f}$. In general, more flexible statistical methods have higher variance. On the other hand, bias refers to the error that is introduced by approximating a real-life problem, which may be extremely complicated, by a much simpler model. For example, linear regression assumes that there is a linear relationship between $Y$ and a set of predictors $X_i$. One could say that the model is biased to consider that given a set of $x_i$ is proportional or linearly related to a set of outputs $y_i$. Generally, more flexible methods result in less bias. More flexible methods result in an increase in variance and a decrease in bias. Bias indicates how well the model predicts and Variance is a measurement of how similar the models trained with different training set behaves. A complex model results in a low bias and a high variance and a simple model results in a high bias and a low variance \cite{gareth2023intro}.
 
-\subsection*{b)}
-Overfitting means low bias but high variance.
-Underfitting means high bias but low variance.
+\subsection*{(b)}
+Considering the concepts introduced in the explanation above, overfitting means low bias but high variance. On the other hand, underfitting means high bias but low variance.
 
-\subsection*{c)}
+\subsection*{(c)}
+To show that the given equation holds, we have to consider the mathematical definition of bias and variance of a function $f$, $Bias(f)$ and $Var(f)$ \cite{jordan2006section1} \cite{jordan2006section2}:
+\[
+Bias(f(x)) = E[f(x)] - f(x)
+\]
+\[
+Var(f(x)) = E[(f(x) - E[f(x)])^2]
+\]
+With these definitions and using the properties of the expected value of a function, represented by $E[f(x)]$ we can perform the following derivation:
 \newcommand{\fh}{\hat{f}}
 \begin{align*}
 MSE(y, \fh) &= E[(y - \fh(x_0))^2)]\\
@@ -163,12 +172,12 @@ MSE(y, \fh) &= E[(y - \fh(x_0))^2)]\\
 &=f^2+Var(\varepsilon) - 2fE[\fh] + E[\fh^2] + E[\fh]^2 - E[\fh]^2\\
 &=(f^2 - 2fE[\fh] + E[\fh]^2) + (E[\fh^2] - E[\fh]^2)+Var(\varepsilon)\\
 &=(f-E[\fh])^2+ (E[\fh^2] - E[\fh]^2)+Var(\varepsilon)\\
-&=Bias(\fh)^2+ Var(\fh) +Var(\varepsilon)\\
+&=Bias(\fh)^2+ Var(\fh) +Var(\varepsilon)
 \end{align*}
+That is, the MSE can be decomposed into the sum of squared bias, variance, and irreducible error. This decomposition is the bias-variance tradeoff. It means that in order to minimize the MSE, we need to select a statistical learning method that simultaneously achieves that our $\hat{f}$ has low variance and low bias (it is a tradeoff ultimately). Note that variance is inherently a nonnegative quantity, and squared bias is also nonnegative \cite{gareth2023intro}.
 
-\subsection*{d)}
-When the training set size goes up, the variance goes down but the bias stays the same
-but when the training set is really small, increasing the training set size can increase the bias as well.
+\subsection*{(d)}
+When the training set size goes up, the variance goes down. This can be intuitively derived, since more data generally means that our models can get more robust, since the model now has more data to work with and derive the intricacies in-between. Mathematically speaking, the variance is inversely proportional to the training size $N$. On the other hand, bias will remain the same even if the training set size increases. This is because bias is inherently correlated with the model's degrees of freedom or complexity and is therefore not related to the training size. We see this in the plot of the final exercise of the practical problem. Nevertheless, practically speaking, it is still true that a small training set limits the optimal capacity of our models, meaning we cannot train more complex models, even if we would like to do so. This was seen in the slide 30/50 of Chapter 4. 
 
 \end{homeworkProblem}
 
@@ -238,5 +247,7 @@ but when the training set is really small, increasing the training set size can 
 See attached .ipynb solution in .zip file.
 
 \end{homeworkProblem}
+
+\printbibliography
 
 \end{document}
