@@ -91,7 +91,7 @@
 %   - Instructor
 %   - Author
 %
-\newcommand{\hmwkNumber}{}
+\newcommand{\hmwkNumber}{4}
 \newcommand{\hmwkTitle}{Exercise Sheet \hmwkNumber}
 \newcommand{\hmwkClass}{NNTI}
 \newcommand{\hmwkTeam}{Team \#25}
@@ -140,8 +140,35 @@
 \begin{document}
 
 \maketitle
+\begin{homeworkProblem}{Bias and Variance}
 
-% \begin{homeworkProblem}{}
-% \end{homeworkProblem}
+\subsection*{a)}
+Bias indicates how well the model predicts and Variance is a measurement of how similar the models trained with different training set behaves. A complex model results in a low bias and a high variance and a simple model results in a high bias and a low variance.
+
+\subsection*{b)}
+Overfitting means low bias but high variance.
+Underfitting means high bias but low variance.
+
+\subsection*{c)}
+\newcommand{\fh}{\hat{f}}
+\begin{align*}
+MSE(y, \fh) &= E[(y - \fh(x_0))^2)]\\
+&= E[y^2 - 2y\fh+\fh^2]\\
+&=E[y^2] - 2E[y\fh] + E[\fh^2]\\
+&=E[(f+\varepsilon)^2] - 2E[(f+\varepsilon)\fh] + E[\fh^2]\\
+&=E[f^2]+ 2E[f]E[\varepsilon] + E[\varepsilon^2] - 2(E[f\fh]+ E[\varepsilon]E[\fh]) + E[\fh^2]\\
+&=f^2+2f\cdot0 + Var(\varepsilon) - 2E[f]E[\fh] - 2\cdot0\cdot E[\fh] + E[\fh^2]\\
+&=f^2+Var(\varepsilon) - 2fE[\fh] + E[\fh^2]\\
+&=f^2+Var(\varepsilon) - 2fE[\fh] + E[\fh^2] + E[\fh]^2 - E[\fh]^2\\
+&=(f^2 - 2fE[\fh] + E[\fh]^2) + (E[\fh^2] - E[\fh]^2)+Var(\varepsilon)\\
+&=(f-E[\fh])^2+ (E[\fh^2] - E[\fh]^2)+Var(\varepsilon)\\
+&=Bias(\fh)^2+ Var(\fh) +Var(\varepsilon)\\
+\end{align*}
+
+\subsection*{d)}
+When the training set size goes up, the variance goes down but the bias stays the same
+but when the training set is really small, increasing the training set size can increase the bias as well.
+
+\end{homeworkProblem}
 
 \end{document}
