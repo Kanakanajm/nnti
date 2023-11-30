@@ -91,7 +91,7 @@
 %   - Instructor
 %   - Author
 %
-\newcommand{\hmwkNumber}{}
+\newcommand{\hmwkNumber}{4}
 \newcommand{\hmwkTitle}{Exercise Sheet \hmwkNumber}
 \newcommand{\hmwkClass}{NNTI}
 \newcommand{\hmwkTeam}{Team \#25}
@@ -141,7 +141,83 @@
 
 \maketitle
 
-% \begin{homeworkProblem}{}
-% \end{homeworkProblem}
+\begin{homeworkProblem}{- Bias and Variance}
+
+    \subsection*{(a)}
+
+    \subsection*{(b)}
+
+    \subsection*{(c)}
+
+    \subsection*{(d)}
+
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{- Maximum Likelihood Estimate (MLE)}
+
+    \subsection*{(a)} 
+    Let the output variable \(y = y_1, ..., y_m\) consist of \(m\) i.i.d. normal variables and has likelihood
+    \begin{equation}\label{first}
+    p(\bm{y} | \bm{X}, \bm{w}) = \prod_{m=1}^M {\mathcal{N}(\bm{y_m} | \bm{w}^\mathsf{T} \bm{x_m}, \sigma^2)}
+    \end{equation}
+    Where 
+    \[
+    \mathcal{N}(\bm{y_m} | \bm{w}^\mathsf{T} \bm{x_m}, \sigma^2) = \frac{1}{\sigma \sqrt{2\pi}} \exp\biggl(-\frac{1}{2\sigma^2}(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2 \biggr)
+    \]
+    To maximize (\ref{first}), we can take the \(\log{}\) which makes it simpler to work with. This is called the log-likelihood and is defined as follows:
+    \begin{equation}\label{second}
+    \log{(p(\bm{y} | \bm{X}, \bm{w}))} = \log{\biggl(\prod_{m=1}^M {\mathcal{N}(\bm{y_m} | \bm{w}^\mathsf{T} \bm{x_m}, \sigma^2)}\biggr)}
+    \end{equation}
+    From there, we take advantage of the properties of the \(\log\) function, mainly \(\log{(ab)} = \log{a} + \log{b}\)
+    \[
+    \begin{split}
+    \log{(p(\bm{y} | \bm{X}, \bm{w}))} &= \sum_{m=1}^M {\log{\biggl(\frac{1}{\sigma \sqrt{2\pi}} \exp\biggl(-\frac{1}{2\sigma^2}(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2 \biggr)\biggr)}} \\
+    &= \sum_{m=1}^M {\log{\biggl(\frac{1}{\sigma \sqrt{2\pi}}\biggl)}} +  \sum_{m=1}^M {\log{\biggl(\exp\biggl(-\frac{1}{2\sigma^2}(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2 \biggr)\biggr)}} \\
+    &= M\log{\biggl(\frac{1}{\sigma \sqrt{2\pi}}\biggl)} + \sum_{m=1}^M {-\frac{1}{2\sigma^2}(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2} \\
+    &= -M\log{(\sigma \sqrt{2\pi})} - \frac{1}{2\sigma^2} \sum_{m=1}^M {(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2}
+    \end{split}
+    \]
+    Finally, we arrive at the following expression
+    \begin{equation}\label{third}
+        \begin{split} 
+        \log{(p(\bm{y} | \bm{X}, \bm{w}))} &= -M\log{(\sigma)} - \frac{M}{2} \log{(2\pi)} - \frac{1}{2\sigma^2} \sum_{m=1}^M {(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2}
+        \end{split}
+    \end{equation}
+    Since \(-M\log{(\sigma)} - \frac{M}{2} \log{(2\pi)}\) as well as  \(\frac{1}{2\sigma^2}\) are just constants, we only need to maximize the last term that involves the sum. Moreover, maximizing a negative value is the same as minimizing its positive counterpart. Thus, the entire problem becomes minimizing the following expression
+    \[
+    \sum_{m=1}^M {(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2}
+    \]
+    From there, we can introduce a new constant \(\frac{1}{M}\) which does not affect the minimization process at all, and we get an expression that is the Mean Squared Error, for which we derived on Assignment 3 Exercise 3.1.c the optimal weight vector \(\bm{w}\) 
+    \[
+    \mathrm{MSE} = \frac{1}{M} \sum_{m=1}^M {(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2}
+    \]
+    This proves that a linear regression procedure that consists of minimizing the MSE can be justified as a Maximum-Likelihood procedure, which was our starting point.
+    
+    \subsection*{(b)}
+    Assuming a standard normal prior on the weights \(\bm{w}\) of the form \(\mathcal{N}(\bm{w} \, | \, 0, \frac{1}{\lambda}\bm{I})\), where \(\lambda\) is just a constant that defines the precision of the distribution, we can express the likelihood function as follows
+    \[
+    p(\bm{w} \, | \, \lambda) = \prod_{m=1}^M {\mathcal{N}\biggl(\bm{w} \, | \, 0, \frac{1}{\lambda}\bm{I}\biggr)} = \biggl(\frac{\lambda}{2\pi}\biggr)^{M/2} \exp\biggl(-\frac{\lambda}{2}\bm{w}^\mathsf{T} \bm{w}\biggr)
+    \]
+    Where \(M\) is the total number of elements in the \(\bm{w}\) vector. Using Bayes’ theorem, the posterior distribution for \(\bm{w}\) is proportional to the product of the prior distribution and the likelihood function, that is
+    \begin{equation}\label{fourth}
+    p(\bm{w} \, | \, \bm{X}, \bm{y}, \lambda) \propto p(\bm{y} \, | \, \bm{X}, \bm{w}, \lambda) \, p(\bm{w} \, | \, \lambda)
+    \end{equation}
+    Where \(p(\bm{y} \, | \, \bm{X}, \bm{w}, \lambda)\) is the same one we introduced in the previous exercise, with an additional parameter \(\lambda\). Now, to determine the weight vector \(\bm{w}\), we need to find the most probable value of \(\bm{w}\) given the data, in other words by maximizing the posterior distribution given by (\ref{fourth}). This technique is called maximum posterior, or simply MAP. As we have already explained in previous exercises, we can approach this problem by taking the \(\log{}\) function and maximize that instead. That is, our expression to maximize becomes
+    \begin{equation}\label{fith}
+    \log{(p(\bm{y} \, | \, \bm{X}, \bm{w}, \lambda) \, p(\bm{w} \, | \, \lambda))} = \log{p(\bm{y} \, | \, \bm{X}, \bm{w}, \lambda)} + \log{p(\bm{w} \, | \, \lambda)}
+    \end{equation}
+    In (\ref{fith}), we can identify that the first term is the same as the one in the previous exercise. And we already proved that maximizing that term is the same as minimizing \(\sum_{m=1}^M {(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2}\) or any constant multiplied by this term. Note that this expression does not depend on \(\sigma\), which we defined as our precision parameter \(\lambda\). On the other hand, maximizing the second term \(\log{p(\bm{w} \, | \, \lambda)}\) is the same as maximizing \(-\frac{\lambda}{2}\bm{w}^\mathsf{T} \bm{w}\), since \((\frac{\lambda}{2\pi})^{M/2}\) is just a constant. And that in turn is the same as minimizing its negative counterpart. In summary, the entire problem becomes minimizing the following expression
+    \begin{equation}\label{sixth}
+    \mathcal{L}(\bm{w}) = \frac{1}{2}\sum_{m=1}^M {(\bm{y_m} - \bm{w}^\mathsf{T} \bm{x_m})^2} + \frac{\lambda}{2}\bm{w}^\mathsf{T} \bm{w}
+    \end{equation}
+    Note that we multiplied the first term by \(1/2\) which does not have any impact on the minimization process, since it is just a constant. Finally, we recognize that the resulting expression in (\ref{sixth}) is the \(L_2\)-regularized least squares loss. Thus we see that maximizing the posterior distribution or MAP procedure is equivalent to minimizing the least squares criterion with \((L_2\-\)-)regularization, also known as ridge regression in the Statistics literature, with a regularization parameter given by \(\lambda\), by assuming a standard normal prior on the weights.
+
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{- Bias-Variance Trade-Off Exploration}
+
+See attached .ipynb solution in .zip file.
+
+\end{homeworkProblem}
 
 \end{document}
