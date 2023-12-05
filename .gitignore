@@ -53,8 +53,15 @@ Mkfile.old
 dkms.conf
 
 # LaTex Build files
-*.synctex.gz
+*/sol/*.synctex.gz
 */sol/*.pdf
-
+*/sol/*.aux
+*/sol/*.bbl
+*/sol/*.fdb_latexmk
+*/sol/*.fls
+*/sol/*.log
+*/sol/*.run.xml
+*/sol/*.bcf
+*/sol/*.blg
 # Packed files
 *.zip
