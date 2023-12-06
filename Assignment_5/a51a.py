@@ -2,7 +2,8 @@ import numpy as np
 
 A = 1
 B = 100
-E = 0.002
+# E = 0.002
+E = 0.0001
 X0 = np.array([0.9, 1.12])
 
 def f(x):
@@ -18,7 +19,7 @@ def about(x):
     print("X:", x, "\tgrad:", gradient(x), "\tf:", f(x))
 
 X = X0
-NO_ITERATION = 3000
+NO_ITERATION = 3
 GRAD_THRESHOLD = 0.01
 
 i = 0

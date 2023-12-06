@@ -141,7 +141,57 @@
 
 \maketitle
 
-% \begin{homeworkProblem}{}
-% \end{homeworkProblem}
+\begin{homeworkProblem}{Gradient Descent}
+    \subsection*{a)}
+    First we calculate the partial derivatives:
+    \begin{align*}
+        \frac{\partial f}{\partial x_1} &= -2(a - x_1) - 4bx_1(x_2-x_1)^2\\
+        \frac{\partial f}{\partial x_2} &= 2b(x_2-x_1^2)\\
+    \end{align*}
+    For each time step t, we have $x_t = x_{t-1} - \epsilon \nabla f(x_{t-1})$.\\
+    After three iterations we have the result:
+    \begin{align*}
+        x_0 &= \begin{bmatrix}
+            0.9\\
+            1.12\\
+        \end{bmatrix}\qquad
+        \nabla f(x_0) &&= \begin{bmatrix}
+            -111.8\\
+            62\\
+        \end{bmatrix}\qquad
+        f(x_0) &&&= 9.62\\
+        x_1 &= \begin{bmatrix}
+            0.91\\
+            1.11\\
+        \end{bmatrix}\qquad
+        \nabla f(x_1) &&= \begin{bmatrix}
+            -103.52\\
+            56.71\\
+        \end{bmatrix}\qquad
+        f(x_1) &&&= 8.05\\
+        x_2 &= \begin{bmatrix}
+            0.92\\
+            1.11\\
+        \end{bmatrix}\qquad
+        \nabla f(x_2) &&= \begin{bmatrix}
+            -95.59\\
+            51.78\\
+        \end{bmatrix}\qquad
+        f(x_2) &&&= 6.71\\
+        x_3 &= \begin{bmatrix}
+            0.93\\
+            1.10\\
+        \end{bmatrix}\qquad
+        \nabla f(x_3) &&= \begin{bmatrix}
+            -88.04\\
+            47.2\\
+        \end{bmatrix}\qquad
+        f(x_3) &&&= 5.58\\
+    \end{align*}
+    The value of $f$ decreases after the iterations.\\
+    If $\epsilon_1$ is used, the changes in $x$ are very small at each iteration and $f$ will not degree that much after the iterations.\\
+    If $\epsilon_2$ is used, $f$ will increase and be very large.
+    \subsection*{b)}
+\end{homeworkProblem} 
 
 \end{document}
