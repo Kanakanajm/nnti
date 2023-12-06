@@ -192,6 +192,19 @@
     If $\epsilon_1$ is used, the changes in $x$ are very small at each iteration and $f$ will not degree that much after the iterations.\\
     If $\epsilon_2$ is used, $f$ will increase and be very large.
     \subsection*{b)}
+    We found an $\hat{x} = \begin{bmatrix}
+        0.989\\
+        0.978
+    \end{bmatrix} $ with learning rate of 0.002 with a gradient threshold (stop when gradient's l2 norm smaller than 0.01) after 1251 iterations.
+    (See a51a.py)
 \end{homeworkProblem} 
+\begin{homeworkProblem}{Weight Space Symmetry}
+    \subsection*{a)}
+    There are $M!$ to arrange to order of the neurons and the $2$ comes from the two sign so the numbers of equavilant models is:
+    $$2M!$$
+    \subsection*{b)}
+    For each layer there is $M_i$ possible equavilant layers and the number of combinations of the layers is given by their product.
+    $$2\prod_{i=1}^{n} M_i!$$
+\end{homeworkProblem}
 
 \end{document}
