@@ -145,7 +145,7 @@
     \subsection*{a)}
     First we calculate the partial derivatives:
     \begin{align*}
-        \frac{\partial f}{\partial x_1} &= -2(a - x_1) - 4bx_1(x_2-x_1)^2\\
+        \frac{\partial f}{\partial x_1} &= -2(a - x_1) - 4bx_1(x_2-x_1^2)^2\\
         \frac{\partial f}{\partial x_2} &= 2b(x_2-x_1^2)\\
     \end{align*}
     For each time step t, we have $x_t = x_{t-1} - \epsilon \nabla f(x_{t-1})$.\\
@@ -192,10 +192,24 @@
     If $\epsilon_1$ is used, the changes in $x$ are very small at each iteration and $f$ will not degree that much after the iterations.\\
     If $\epsilon_2$ is used, $f$ will increase and be very large.
     \subsection*{b)}
-    We found an $\hat{x} = \begin{bmatrix}
+    We can find the global minimum by setting the gradient to zero i.e. $\nabla f(x) = 0$ and solve for $x$, we get
+    \begin{equation*}
+        \begin{cases}
+            -2(a - x_1) - 4bx_1(x_2-x_1^2)^2 &= 0\\
+            2b(x_2-x_1^2) &= 0
+        \end{cases}
+    \end{equation*}
+    After simplification we get
+    \begin{equation*}
+        \begin{cases}
+            x_1 &= a = 1\\
+            x_2 &= a^2 = 1
+        \end{cases}
+    \end{equation*}
+    Using an iterative method, we found an $\hat{x} = \begin{bmatrix}
         0.989\\
         0.978
-    \end{bmatrix} $ with learning rate of 0.002 with a gradient threshold (stop when gradient's l2 norm smaller than 0.01) after 1251 iterations.
+    \end{bmatrix} $ with learning rate of 0.002 with a gradient threshold (stop when gradient's L2 norm smaller than 0.01) after 1251 iterations.
     (See a51a.py)
 \end{homeworkProblem} 
 \begin{homeworkProblem}{Weight Space Symmetry}
@@ -206,5 +220,32 @@
     For each layer there is $M_i$ possible equavilant layers and the number of combinations of the layers is given by their product.
     $$2\prod_{i=1}^{n} M_i!$$
 \end{homeworkProblem}
-
+\begin{homeworkProblem}{SVM and Kernels}
+    \subsection*{a)}
+    \begin{align*}
+        \intertext{$L$ can be rewritten as}\\
+        L(w, b, \alpha) &= \frac{1}{2}w^Tw-\sum_{i=1}^{N}\alpha_iy_i(w^T\cdot x_i) - \sum_{i=1}^{N}\alpha_i y_i b + \sum_{i=1}^{N}\alpha_i\\
+        \intertext{Since $w^T\cdot x_i$ is a scalar, $w^T\cdot x_i = x_i^T \cdot w$, we get}\\
+        L(w, b, \alpha) &= \frac{1}{2}w^Tw-\sum_{i=1}^{N}\alpha_iy_ix_i^T\cdot w - \sum_{i=1}^{N}\alpha_i y_i b + \sum_{i=1}^{N}\alpha_i\\
+        \intertext{Now we calculate the partial derivatives of $L$ w.r.t $w$ and $b$}\\
+        \intertext{For $\frac{\partial L}{\partial w}$ we get:}
+        \frac{\partial L}{\partial w} &= \frac{1}{2} \cdot 2w - \sum_{i=1}^{N}\alpha_iy_ix_i\\
+        \frac{\partial L}{\partial w} &= w - \sum_{i=1}^{N}\alpha_iy_ix_i\\
+        \intertext{Now setting $\frac{\partial L}{\partial w} = 0$, we get}\\
+        w &= \sum_{i=1}^{N}\alpha_iy_ix_i\\
+        \intertext{For $\frac{\partial L}{\partial b}$ we get:}\\
+        \frac{\partial L}{\partial b} &= -\sum_{i=1}^{N}\alpha_iy_i\\
+        \intertext{Similarly, setting $\frac{\partial L}{\partial b} = 0$, we get}\\
+        0 &= \sum_{i=1}^{N}\alpha_iy_i\\
+        \intertext{Now we plug the result back to the equation of $L$}
+        L(w, b, \alpha) &= \frac{1}{2}w^T\sum_{i=1}^{N}\alpha_iy_ix_i - \sum_{i=1}^{N}\alpha_iy_iw^Tx_i + \sum_{i=1}^{N}\alpha_i\\
+        \intertext{We know that for vector dot product we have $a^T\sum_{i=1}^{n}b_i = \sum_{i=1}^{n}a^Tb_i$ so we can group the frist two terms together into}\\
+        L(w, b, \alpha) &= -\frac{1}{2}w^T\sum_{i=1}^{N}\alpha_iy_ix_i + \sum_{i=1}^{N}\alpha_i\\
+        L(w, b, \alpha) &= -\frac{1}{2}(\sum_{j=1}^{N}\alpha_jy_jx_j)^T\sum_{i=1}^{N}\alpha_iy_ix_i + \sum_{i=1}^{N}\alpha_i\\
+        L(w, b, \alpha) &= -\frac{1}{2}\sum_{j=1}^{N}\alpha_jy_jx_j^T\sum_{i=1}^{N}\alpha_iy_ix_i + \sum_{i=1}^{N}\alpha_i\\
+        L(w, b, \alpha) &= -\frac{1}{2}\sum_{j=1}^{N}\alpha_jy_jx_j^T\sum_{i=1}^{N}\alpha_iy_ix_i + \sum_{i=1}^{N}\alpha_i\\
+        \intertext{which is equavilant to}
+        L(w, b, \alpha) &= -\frac{1}{2}\sum_{j=1}^{N}\sum_{i=1}^{N}\alpha_jy_j\alpha_iy_ix_j^Tx_i + \sum_{i=1}^{N}\alpha_i\\
+    \end{align*}
+\end{homeworkProblem}
 \end{document}
