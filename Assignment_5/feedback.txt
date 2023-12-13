@@ -1,0 +1,8 @@
+Exercise 5.1: 1.25
+    - why is the minimum global?
+Exercise 5.2: 0.75
+    - you can change the signs of the weights for each unit independently, so there are 2^M 
+    - (b) works after correcting the error in (a)
+Exercise 5.3: 2
+    - the alphas determine the support vectors
+Exercise 5.4: 5
