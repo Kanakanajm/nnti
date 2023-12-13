@@ -2,7 +2,7 @@
 
 \usepackage{fancyhdr}
 \usepackage{extramarks}
-\usepackage{amsmath}
+\usepackage{amsmath,siunitx}
 \usepackage{amsthm}
 \usepackage{bm}
 \usepackage{amssymb}
@@ -11,6 +11,7 @@
 \usepackage{tikz}
 \usepackage[plain]{algorithm}
 \usepackage{algpseudocode}
+\usepackage{changepage}
 
 \usetikzlibrary{automata,positioning}
 
@@ -91,12 +92,11 @@
 %   - Instructor
 %   - Author
 %
-\newcommand{\hmwkNumber}{}
+\newcommand{\hmwkNumber}{6}
 \newcommand{\hmwkTitle}{Exercise Sheet \hmwkNumber}
 \newcommand{\hmwkClass}{NNTI}
 \newcommand{\hmwkTeam}{Team \#25}
-\newcommand{\hmwkAuthorName}{\hmwkTeam: Camilo Martínez 7057573, Honglu Ma 7055053}
-
+\newcommand{\hmwkAuthorName}{\hmwkTeam: \\ Camilo Martínez 7057573, cama00005@stud.uni-saarland.de \\ Honglu Ma 7055053, homa00001@stud.uni-saarland.de}
 %
 % Title Page
 %
@@ -141,7 +141,136 @@
 
 \maketitle
 
-% \begin{homeworkProblem}{}
-% \end{homeworkProblem}
+\begin{homeworkProblem}{- Activation Functions}
+
+    \subsection*{(a)} 
+    \vspace*{-1.9em}
+    \begin{adjustwidth}{2.5em}{0pt}
+
+    \end{adjustwidth}
+
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{- Introduction to convexity}
+
+    \subsection*{(a)} 
+    \vspace*{-1.9em}
+    \begin{adjustwidth}{2.5em}{0pt}
+
+    \end{adjustwidth}
+
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{- General Questions}
+
+    \subsection*{(a)} 
+    \vspace*{-1.9em}
+    \begin{adjustwidth}{2.5em}{0pt}
+
+    \end{adjustwidth}
+
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{- BatchNorm}
+
+
+
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{- Forward Pass for a Fully-Connected Neural Network}
+
+Given the weights of the simple Feed Forward Neural Network (FFNN) with one hidden layer, defined in the problem:
+
+\[
+    W^{(1)} = 
+    \begin{bmatrix}
+    -0.2 & 0.9 & 0.4 \\
+    -0.1 & 0.3 & 0.4 \\
+    0.2 & 0.5 & -0.7 \\
+    0.2 & -0.5 & 0.5
+    \end{bmatrix}
+    \quad
+    W^{(2)} = 
+    \begin{bmatrix}
+    0.6 & -0.2 \\
+    -0.1 & 0.8 \\
+    -0.5 & -0.3
+    \end{bmatrix}
+\]
+
+where $W^{(1)}$ is the weight matrix that acts upon the $1^{\text{st}}$ layer (input layer) and $W^{(2)}$, the weight matrix that acts upon the activations of the $2^{\text{nd}}$ layer (hidden layer). \\
+
+The forward pass in this Network would look like this:
+\[
+    \bm{h} = 
+    \begin{bmatrix}
+    h_1 \\
+    h_2 \\
+    h_3 
+    \end{bmatrix}
+    = \mathtt{ReLU}\left(\left[W^{(1)}\right]^\top\bm{x}\right) = 
+    \mathtt{ReLU}\left(
+        \begin{bmatrix}
+        -0.2 & -0.1 & 0.2 & 0.2 \\
+        0.9 & 0.3 & 0.5 & -0.5 \\
+        0.4 & 0.4 & -0.7 & 0.5
+        \end{bmatrix}
+        \begin{bmatrix}
+        3 \\
+        1 \\
+        -1 \\
+        2 
+        \end{bmatrix}
+    \right) =
+    \mathtt{ReLU}\left(
+        \begin{bmatrix}
+        -0.5 \\
+        1.5 \\
+        3.3
+        \end{bmatrix}
+    \right) =
+    \begin{bmatrix}
+    0 \\
+    1.5 \\
+    3.3
+    \end{bmatrix}
+\]
+
+\[
+    \bm{o} = 
+    \begin{bmatrix}
+    o_1 \\
+    o_2 
+    \end{bmatrix}
+    = \mathtt{Softmax}\left(\left[W^{(2)}\right]^\top\bm{h}\right) = 
+    \mathtt{Softmax}\left(
+        \begin{bmatrix}
+        0.6 & -0.1 & -0.5 \\
+        -0.2 & 0.8 & -0.3
+        \end{bmatrix}
+        \begin{bmatrix}
+        0 \\
+        1.5 \\
+        3.3
+        \end{bmatrix}
+    \right) =
+    \mathtt{Softmax}\left(
+        \begin{bmatrix}
+        -2.1 \\
+        0.31
+        \end{bmatrix}
+    \right) =
+    \begin{bmatrix}
+        0.08241332 \\ 
+        0.91758668
+    \end{bmatrix}
+\]
+
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{- Clustering Neural Networks}
+See attached files.
+
+\end{homeworkProblem}
 
 \end{document}
