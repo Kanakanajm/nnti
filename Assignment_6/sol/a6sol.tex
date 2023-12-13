@@ -144,7 +144,7 @@
 \begin{homeworkProblem}{- Activation Functions}
 
     \subsection*{(a)} 
-    \vspace*{-1.9em}
+    \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
 
     \end{adjustwidth}
@@ -154,7 +154,7 @@
 \begin{homeworkProblem}{- Introduction to convexity}
 
     \subsection*{(a)} 
-    \vspace*{-1.9em}
+    \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
 
     \end{adjustwidth}
@@ -163,17 +163,59 @@
 
 \begin{homeworkProblem}{- General Questions}
 
-    \subsection*{(a)} 
-    \vspace*{-1.9em}
+    \subsection*{a)} 
+    \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
+    They introduce non-linearity, which in turns helps learn more complex functions. Otherwise, our Neural Networks would just be multiplication of weight matrices, which obviously can be represented by a single weight matrix. 
+    \end{adjustwidth}
 
+    \subsection*{b)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    Faster to compute and numerically stable, since it does not involve complex mathematical operations that may under- or overflow, such as exponentials in the sigmoid function or a geometrical one like tanh.
+    \end{adjustwidth}
+
+    \subsection*{c)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    
+    \end{adjustwidth}
+
+    \subsection*{d)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    Because it involves calculating the inverse of a matrix, which is an extremely costly operation with a time complexity of $O(n^3)$.
+    \end{adjustwidth}
+
+    \subsection*{e)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    No, in general any method that numerically attempts to find a minimum only guarantees a local minimum. That is, it may very well exist another minimum that could be found with a different initialization of parameters. A true minimum could theoretically be found, if we knew the mathematical formula of the loss function and that is not feasible with Neural Networks.
+    \end{adjustwidth}
+
+    \subsection*{f)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    
+    \end{adjustwidth}
+
+    \subsection*{g)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    
+    \end{adjustwidth}
+
+    \subsection*{h)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    
     \end{adjustwidth}
 
 \end{homeworkProblem}
 
 \begin{homeworkProblem}{- BatchNorm}
-
-
+    The paper centers around a technique called Batch Normalization, which consists of introducing additional network layers that control the first two moments (mean and variance) of the distributions of layer inputs. The authors aim to show that the practical success of using Batch Normalization in a Neural Network does not come from reducing "Internal Covariate Shift" (which refers to the continual change in the distribution of layer inputs caused by updates to the preceding layers and is conjectured that it negatively impacts training). Instead, the authors argue that its benefits, mainly faster training and convergence, come from the fact that Batch Normalization smoothens the optimization landscape, effectively reparametrizing the underlying optimization problem to make it more stable and smooth. This implies that the gradients used in
+    training are more predictive and well-behaved, which enables faster and more effective optimization. In simpler words, their findings showed that the primary benefit of BatchNorm lies in facilitating smoother gradients rather than stabilizing layer inputs.
 
 \end{homeworkProblem}
 
