@@ -146,8 +146,55 @@
     \subsection*{(a)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-
+        \begin{align*}
+            1 - \sigma(x)   &= 1 - \frac{1}{1+e^{-x}}\\
+                            &= \frac{1+e^{-x}-1}{1+e^{-x}}\\
+                            &= \frac{e^{-x}}{1+e^{-x}}\\
+                            &= \frac{\frac{e^{-x}}{e^{-x}}}{\frac{1}{e^{-x}}+ \frac{e^{-x}}{e^{-x}}}\\
+                            &= \frac{1}{1+e^x}\\
+                            &= \sigma(-x)
+        \end{align*}
     \end{adjustwidth}
+
+    \subsection*{(b)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    \begin{align*}
+        tanh(x) &= \frac{sinh(x)}{cosh(x)}\\
+                &= \frac{e^x-e{-x}}{e^x+e^{-x}}\\
+                &= \frac{e^{2x}-1}{e^{2x}+1}\\
+        2\sigma(2x)-1   &= \frac{2}{1+e^{-2x}} - 1\\
+                        &= \frac{2-1-e^{-2x}}{1+e^{-2x}}\\
+                        &= \frac{1-e^{-2x}}{1+e^{-2x}}\\
+                        &= \frac{\frac{1}{e^{-2x}}-\frac{e^{-2x}}{e^{-2x}}}{\frac{1}{e^{-2x}}+\frac{e^{-2x}}{e^{-2x}}}\\
+                        &= \frac{e^{2x}-1}{e^{2x}+1}
+    \end{align*}
+    \end{adjustwidth}
+
+    \subsection*{(c)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+        \begin{align*}
+            \sigma'(x)  &= -(1+e^{-x})^{-2}(e^{-x})(-1)\\
+                        &= (1+e^{-x})^{-2}(e^{-x})\\
+                        &= \frac{e^{-x}}{(1+e^{-x})^2}\\
+            \sigma(-x)\cdot\sigma(x)    &= \frac{1}{1+e^x}\cdot\frac{1}{1+e^{-x}}\\
+                                        &= \frac{\frac{1}{e^x}}{\frac{1}{e^x}+\frac{e^x}{e^x}}\cdot\frac{1}{1+e^{-x}}\\
+                                        &= \frac{e^{-x}}{1+e^{-x}}\cdot\frac{1}{1+e^{-x}}\\
+                                        &= \frac{e^{-x}}{(1+e^{-x})^2}
+        \end{align*}
+    \end{adjustwidth}
+    
+    \subsection*{(d)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+        \begin{align*}
+            \frac{d}{dx}(2\sigma(2x)-1) &= 4\sigma'(2x)\\
+                                        &= 4\sigma(-2x)\sigma(2x)\\
+                                        &= 4(1-\sigma(2x))\sigma(2x)
+        \end{align*}
+    \end{adjustwidth}
+
 
 \end{homeworkProblem}
 
@@ -156,8 +203,48 @@
     \subsection*{(a)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-
+        $f(x^\star)$ is a minimum so $\nabla_{x}f(x^\star) = 0$ so the First-order characterization becomes: $f(y) \ge f(x^\star)$
     \end{adjustwidth}
+
+    \newcommand{\enormsqr}[1]{||#1||_2^2}
+    \newcommand{\vecdot}[2]{\langle#1,#2\rangle}
+    \subsection*{(b)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+        We have $f(w)=\enormsqr{Xw-Y}$ so $\forall w,w' \in dom f$
+        \begin{align*}
+            &f(\alpha w+(1-\alpha)w') - \alpha f(w) - (1-\alpha)f(w')\\
+           =&\enormsqr{X(\alpha w+(1-\alpha)w')-Y}-\alpha\enormsqr{Xw-Y}-(1-\alpha)\enormsqr{Xw'-Y}\\
+           =&\enormsqr{X(\alpha w+(1-\alpha)w')} - 2\vecdot{X(\alpha w+(1-\alpha)w')}{Y} + \enormsqr{Y} - \alpha(\enormsqr{Xw} - 2\vecdot{Xw}{Y} + \enormsqr{Y}) - (1-\alpha)(\enormsqr{Xw'} - 2\vecdot{Xw'}{Y} + \enormsqr{Y})\\
+           \intertext{all terms with $\enormsqr{Y}$ cancel because $\enormsqr{Y} - \alpha\enormsqr{Y} - (1-\alpha)\enormsqr{Y} = 0$ and all terms like $\vecdot{..}{Y}$ cancel because}\\
+            &-2\vecdot{X(\alpha w + (1-\alpha)w')}{Y} + 2\alpha\vecdot{Xw}{Y} + 2(1-\alpha)\vecdot{Xw'}{Y}\\
+           =&2\vecdot{-X(\alpha w + (1-\alpha)w' + \alpha Xw + (1-\alpha)Xw')}{Y}\\
+           =&2\vecdot{0}{Y}\\
+           =&0\\
+           \intertext{now we have only $\enormsqr{X(\alpha w+(1-\alpha)w')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}$ which}\\
+           =&\enormsqr{\alpha Xw} + \enormsqr{(1-\alpha)Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha Xw')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}\\
+           =&\alpha^2\enormsqr{Xw} + (1-\alpha)^2\enormsqr{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha Xw')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}\\
+           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2-2(\alpha^2-\alpha)\vecdot{Xw}{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
+           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2(-\alpha)(1 - \alpha)\vecdot{Xw}{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
+           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{(-\alpha)Xw}{(1 - \alpha)Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
+           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{(-\alpha)Xw + \alpha Xw}{(1-\alpha Xw')}\\
+           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{0}{(1-\alpha Xw')}\\
+           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+0\\
+           =&\alpha(\alpha -1)(\enormsqr{Xw}-\enormsqr{Xw'})^2+0 \le 0\\
+           \intertext{because $\alpha \le 1$}
+        \end{align*}
+        thus $f(\alpha w+(1-\alpha)w') \le \alpha f(w) + (1-\alpha)f(w')$
+    \end{adjustwidth}
+
+
+    \subsection*{(c)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+        No, Neural Networks are not convex functions in general. In the lecture, it was told that for each loss function of a neural network
+        there could be multiple minima, i.e. multiple models. There could also be saddle points which is a minima with respect to one variable
+        and a maxima with respect to another.
+    \end{adjustwidth}
+
 
 \end{homeworkProblem}
 
@@ -178,7 +265,8 @@
     \subsection*{c)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-    
+    When the input of the softmax function $z_i$ is big or small, the softmax function could overflow or underflow because of the exponential.
+    We can shift the input value: instead of $z_i$, we use $z_i - \underset{j}{max}\,z_j$.
     \end{adjustwidth}
 
     \subsection*{d)} 
@@ -196,19 +284,21 @@
     \subsection*{f)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-    
+    I think it doesn't help the optimization
+    because now we have many equivalent local minimas so the optimization process may get stuck in these areas.
     \end{adjustwidth}
 
     \subsection*{g)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-    
+    When the loss function we try to optimize is a convex parabola, using newton's method can find a minima in one step
+    while the normal gradient decent may take multiple steps depending on the starting position and learning rate.
     \end{adjustwidth}
 
     \subsection*{h)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-    
+    It cannot compute the std and the mean.
     \end{adjustwidth}
 
 \end{homeworkProblem}
