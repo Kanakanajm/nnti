@@ -211,29 +211,35 @@
     \subsection*{(b)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-        We have $f(w)=\enormsqr{Xw-Y}$ so $\forall w,w' \in dom f$
+        We have $f(w)=\enormsqr{Xw-Y}$ so $\forall w,w' \in \mathrm{dom}(f)$
         \begin{align*}
             &f(\alpha w+(1-\alpha)w') - \alpha f(w) - (1-\alpha)f(w')\\
-           =&\enormsqr{X(\alpha w+(1-\alpha)w')-Y}-\alpha\enormsqr{Xw-Y}-(1-\alpha)\enormsqr{Xw'-Y}\\
-           =&\enormsqr{X(\alpha w+(1-\alpha)w')} - 2\vecdot{X(\alpha w+(1-\alpha)w')}{Y} + \enormsqr{Y} - \alpha(\enormsqr{Xw} - 2\vecdot{Xw}{Y} + \enormsqr{Y}) - (1-\alpha)(\enormsqr{Xw'} - 2\vecdot{Xw'}{Y} + \enormsqr{Y})\\
-           \intertext{all terms with $\enormsqr{Y}$ cancel because $\enormsqr{Y} - \alpha\enormsqr{Y} - (1-\alpha)\enormsqr{Y} = 0$ and all terms like $\vecdot{..}{Y}$ cancel because}\\
-            &-2\vecdot{X(\alpha w + (1-\alpha)w')}{Y} + 2\alpha\vecdot{Xw}{Y} + 2(1-\alpha)\vecdot{Xw'}{Y}\\
-           =&2\vecdot{-X(\alpha w + (1-\alpha)w' + \alpha Xw + (1-\alpha)Xw')}{Y}\\
-           =&2\vecdot{0}{Y}\\
-           =&0\\
-           \intertext{now we have only $\enormsqr{X(\alpha w+(1-\alpha)w')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}$ which}\\
-           =&\enormsqr{\alpha Xw} + \enormsqr{(1-\alpha)Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha Xw')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}\\
-           =&\alpha^2\enormsqr{Xw} + (1-\alpha)^2\enormsqr{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha Xw')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}\\
-           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2-2(\alpha^2-\alpha)\vecdot{Xw}{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
-           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2(-\alpha)(1 - \alpha)\vecdot{Xw}{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
-           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{(-\alpha)Xw}{(1 - \alpha)Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
-           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{(-\alpha)Xw + \alpha Xw}{(1-\alpha Xw')}\\
-           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{0}{(1-\alpha Xw')}\\
-           =&(\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+0\\
-           =&\alpha(\alpha -1)(\enormsqr{Xw}-\enormsqr{Xw'})^2+0 \le 0\\
-           \intertext{because $\alpha \le 1$}
+            &=\enormsqr{X(\alpha w+(1-\alpha)w')-Y}-\alpha\enormsqr{Xw-Y}-(1-\alpha)\enormsqr{Xw'-Y}\\
+            &=\enormsqr{X(\alpha w+(1-\alpha)w')} - 2\vecdot{X(\alpha w+(1-\alpha)w')}{Y} + \enormsqr{Y} - \alpha(\enormsqr{Xw} - 2\vecdot{Xw}{Y} + \enormsqr{Y}) - \dots \\ 
+            & \quad \, (1-\alpha)(\enormsqr{Xw'} - 2\vecdot{Xw'}{Y} + \enormsqr{Y})
         \end{align*}
-        thus $f(\alpha w+(1-\alpha)w') \le \alpha f(w) + (1-\alpha)f(w')$
+
+        All terms with $\enormsqr{Y}$ cancel because $\enormsqr{Y} - \alpha\enormsqr{Y} - (1-\alpha)\enormsqr{Y} = 0$ and all terms like $\vecdot{..}{Y}$ cancel because
+        \begin{align*}
+            & -2\vecdot{X(\alpha w + (1-\alpha)w')}{Y} + 2\alpha\vecdot{Xw}{Y} + 2(1-\alpha)\vecdot{Xw'}{Y}\\
+            &= 2\vecdot{-X(\alpha w + (1-\alpha)w' + \alpha Xw + (1-\alpha)Xw')}{Y}\\
+            &= 2\vecdot{0}{Y}\\
+            &= 0\\
+        \end{align*}
+
+        Now we have only $\enormsqr{X(\alpha w+(1-\alpha)w')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}$ which becomes
+        \begin{align*}
+           &= \enormsqr{\alpha Xw} + \enormsqr{(1-\alpha)Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha Xw')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}\\
+           &= \alpha^2\enormsqr{Xw} + (1-\alpha)^2\enormsqr{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha Xw')} - \alpha\enormsqr{Xw} - (1-\alpha)\enormsqr{Xw'}\\
+           &= (\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2-2(\alpha^2-\alpha)\vecdot{Xw}{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
+           &= (\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2(-\alpha)(1 - \alpha)\vecdot{Xw}{Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
+           &= (\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{(-\alpha)Xw}{(1 - \alpha)Xw'} + 2\vecdot{\alpha Xw}{(1-\alpha)Xw'}\\
+           &= (\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{(-\alpha)Xw + \alpha Xw}{(1-\alpha Xw')}\\
+           &= (\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+2\vecdot{0}{(1-\alpha Xw')}\\
+           &= (\alpha^2-\alpha)(\enormsqr{Xw}-\enormsqr{Xw'})^2+0\\
+           &= \alpha(\alpha -1)(\enormsqr{Xw}-\enormsqr{Xw'})^2+0 \le 0 \quad \text{because $\alpha \le 1$}
+        \end{align*}
+        Thus $f(\alpha w+(1-\alpha)w') \le \alpha f(w) + (1-\alpha)f(w')$
     \end{adjustwidth}
 
 
@@ -265,8 +271,8 @@
     \subsection*{c)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-    When the input of the softmax function $z_i$ is big or small, the softmax function could overflow or underflow because of the exponential.
-    We can shift the input value: instead of $z_i$, we use $z_i - \underset{j}{max}\,z_j$.
+    When the input of the softmax function $z_i$ is big or small, the softmax function could overflow or underflow respectively, because of the exponential.
+    We can shift the input value: instead of $z_i$, we use $z_i - \underset{j}{\max{ }}{z_j}$.
     \end{adjustwidth}
 
     \subsection*{d)} 
@@ -284,14 +290,13 @@
     \subsection*{f)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-    I think it doesn't help the optimization
-    because now we have many equivalent local minimas so the optimization process may get stuck in these areas.
+    In general, for a Neural Network with a simple loss function (that is, one that does not have any additional techniques such as regularization), weight space symmetry would hinder the optimization process. In such a case, we would have many equivalent local minimas. Nevertheless, the loss surface would also be prone to saddle points, which are points where the gradient is zero but are neither maxima nor minima. These points can slow down typical optimization algorithms such as Gradient-Descent or even get stuck in them.
     \end{adjustwidth}
 
     \subsection*{g)} 
     \vspace*{-2em}
     \begin{adjustwidth}{2.5em}{0pt}
-    When the loss function we try to optimize is a convex parabola, using newton's method can find a minima in one step
+    When the loss function we try to optimize is a simple function like a convex parabola, Newton's method can find a minima in one step
     while the normal gradient decent may take multiple steps depending on the starting position and learning rate.
     \end{adjustwidth}
 
@@ -401,7 +406,13 @@ The forward pass in this Network would look like this:
 \end{homeworkProblem}
 
 \begin{homeworkProblem}{- Clustering Neural Networks}
-See attached files.
+See attached files, the python code that was ran in the cluster is in the file $\mathtt{nnti\_assignment\_6.py}$. 
+The folder $\mathtt{/code/models}$ has the saved trained models per epoch. The accuracy of these models can be checked out with the same provided code by commenting out the line that calls the function $\mathtt{perform\_training()}$. On the other hand, the log $\mathtt{/code/logs/nnti\_assignment\_6.35457.0.out}$ shows the console information produced by the code ran on the cluster. In particular, the last lines contain the information of the best trained model: \\
+
+Best found model: model\_20231210\_180121\_epoch\_9 \\
+Training Accuracy: 91.92\%, \\
+Validation Accuracy: 89.82\%, \\
+Test Accuracy: 89.14\%
 
 \end{homeworkProblem}
 

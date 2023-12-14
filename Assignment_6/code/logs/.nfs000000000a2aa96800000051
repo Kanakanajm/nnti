@@ -1,0 +1,42 @@
+000 (35456.000.000) 2023-12-10 18:46:51 Job submitted from host: <134.96.227.100:9618?addrs=134.96.227.100-9618&alias=conduit.hpc.uni-saarland.de&noUDP&sock=schedd_3419_ba64>
+...
+040 (35456.000.000) 2023-12-10 18:46:51 Started transferring input files
+	Transferring to host: <134.96.59.11:9618?addrs=134.96.59.11-9618&alias=lofn.hpc.uni-saarland.de&noUDP&sock=teaching1_27790_51a3_42>
+...
+040 (35456.000.000) 2023-12-10 18:46:51 Finished transferring input files
+...
+001 (35456.000.000) 2023-12-10 18:46:52 Job executing on host: <134.96.59.11:9618?addrs=134.96.59.11-9618&alias=lofn.hpc.uni-saarland.de&noUDP&sock=startd_27740_e941>
+	SlotName: @lofn.hpc.uni-saarland.de
+	AvailableGPUs = { GPUs_GPU_cca7fafe }
+	CondorScratchDir = "/raid/condor/lib/condor/execute/dir_1404748"
+	Cpus = 7
+	Disk = 686331104
+	GPUs = 1
+	GPUs_GPU_cca7fafe = [ DeviceUuid = "cca7fafe-45ba-2993-f24a-b5737b8e5036"; DevicePciBusId = "0000:04:00.0"; Capability = 6.0; DeviceName = "Tesla P100-SXM2-16GB"; DriverVersion = 12.3; Id = "GPU-cca7fafe"; ECCEnabled = true; GlobalMemoryMb = 16276; MaxSupportedVersion = 12030 ]
+	Memory = 64480
+...
+040 (35456.000.000) 2023-12-10 18:59:31 Started transferring output files
+...
+040 (35456.000.000) 2023-12-10 18:59:31 Finished transferring output files
+...
+005 (35456.000.000) 2023-12-10 18:59:31 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	18565  -  Run Bytes Sent By Job
+	652  -  Run Bytes Received By Job
+	18565  -  Total Bytes Sent By Job
+	652  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :     0.00        1         7 
+	   Disk (KB)            :    37           1 686331104 
+	   Gpus (Average)       :     0           1         1 "GPU-cca7fafe"
+	   GpusMemory (MB)      :   110                       
+	   Memory (MB)          :              1024     64480 
+	   TimeExecute (s)      :   759                       
+	   TimeSlotBusy (s)     :   760                       
+
+	Job terminated of its own accord at 2023-12-10T17:59:31Z with exit-code 0.
+...
