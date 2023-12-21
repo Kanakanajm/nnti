@@ -149,13 +149,13 @@
     Given the weights
 
     \[
-        W_{hidden} = 
+        W_{\text{hidden}} = 
         \begin{bmatrix}
         0.15 & -0.25 & 0.05 \\
         0.2 & 0.1 & -0.15 
         \end{bmatrix}
         \quad
-        W_{out} = 
+        W_{\text{out}} = 
         \begin{bmatrix}
         0.2 & 0.5 \\
         -0.35 & 0.15 \\
@@ -172,7 +172,7 @@
             h_2 \\
             h_3 
             \end{bmatrix}
-            = \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}\left(W_{hidden}^\top\bm{x}\right) = 
+            = \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}\left(W_{\text{hidden}}^\top\bm{x}\right) = 
             \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}\left(
                 \begin{bmatrix}
                     0.15 & -0.25 & 0.05 \\
@@ -196,13 +196,13 @@
             \hat{o}_1 \\
             \hat{o}_2 
             \end{bmatrix}
-            = \mathtt{Softmax}\left(W_{out}^\top\bm{h}\right) = 
+            = \mathtt{Softmax}\left(W_{\text{out}}^\top\bm{h}\right) = 
             \mathtt{Softmax}\left(
                 \begin{bmatrix}
                     0.2 & 0.5 \\ 
                     -0.35 & 0.15 \\ 
                     0.15 & -0.2
-                \end{bmatrix}
+                \end{bmatrix}^\top
                 \begin{bmatrix}
                     0.05 \\  
                     0.35 \\ 
@@ -242,13 +242,13 @@
         
         Let us first write the important equations for our Feedforward Neural Network:
         \begin{equation}\label{7.2.1}
-            \bm{z^{(1)}} = W_{hidden}^\top \bm{x}
+            \bm{z^{(1)}} = W_{\text{hidden}}^\top \bm{x}
         \end{equation}
         \begin{equation}\label{7.2.2}
             \bm{a^{(1)}} = \bm{h} = \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}(\bm{z^{(1)}})
         \end{equation}
         \begin{equation}\label{7.2.3}
-            \bm{z^{(2)}} = W_{out}^\top \bm{a^{(1)}}
+            \bm{z^{(2)}} = W_{\text{out}}^\top \bm{a^{(1)}}
         \end{equation}
         \begin{equation}\label{7.2.4}
             \bm{a^{(2)}} = \bm{\hat{o}} = \mathtt{Softmax}(\bm{z^{(2)}})
@@ -295,8 +295,7 @@
             \end{cases}
         \end{equation}
 
-        Combining \eqref{7.2.7} and \eqref{7.2.8} into \eqref{7.2.6}, we get
-
+        Combining \eqref{7.2.7} and \eqref{7.2.8} into \eqref{7.2.6}, we sum over the contributions of each $\hat{o}_i$ to each $z_j$ through matrix-vector multiplication. This way each $i$-th element of the resulting vector represents the accumulated derivative of the loss with respect to each $z_i$. That is,
         \[
         \frac{\partial L}{\partial z^{(2)}_i} = \sum_{i} \frac{\partial L}{\partial \hat{o}_i} \frac{\partial \hat{o}_i}{\partial z^{(2)}_i} = \sum_{i} \left( -\frac{o_i}{\hat{o}_i} \right) \frac{\partial \hat{o}_i}{\partial z^{(2)}_i} = -\frac{o_i}{\hat{o}_i} \hat{o}_i (1 - \hat{o}_i) - \sum_{j \neq i} \frac{o_i}{\hat{o}_i} (-\hat{o}_i \hat{o}_j) = -o_i (1 - \hat{o}_i) + \hat{o}_i \sum_{j \neq i} o_j
         \]
@@ -308,7 +307,7 @@
 
         On the other hand, from \eqref{7.2.3} we know that $\partial \bm{z^{(2)}} / \partial W_{\text{out}} = \bm{a^{(1)}}$. Therefore, we can state
         \begin{equation}\label{7.2.10}
-            \frac{\partial L}{\partial W_{\text{out}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial W_{out}} = \bm{a^{(1)}} (\bm{\hat{o}} - \bm{o})^\top
+            \frac{\partial L}{\partial W_{\text{out}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial W_{\text{out}}} = \bm{a^{(1)}} (\bm{\hat{o}} - \bm{o})^\top
         \end{equation}
         
         Similarly, we can use the chain rule as follows 
@@ -318,7 +317,7 @@
 
         where, from the chain rule, we realize
         \begin{equation}\label{7.2.12}
-            \frac{\partial L}{\partial \bm{a^{(1)}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial \bm{a^{(1)}}} = W_{\text{out}} (\bm{\hat{o}} - \bm{o})^\top
+            \frac{\partial L}{\partial \bm{a^{(1)}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial \bm{a^{(1)}}} = W_{\text{out}} (\bm{\hat{o}} - \bm{o})
         \end{equation}
     
         From \eqref{7.2.2} we get 
@@ -342,7 +341,154 @@
         where $\odot$ denotes element-wise multiplication.
 
         \item Compute the Back-propagation and apply Gradient descent with a learning rate of 0.1 to update the weights.
+        
+        Using the previously defined equations, we calculate 
+
+        \[
+        \frac{\partial L}{\partial \bm{z^{(2)}}} = \bm{\hat{o}} - \bm{o} = 
+        \begin{bmatrix}
+        0.45246896 \\ 0.54753104    
+        \end{bmatrix} - \begin{bmatrix}
+        1 \\ 0    
+        \end{bmatrix} = \begin{bmatrix}
+        -0.54753104 \\ 0.54753104
+        \end{bmatrix}
+        \]
+        \[
+            \frac{\partial L}{\partial W_{\text{out}}} = \bm{a^{(1)}}(\bm{\hat{o}} - \bm{o})^\top =
+            \begin{bmatrix}
+                0.05 \\ 0.35 \\ -0.002
+            \end{bmatrix} \cdot
+            \begin{bmatrix}
+                -0.54753104 \\ 0.54753104
+            \end{bmatrix}^\top = \begin{bmatrix}
+                -0.02737655 & 0.02737655 \\
+                -0.19163586 & 0.19163586 \\
+                0.00109506 & -0.00109506                    
+            \end{bmatrix}
+        \]
+        \[
+            \frac{\partial \bm{a^{(1)}}}{\partial \bm{z^{(1)}}} = 
+            \frac{\partial \bm{h}}{\partial \bm{z^{(1)}}} = 
+            \begin{bmatrix}
+                1. \\
+                1.0 \\
+                0.01 
+            \end{bmatrix}
+        \]
+        \[
+            \frac{\partial L}{\partial W_{\text{hidden}}} = 
+            \begin{bmatrix}
+                -1 \\ 1 
+            \end{bmatrix}\left[
+            \begin{bmatrix}
+                0.2 & 0.5 \\
+                -0.35 & 0.15 \\
+                0.15 & -0.2 
+            \end{bmatrix} \cdot
+            \begin{bmatrix}
+                -0.54753104 \\ 0.54753104
+            \end{bmatrix} \odot 
+            \begin{bmatrix}
+                1. \\
+                1. \\
+                0.01 
+            \end{bmatrix}\right]^\top = 
+            \begin{bmatrix}
+                -0.16425931 & -0.27376552 & 0.00191636 \\
+                0.16425931 & 0.27376552 & -0.00191636
+            \end{bmatrix}
+        \]
+
+        With these gradients, we update the weights like so 
+        \begin{align*}
+            W_{\text{hidden}} &= W_{\text{hidden}} - \, \alpha \, \frac{\partial L}{\partial W_{\text{hidden}}}
+            = 
+            \begin{bmatrix}
+                0.15 & -0.25 & 0.05 \\
+                0.2 & 0.1 & -0.15 
+            \end{bmatrix} - 0.1 \, \begin{bmatrix}
+                -0.16425931 & -0.27376552 & 0.00191636 \\
+                0.16425931 & 0.27376552 & -0.00191636
+            \end{bmatrix} = \dots \\
+            &= \begin{bmatrix}
+                0.16642593 & -0.22262345 & 0.04980836 \\
+                0.18357407 & 0.07262345 & -0.14980836
+            \end{bmatrix}
+        \end{align*}
+        \[
+            W_{\text{out}} = W_{\text{out}} - \, \alpha \, \frac{\partial L}{\partial W_{\text{out}}}
+            \begin{bmatrix}
+                0.2 & 0.5 \\
+                -0.35 & 0.15 \\
+                0.15 & -0.2
+            \end{bmatrix}
+            - 0.1 \, \begin{bmatrix}
+                -0.02737655 & 0.02737655 \\
+                -0.19163586 & 0.19163586 \\
+                 0.00109506 & -0.00109506
+            \end{bmatrix} = \begin{bmatrix}
+                0.20273766 & 0.49726234 \\
+                -0.33083641 & 0.13083641 \\
+                0.14989049 & -0.19989049
+            \end{bmatrix}
+        \]
+
         \item Perform Forward-propagation again with the updated weights and recompute the loss $L(2)$. Briefly explain your findings.
+            
+        Now let us perform Forward-propagation again
+        \begin{align*}
+            \bm{h} = 
+            \begin{bmatrix}
+            h_1 \\
+            h_2 \\
+            h_3 
+            \end{bmatrix}
+            &= \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}\left(W_{\text{hidden}}^\top\bm{x}\right) = 
+            \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}\left(
+                \begin{bmatrix}
+                    0.16642593 & -0.22262345 & 0.04980836 \\
+                    0.18357407 & 0.07262345 & -0.14980836
+                \end{bmatrix}^\top
+                \begin{bmatrix}
+                -1 \\
+                 1
+                \end{bmatrix}
+            \right) = \dots \\
+                &= \begin{bmatrix}
+                0.01714814 \\ 0.2952469 \\ -0.00199617
+                \end{bmatrix}
+        \end{align*}
+        \begin{align*}
+            \bm{\hat{o}} = 
+            \begin{bmatrix}
+            \hat{o}_1 \\
+            \hat{o}_2 
+            \end{bmatrix}
+            &= \mathtt{Softmax}\left(W_{\text{out}}^\top\bm{h}\right) = 
+            \mathtt{Softmax}\left(
+                \begin{bmatrix}
+                    0.20273766 & 0.49726234 \\
+                    -0.33083641 & 0.13083641 \\
+                    0.14989049 & -0.19989049
+                \end{bmatrix}^\top
+                \begin{bmatrix}
+                    0.01714814 \\ 0.2952469 \\ -0.00199617
+                \end{bmatrix}
+            \right) = \dots \\
+            &=
+            \begin{bmatrix}
+                    0.46454554 \\ 0.53545446
+            \end{bmatrix}
+        \end{align*}
+        
+        The loss $L(2)$ would be
+        \[
+            L(1) = -\sum_{i=1}^2 o_i \log{\hat{o}_i} = 1 \times \log{(0.46454554)} + 0 \times \log{(0.53545446)} = 0.76669568
+        \]
+        
+        As it should be expected, the loss $L$ decreases. The learning rate $\alpha$ might be too small. With code, we found that at the 1000-th iteration, the predicted $\bm{\hat{o}} \approx [0.999, 0.001]^\top$ with a loss $L \approx 0.00145$.
+        In fact, if we choose $\alpha = 1$, we would arrive at the 99-th iteration to a predicted $\bm{\hat{o}} \approx [0.999, 0.001]^\top$ with a loss $L \approx 0.00142$.
     \end{itemize}
 
 \end{homeworkProblem}

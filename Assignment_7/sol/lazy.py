@@ -1,30 +1,31 @@
 import numpy as np
 
+
 def relu(x):
-    return np.maximum(x, 0.01*x)
+    return np.maximum(x, 0.01 * x)
+
 
 def softmax(x):
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0)
 
+
 def mult(w, a):
     return w.T @ a
 
+
 def loss(a, y):
-    return -np.sum(y*np.log(a))
+    return -np.sum(y * np.log(a))
+
 
 alpha = 0.1
-iter = 10000
-
+iter = 4
 x = np.array([[-1], [1]])
 y = np.array([[1], [0]])
 
-w1 = np.array([[0.15, -0.25, 0.05],
-               [0.2, 0.1, -0.15]])
+w1 = np.array([[0.15, -0.25, 0.05], [0.2, 0.1, -0.15]])
 
-w2 = np.array([[0.2, 0.5],
-               [-0.35, 0.15],
-               [0.15, -0.2]])
+w2 = np.array([[0.2, 0.5], [-0.35, 0.15], [0.15, -0.2]])
 
 for i in range(iter):
     z1 = mult(w1, x)
@@ -55,14 +56,14 @@ for i in range(iter):
 
     # the terms we need to calculate are
     # dC/da2_j
-    dC_da2 = - y / a2
+    dC_da2 = -y / a2
 
     # da2_j/dz2_j (softmax)
     # da2_dz2 = ((np.sum(z2) - 1) / np.sum(z2)) * np.exp(z2) # this is wrong but minimizes in 3 steps
     da2_dz2 = a2 * (1 - a2)
     # da2_dz2 = ((np.sum(z2) - np.exp(z2)) * np.exp(z2) / (np.sum(z2)) ** 2) # this is wrong, overflows
 
-    # dz2_j/dW2_jk 
+    # dz2_j/dW2_jk
     dz2_dw2 = np.tile(a1, 2)
 
     # dz2_j/da1_k

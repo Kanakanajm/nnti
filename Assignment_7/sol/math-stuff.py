@@ -28,13 +28,15 @@ def mult(w, a):
     return w.T @ a
 
 
+verbose = False
+
 # Parameters
 W_hidden = w1 = np.array([[0.15, -0.25, 0.05], [0.2, 0.1, -0.15]])
 W_out = w2 = np.array([[0.2, 0.5], [-0.35, 0.15], [0.15, -0.2]])
 x = np.array([-1, 1])
 y_true = np.array([[1, 0]])
-alpha = 0.1
-max_iter = 1000
+alpha = 1
+max_iter = 100
 for i in range(max_iter):
     # Forward-Pass
     z1 = mult(w1, x)
@@ -52,6 +54,7 @@ for i in range(max_iter):
 
     # Backward-Pass
     dL_dz2 = a2 - y_true
+
     dz2_dw2 = a1.copy().reshape(-1, 1)
     dL_dw2 = dz2_dw2 @ dL_dz2
 
@@ -68,3 +71,22 @@ for i in range(max_iter):
 
     w1 -= alpha * dL_dw1
     w2 -= alpha * dL_dw2
+
+    if verbose:
+        print(f"z1 = mult(w1, x) = {z1}")
+        print(f"a1 = leaky_relu(z1) = {a1}")
+        print(f"z2 = mult(w2, a1) = {z2}")
+        print(f"a2 = softmax(z2) = {a2}")
+
+        print("")
+
+        print(f"dL_dz2 = a2 - y_true = {a2} - {y_true} = {dL_dz2}")
+        print(f"dL_dw2 = dz2_dw2 @ dL_dz2 = {dz2_dw2} @ {dL_dz2} = {dL_dw2}")
+
+        print(f"dL_da1 = dz2_da1 @ dL_dz2.T = {dz2_da1} @ {dL_dz2}.T = {dL_da1}")
+        print(f"da1_dz1 = {da1_dz1}")
+        print(
+            f"dL_dw1 = dz1_dw1 @ (dL_da1 * da1_dz1).T = {dz1_dw1} @ {(dL_da1 * da1_dz1)}.T = {dL_dw1}"
+        )
+        print(f"w1 -= alpha * dL_dw1 = {alpha} * {dL_dw1} = {w1}")
+        print(f"w2 -= alpha * dL_dw2 = {alpha} * {dL_dw2} = {w2}")
