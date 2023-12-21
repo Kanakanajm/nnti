@@ -1,0 +1,337 @@
+\documentclass{article}
+
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage[plain]{algorithm}
+\usepackage{algpseudocode}
+
+\usetikzlibrary{automata,positioning}
+
+
+%
+% Basic Document Settings
+%
+
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\linespread{1.1}
+
+\pagestyle{fancy}
+\lhead{\hmwkTeam}
+\chead{\hmwkClass: \hmwkTitle}
+\rhead{\firstxmark}
+\lfoot{\lastxmark}
+\cfoot{\thepage}
+
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\setlength\parindent{0pt}
+
+\newcommand{\setsep}{,    \ }
+
+%
+% Create Problem Sections
+%
+
+\newcommand{\enterProblemHeader}[1]{
+    \nobreak\extramarks{}{Problem \hmwkNumber.\arabic{#1} continued on next page\ldots}\nobreak{}
+    \nobreak\extramarks{Problem \hmwkNumber.\arabic{#1} (continued)}{Problem \hmwkNumber.\arabic{#1} continued on next page\ldots}\nobreak{}
+}
+
+\newcommand{\exitProblemHeader}[1]{
+    \nobreak\extramarks{Problem \hmwkNumber.\arabic{#1} (continued)}{Problem \hmwkNumber.\arabic{#1} continued on next page\ldots}\nobreak{}
+    \stepcounter{#1}
+    \nobreak\extramarks{Problem \hmwkNumber.\arabic{#1}}{}\nobreak{}
+}
+
+\setcounter{secnumdepth}{0}
+\newcounter{partCounter}
+\newcounter{homeworkProblemCounter}
+\setcounter{homeworkProblemCounter}{1}
+\nobreak\extramarks{Problem \arabic{homeworkProblemCounter}}{}\nobreak{}
+
+%
+% Homework Problem Environment
+%
+% This environment takes an optional argument. When given, it will adjust the
+% problem counter. This is useful for when the problems given for your
+% assignment aren't sequential. See the last 3 problems of this template for an
+% example.
+%
+\newenvironment{homeworkProblem}[2][-2]{
+    \ifnum#1>0
+        \setcounter{homeworkProblemCounter}{#1}
+    \fi
+    \section{Problem \hmwkNumber.\arabic{homeworkProblemCounter} #2}
+    \setcounter{partCounter}{1}
+    \enterProblemHeader{homeworkProblemCounter}
+}{
+    \exitProblemHeader{homeworkProblemCounter}
+}
+
+%
+% Homework Details
+%   - Title
+%   - Due date
+%   - Class
+%   - Section/Time
+%   - Instructor
+%   - Author
+%
+\newcommand{\hmwkNumber}{7}
+\newcommand{\hmwkTitle}{Exercise Sheet \hmwkNumber}
+\newcommand{\hmwkClass}{NNTI}
+\newcommand{\hmwkTeam}{Team \#25}
+\newcommand{\hmwkAuthorName}{\hmwkTeam: \\ Camilo Martínez 7057573, cama00005@stud.uni-saarland.de \\ Honglu Ma 7055053, homa00001@stud.uni-saarland.de}
+
+%
+% Title Page
+%
+
+\title{
+    % \vspace{2in}
+    \textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+}
+
+\author{\hmwkAuthorName}
+\date \today
+
+\renewcommand{\part}[1]{\textbf{\large Part \Alph{partCounter}}\stepcounter{partCounter}\\}
+
+%
+% Various Helper Commands
+%
+
+% Useful for algorithms
+\newcommand{\alg}[1]{\textsc{\bfseries \footnotesize #1}}
+
+% For derivatives
+\newcommand{\deriv}[1]{\frac{\mathrm{d}}{\mathrm{d}x} (#1)}
+
+% For partial derivatives
+\newcommand{\pderiv}[2]{\frac{\partial}{\partial #1} (#2)}
+
+% Integral dx
+\newcommand{\dx}{\mathrm{d}x}
+
+% Alias for the Solution section header
+\newcommand{\solution}{\textbf{\large Solution}}
+
+% Probability commands: Expectation, Variance, Covariance, Bias
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Bias}{\mathrm{Bias}}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{homeworkProblem}{- Maximum Likelihood Estimation and Cross-Entropy}
+
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{- Backpropagation}
+    Given the weights
+
+    \[
+        W_{hidden} = 
+        \begin{bmatrix}
+        0.15 & -0.25 & 0.05 \\
+        0.2 & 0.1 & -0.15 
+        \end{bmatrix}
+        \quad
+        W_{out} = 
+        \begin{bmatrix}
+        0.2 & 0.5 \\
+        -0.35 & 0.15 \\
+        0.15 & -0.2
+        \end{bmatrix}
+    \]
+
+    \begin{itemize}
+        \item Perform a Forward-propagation with the given input $\bm{x}$ and compute the loss $L(1)$.
+        \[
+            \bm{h} = 
+            \begin{bmatrix}
+            h_1 \\
+            h_2 \\
+            h_3 
+            \end{bmatrix}
+            = \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}\left(W_{hidden}^\top\bm{x}\right) = 
+            \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}\left(
+                \begin{bmatrix}
+                    0.15 & -0.25 & 0.05 \\
+                    0.2 & 0.1 & -0.15 
+                    \end{bmatrix}^\top
+                \begin{bmatrix}
+                -1 \\
+                 1
+                \end{bmatrix}
+            \right) =
+                \begin{bmatrix}
+                0.05 \\  
+                0.35 \\ 
+                -0.002  
+                \end{bmatrix}
+        \]
+
+        \[
+            \bm{\hat{o}} = 
+            \begin{bmatrix}
+            \hat{o}_1 \\
+            \hat{o}_2 
+            \end{bmatrix}
+            = \mathtt{Softmax}\left(W_{out}^\top\bm{h}\right) = 
+            \mathtt{Softmax}\left(
+                \begin{bmatrix}
+                    0.2 & 0.5 \\ 
+                    -0.35 & 0.15 \\ 
+                    0.15 & -0.2
+                \end{bmatrix}
+                \begin{bmatrix}
+                    0.05 \\  
+                    0.35 \\ 
+                    -0.002  
+                \end{bmatrix}
+            \right) =
+            \mathtt{Softmax}\left(
+                \begin{bmatrix}
+                    -0.1128 \\  
+                    0.0779
+                \end{bmatrix}
+            \right) =
+                \begin{bmatrix}
+                    0.45246896 \\ 
+                    0.54753104
+                \end{bmatrix}
+        \]
+        
+        With a one-hot encoded true label of 
+        \[
+            \bm{o} = \begin{bmatrix}
+                o_1 \\
+                o_2
+            \end{bmatrix} =
+            \begin{bmatrix}
+                1 \\ 
+                0
+            \end{bmatrix}
+        \]
+        
+        The loss $L(1)$ would be
+        \[
+            L(1) = -\sum_{i=1}^2 o_i \log{\hat{o}_i} = 1 \times \log{(0.45246896)} + 0 \times \log{(0.54753104)} = 0.79303612
+        \]
+        
+        \item Use the chain rule and write down the expressions used for back propagation.
+        
+        Let us first write the important equations for our Feedforward Neural Network:
+        \[
+            \bm{z^{(1)}} = W_{hidden}^\top \bm{x}
+        \]
+        \[
+            \bm{a^{(1)}} = \bm{h} = \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}(\bm{z^{(1)}})
+        \] 
+         \[
+            \bm{z^{(2)}} = W_{out}^\top \bm{a^{(1)}}
+        \]
+        \[
+            \bm{a^{(2)}} = \bm{\hat{o}} = \mathtt{Softmax}(\bm{z^{(2)}})
+        \]
+        \[
+            L = -\sum_{i=1}^2 o_i \log{\hat{o}_i}     
+        \]
+        
+        Now, let us first apply the chain-rule to obtain $\partial L / \partial \bm{z^{(2)}}$
+
+        \begin{equation}\label{7.2.1}
+            \frac{\partial L}{\partial \bm{z^{(2)}}} = \frac{\partial L}{\partial \bm{\hat{o}}}\frac{\partial \bm{\hat{o}}}{\partial \bm{z^{(2)}}}
+        \end{equation}
+
+        It is easy to see that 
+
+        \begin{equation}\label{7.2.2}
+            \frac{\partial L}{\partial \hat{o}_i} = -\frac{o_i}{\hat{o}_i}
+        \end{equation}
+
+        where $i$ is the position of the true label, since we know that the true output $\bm{o}$ is one-hot encoded (the true class labels are binary, i.e. 0 or 1), that is, the derivative becomes zero in every other $j$ position, where $i \neq j$.
+        
+        On the other hand, we know that the every $i$-th element of the predicted output $\bm{\hat{o}}$ is defined by 
+        \[
+            \hat{o}_i = \frac{e^{z^{(2)}_i}}{\sum_{k} e^{z^{(2)}_k}}
+        \]
+        
+        With this, we have to consider two cases for the derivative $\partial \hat{o} / \partial z_2$. When $i = j$, we are differentiating the softmax function applied to $\hat{o}_i$ with respect to its own logit (the class $i$), that means, we can apply standard derivation with the quotient rule as follows
+
+        \[
+        \frac{\partial \hat{o}_i}{\partial z^{(2)}_i} = \frac{e^{z^{(2)}_i} (\sum_{k} e^{z^{(2)}_k}) - e^{z^{(2)}_i}e^{z^{(2)}_i}}{(\sum_{k} e^{z^{(2)}_k})^2} = \hat{o}_i \left(1 - \hat{o}_i\right)
+        \]
+
+        When $i \neq j$, the derivative of the exponential $e^{z^{(2)}_i}$ for the $i$-th class with respect to the $j$-th element is 0, therefore
+
+        \[
+        \frac{\partial \hat{o}_i}{\partial z^{(2)}_j} = \frac{0 - e^{z^{(2)}_i}e^{z^{(2)}_j}}{(\sum_{k} e^{z^{(2)}_k})^2} = -\hat{o}_i \hat{o}_j
+        \]
+
+        Thus,
+
+        \begin{equation}\label{7.2.3}
+            \frac{\partial \hat{o}_i}{\partial z^{(2)}_j} = 
+            \begin{cases} 
+            \hat{o}_i(1 - \hat{o}_i) & \text{if } i = j \\
+            -\hat{o}_i \hat{o}_j & \text{if } i \neq j
+            \end{cases}
+        \end{equation}
+
+        Combining \eqref{7.2.2} and \eqref{7.2.3} into \eqref{7.2.1}, we get
+
+        \[
+        \frac{\partial L}{\partial z^{(2)}_i} = \sum_{i} \frac{\partial L}{\partial \hat{o}_i} \frac{\partial \hat{o}_i}{\partial z^{(2)}_i} = \sum_{i} \left( -\frac{o_i}{\hat{o}_i} \right) \frac{\partial \hat{o}_i}{\partial z^{(2)}_i} = -\frac{o_i}{\hat{o}_i} \hat{o}_i (1 - \hat{o}_i) - \sum_{j \neq i} \frac{o_i}{\hat{o}_i} (-\hat{o}_i \hat{o}_j) = -o_i (1 - \hat{o}_i) + \hat{o}_i \sum_{j \neq i} o_j
+        \]
+
+        Again, since the true labels are one-hot encoded, the term $\sum_{j \neq i} o_j$ becomes 0 for the $i$-th class and $o_i = 1$. Thus,
+
+        \[
+        \frac{\partial L}{\partial z^{(2)}_i} = -o_i + o_i \hat{o}_i + \hat{o}_i (0) = \hat{o}_i - o_i \rightarrow \frac{\partial L}{\partial \bm{z^{(2)}}} = \bm{\hat{o}} - \bm{o}
+        \]
+
+        We can use this result to state the following expression 
+
+        \[
+            \frac{\partial L}{\partial \bm{z^{(2)}}} = \frac{\partial L}{\partial \bm{\hat{o}}}\frac{\partial \bm{\hat{o}}}{\partial \bm{z^{(2)}}} = \frac{\partial L}{\partial W_{\text{out}}} = a_1^T \cdot \frac{\partial L}{\partial z_2}
+        \]
+        \[
+        \frac{\partial L}{\partial a_1} = W_{\text{out}}^T \cdot \frac{\partial L}{\partial z_2}
+        \]
+        \[
+        \frac{\partial h}{\partial z_1} = \begin{cases} 
+        1 & \text{for } z_1 > 0 \\
+        0.01 & \text{for } z_1 \leq 0
+        \end{cases}
+        \]
+        \[
+        \frac{\partial L}{\partial W_{\text{hidden}}} = x^T \cdot (\frac{\partial L}{\partial a_1} \odot \frac{\partial h}{\partial z_1})
+        \]
+
+        \item Compute the Back-propagation and apply Gradient descent with a learning rate of 0.1 to update the weights.
+        \item Perform Forward-propagation again with the updated weights and recompute the loss $L(2)$. Briefly explain your findings.
+    \end{itemize}
+
+\end{homeworkProblem}
+
+\end{document}
