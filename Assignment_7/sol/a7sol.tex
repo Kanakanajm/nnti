@@ -308,7 +308,7 @@
 
         On the other hand, from \eqref{7.2.3} we know that $\partial \bm{z^{(2)}} / \partial W_{\text{out}} = \bm{a^{(1)}}$. Therefore, we can state
         \begin{equation}\label{7.2.10}
-            \frac{\partial L}{\partial W_{\text{out}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial W_{out}} = \bm{a^{(1)}} \cdot (\bm{\hat{o}} - \bm{o})^\top
+            \frac{\partial L}{\partial W_{\text{out}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial W_{out}} = \bm{a^{(1)}} (\bm{\hat{o}} - \bm{o})^\top
         \end{equation}
         
         Similarly, we can use the chain rule as follows 
@@ -318,7 +318,7 @@
 
         where, from the chain rule, we realize
         \begin{equation}\label{7.2.12}
-            \frac{\partial L}{\partial \bm{a^{(1)}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial \bm{a^{(1)}}} = W_{\text{out}} (\bm{\hat{o}} - \bm{o})
+            \frac{\partial L}{\partial \bm{a^{(1)}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial \bm{a^{(1)}}} = W_{\text{out}} (\bm{\hat{o}} - \bm{o})^\top
         \end{equation}
     
         From \eqref{7.2.2} we get 
@@ -338,6 +338,8 @@
         \begin{equation}\label{7.2.15}
             \frac{\partial L}{\partial W_{\text{hidden}}} = \bm{x} \, \left[W_{\text{out}} (\bm{\hat{o}} - \bm{o}) \odot \frac{\partial \bm{h}}{\partial \bm{z^{(1)}}}\right]^\top
         \end{equation}
+
+        where $\odot$ denotes element-wise multiplication.
 
         \item Compute the Back-propagation and apply Gradient descent with a learning rate of 0.1 to update the weights.
         \item Perform Forward-propagation again with the updated weights and recompute the loss $L(2)$. Briefly explain your findings.
