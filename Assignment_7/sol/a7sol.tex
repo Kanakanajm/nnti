@@ -241,31 +241,29 @@
         \item Use the chain rule and write down the expressions used for back propagation.
         
         Let us first write the important equations for our Feedforward Neural Network:
-        \[
+        \begin{equation}\label{7.2.1}
             \bm{z^{(1)}} = W_{hidden}^\top \bm{x}
-        \]
-        \[
+        \end{equation}
+        \begin{equation}\label{7.2.2}
             \bm{a^{(1)}} = \bm{h} = \underset{\alpha = 0.01}{\mathtt{Leaky ReLU}}(\bm{z^{(1)}})
-        \] 
-         \[
+        \end{equation}
+        \begin{equation}\label{7.2.3}
             \bm{z^{(2)}} = W_{out}^\top \bm{a^{(1)}}
-        \]
-        \[
+        \end{equation}
+        \begin{equation}\label{7.2.4}
             \bm{a^{(2)}} = \bm{\hat{o}} = \mathtt{Softmax}(\bm{z^{(2)}})
-        \]
-        \[
+        \end{equation}
+        \begin{equation}\label{7.2.5}
             L = -\sum_{i=1}^2 o_i \log{\hat{o}_i}     
-        \]
+        \end{equation}
         
         Now, let us first apply the chain-rule to obtain $\partial L / \partial \bm{z^{(2)}}$
-
-        \begin{equation}\label{7.2.1}
+        \begin{equation}\label{7.2.6}
             \frac{\partial L}{\partial \bm{z^{(2)}}} = \frac{\partial L}{\partial \bm{\hat{o}}}\frac{\partial \bm{\hat{o}}}{\partial \bm{z^{(2)}}}
         \end{equation}
 
         It is easy to see that 
-
-        \begin{equation}\label{7.2.2}
+        \begin{equation}\label{7.2.7}
             \frac{\partial L}{\partial \hat{o}_i} = -\frac{o_i}{\hat{o}_i}
         \end{equation}
 
@@ -276,7 +274,7 @@
             \hat{o}_i = \frac{e^{z^{(2)}_i}}{\sum_{k} e^{z^{(2)}_k}}
         \]
         
-        With this, we have to consider two cases for the derivative $\partial \hat{o} / \partial z_2$. When $i = j$, we are differentiating the softmax function applied to $\hat{o}_i$ with respect to its own logit (the class $i$), that means, we can apply standard derivation with the quotient rule as follows
+        With this, we have to consider two cases for the derivative $\partial \hat{o} / \partial \bm{z^{(2)}}$. When $i = j$, we are differentiating the softmax function applied to $\hat{o}_i$ with respect to its own logit (the class $i$), that means, we can apply standard derivation with the quotient rule as follows
 
         \[
         \frac{\partial \hat{o}_i}{\partial z^{(2)}_i} = \frac{e^{z^{(2)}_i} (\sum_{k} e^{z^{(2)}_k}) - e^{z^{(2)}_i}e^{z^{(2)}_i}}{(\sum_{k} e^{z^{(2)}_k})^2} = \hat{o}_i \left(1 - \hat{o}_i\right)
@@ -289,8 +287,7 @@
         \]
 
         Thus,
-
-        \begin{equation}\label{7.2.3}
+        \begin{equation}\label{7.2.8}
             \frac{\partial \hat{o}_i}{\partial z^{(2)}_j} = 
             \begin{cases} 
             \hat{o}_i(1 - \hat{o}_i) & \text{if } i = j \\
@@ -298,35 +295,49 @@
             \end{cases}
         \end{equation}
 
-        Combining \eqref{7.2.2} and \eqref{7.2.3} into \eqref{7.2.1}, we get
+        Combining \eqref{7.2.7} and \eqref{7.2.8} into \eqref{7.2.6}, we get
 
         \[
         \frac{\partial L}{\partial z^{(2)}_i} = \sum_{i} \frac{\partial L}{\partial \hat{o}_i} \frac{\partial \hat{o}_i}{\partial z^{(2)}_i} = \sum_{i} \left( -\frac{o_i}{\hat{o}_i} \right) \frac{\partial \hat{o}_i}{\partial z^{(2)}_i} = -\frac{o_i}{\hat{o}_i} \hat{o}_i (1 - \hat{o}_i) - \sum_{j \neq i} \frac{o_i}{\hat{o}_i} (-\hat{o}_i \hat{o}_j) = -o_i (1 - \hat{o}_i) + \hat{o}_i \sum_{j \neq i} o_j
         \]
 
         Again, since the true labels are one-hot encoded, the term $\sum_{j \neq i} o_j$ becomes 0 for the $i$-th class and $o_i = 1$. Thus,
+        \begin{equation}\label{7.2.9}
+            \frac{\partial L}{\partial z^{(2)}_i} = -o_i + o_i \hat{o}_i + \hat{o}_i (0) = \hat{o}_i - o_i \rightarrow \frac{\partial L}{\partial \bm{z^{(2)}}} = \bm{\hat{o}} - \bm{o}
+        \end{equation}
 
-        \[
-        \frac{\partial L}{\partial z^{(2)}_i} = -o_i + o_i \hat{o}_i + \hat{o}_i (0) = \hat{o}_i - o_i \rightarrow \frac{\partial L}{\partial \bm{z^{(2)}}} = \bm{\hat{o}} - \bm{o}
-        \]
+        On the other hand, from \eqref{7.2.3} we know that $\partial \bm{z^{(2)}} / \partial W_{\text{out}} = \bm{a^{(1)}}$. Therefore, we can state
+        \begin{equation}\label{7.2.10}
+            \frac{\partial L}{\partial W_{\text{out}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial W_{out}} = \bm{a^{(1)}} \cdot (\bm{\hat{o}} - \bm{o})^\top
+        \end{equation}
+        
+        Similarly, we can use the chain rule as follows 
+        \begin{equation}\label{7.2.11}
+            \frac{\partial L}{\partial W_{\text{hidden}}} = \frac{\partial L}{\partial \bm{a^{(1)}}} \frac{\partial \bm{a^{(1)}}}{\partial \bm{z^{(1)}}} \frac{\partial \bm{z^{(1)}}}{\partial W_{\text{hidden}}}
+        \end{equation}
 
-        We can use this result to state the following expression 
+        where, from the chain rule, we realize
+        \begin{equation}\label{7.2.12}
+            \frac{\partial L}{\partial \bm{a^{(1)}}} = \frac{\partial L}{\partial \bm{z^{(2)}}} \frac{\partial \bm{z^{(2)}}}{\partial \bm{a^{(1)}}} = W_{\text{out}} (\bm{\hat{o}} - \bm{o})
+        \end{equation}
+    
+        From \eqref{7.2.2} we get 
+        \begin{equation}\label{7.2.13}
+            \frac{\partial \bm{a^{(1)}}}{\partial \bm{z^{(1)}}} = \frac{\partial \bm{h}}{\partial \bm{z^{(1)}}} = \begin{cases} 
+            1 & \text{for } z_i^{(1)} > 0 \\
+            0.01 & \text{for } z_i^{(1)} \leq 0
+            \end{cases}
+        \end{equation}
 
-        \[
-            \frac{\partial L}{\partial \bm{z^{(2)}}} = \frac{\partial L}{\partial \bm{\hat{o}}}\frac{\partial \bm{\hat{o}}}{\partial \bm{z^{(2)}}} = \frac{\partial L}{\partial W_{\text{out}}} = a_1^T \cdot \frac{\partial L}{\partial z_2}
-        \]
-        \[
-        \frac{\partial L}{\partial a_1} = W_{\text{out}}^T \cdot \frac{\partial L}{\partial z_2}
-        \]
-        \[
-        \frac{\partial h}{\partial z_1} = \begin{cases} 
-        1 & \text{for } z_1 > 0 \\
-        0.01 & \text{for } z_1 \leq 0
-        \end{cases}
-        \]
-        \[
-        \frac{\partial L}{\partial W_{\text{hidden}}} = x^T \cdot (\frac{\partial L}{\partial a_1} \odot \frac{\partial h}{\partial z_1})
-        \]
+        And from \eqref{7.2.1} we get 
+        \begin{equation}\label{7.2.14}
+            \frac{\partial \bm{z^{(1)}}}{\partial W_{\text{hidden}}} = \bm{x}
+        \end{equation}
+        
+        Finally, we can combine \eqref{7.2.12}, \eqref{7.2.13} and \eqref{7.2.14} to calculate the remaining gradient
+        \begin{equation}\label{7.2.15}
+            \frac{\partial L}{\partial W_{\text{hidden}}} = \bm{x} \, \left[W_{\text{out}} (\bm{\hat{o}} - \bm{o}) \odot \frac{\partial \bm{h}}{\partial \bm{z^{(1)}}}\right]^\top
+        \end{equation}
 
         \item Compute the Back-propagation and apply Gradient descent with a learning rate of 0.1 to update the weights.
         \item Perform Forward-propagation again with the updated weights and recompute the loss $L(2)$. Briefly explain your findings.
