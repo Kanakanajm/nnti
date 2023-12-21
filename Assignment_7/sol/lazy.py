@@ -14,6 +14,7 @@ def loss(a, y):
     return -np.sum(y*np.log(a))
 
 alpha = 0.1
+iter = 10000
 
 x = np.array([[-1], [1]])
 y = np.array([[1], [0]])
@@ -25,7 +26,7 @@ w2 = np.array([[0.2, 0.5],
                [-0.35, 0.15],
                [0.15, -0.2]])
 
-for i in range(10):
+for i in range(iter):
     z1 = mult(w1, x)
     a1 = relu(z1)
     z2 = mult(w2, a1)
@@ -57,7 +58,9 @@ for i in range(10):
     dC_da2 = - y / a2
 
     # da2_j/dz2_j (softmax)
-    da2_dz2 = ((np.sum(z2) - 1) / np.sum(z2)) * np.exp(z2)
+    # da2_dz2 = ((np.sum(z2) - 1) / np.sum(z2)) * np.exp(z2) # this is wrong but minimizes in 3 steps
+    da2_dz2 = a2 * (1 - a2)
+    # da2_dz2 = ((np.sum(z2) - np.exp(z2)) * np.exp(z2) / (np.sum(z2)) ** 2) # this is wrong, overflows
 
     # dz2_j/dW2_jk 
     dz2_dw2 = np.tile(a1, 2)
