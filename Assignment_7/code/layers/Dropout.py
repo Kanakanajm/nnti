@@ -14,11 +14,8 @@ class Dropout:
         """
         self.x = self.layer(x)
         # Create an array of random numbers from uniform distribution
-        random_array = np.random.uniform(0, 1, self.x.shape)
-        # Convert to 1s and 0s based on probability p
-        binary_array = (random_array <= self.p).astype(bool)
-        self.x[binary_array] = 0
-        return self.x
+        self.mask = (np.random.rand(*self.x.shape) > self.p) / (1 - self.p)
+        return self.x * self.mask
 
     def get_type(self):
         return "layer"
