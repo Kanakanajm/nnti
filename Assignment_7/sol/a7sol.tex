@@ -2,7 +2,7 @@
 
 \usepackage{fancyhdr}
 \usepackage{extramarks}
-\usepackage{amsmath}
+\usepackage{amsmath,siunitx}
 \usepackage{amsthm}
 \usepackage{bm}
 \usepackage{amssymb}
@@ -11,9 +11,12 @@
 \usepackage{tikz}
 \usepackage[plain]{algorithm}
 \usepackage{algpseudocode}
+\usepackage{changepage}
 
 \usetikzlibrary{automata,positioning}
 
+\usepackage{biblatex} 
+\addbibresource{bibliography.bib} % Import the bibliography file
 
 %
 % Basic Document Settings
@@ -142,6 +145,60 @@
 \maketitle
 
 \begin{homeworkProblem}{- Maximum Likelihood Estimation and Cross-Entropy}
+
+    \subsection*{(a)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+
+    Given a set of $m$ i.i.d. samples \( X = \{x^{(1)}, ..., x^{(m)}\} \) drawn a data-generating distribution \( p_{\text{data}}(x) \), the likelihood of the parameters \( \theta \) given the samples is defined as:
+
+    \[ L(\theta | X) = \prod_{i=1}^{m} p_{\text{model}}(x^{(i)}; \theta) \]
+    
+    Or, as a $\log{}$-likelihood which is easier to work with:
+    
+    \[ \ell(\theta) = \log L(\theta | X) = \sum_{i=1}^{m} \log p_{\text{model}}(x^{(i)}; \theta) \]
+
+    Then, the maximum likelihood estimator for \( \theta \) maximizes this likelihood:
+    
+    \begin{equation}\label{7.1.1} 
+        \hat{\theta} = \underset{\theta}{\rm argmax}\, \ell(\theta) = \underset{\theta}{\rm argmax}\, \sum_{i=1}^{m} \log p_{\text{model}}
+    \end{equation}
+    \end{adjustwidth}
+    
+    \subsection*{(b)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    The empirical distribution \( \hat{p}_{\text{data}}(x) \) is a non-parametric estimate of the distribution that is calculated using the amount of times a sample appears in the dataset. It is an initial estimate that uses the most basic definition of probability, that is, $\text{counts}/\text{total number of samples}$. The data-generating distribution is the true underlying probability distribution from which the samples are drawn. It is unknown and it is the one we are trying to learn with \( p_{\text{model}}(x; \theta) \).
+    \end{adjustwidth}
+
+    \subsection*{(c)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    We can multiply \eqref{7.1.1} by $1/m$ because the $\rm argmax$ does not change after rescaling the function we want to maximize. After doing this, effectively obtaining a \textit{mean}, we obtain a version of the criterion that is expressed as an expectation with respect to the empirical distribution \(\hat{p}_{\text{data}}\) defined by the training data \cite{Goodfellow-et-al-2016}:
+        
+    \begin{equation}\label{7.1.2}
+        \hat{\theta} = \underset{\theta}{\rm argmax}\, \frac{1}{m} \sum_{i=1}^{m} \log p_{\text{model}} = \underset{\theta}{\rm argmax}\, \mathbb{E}_{x \sim \hat{p}_{\text{data}}} \log p_{\text{model}}(x; \theta)
+    \end{equation}
+        
+    \end{adjustwidth}
+
+    \subsection*{(d)} 
+    \vspace*{-2em}
+    \begin{adjustwidth}{2.5em}{0pt}
+    The KL divergence is given by
+
+    \begin{equation}\label{7.1.3}
+        D_{KL}(\hat{p}_{\text{data}} \parallel p_{\text{model}}) = \mathbb{E}_{x \sim \hat{p}_{\text{data}}} \left[\log{\frac{\hat{p}_{\text{data}}(x)}{p_{\text{model}}(x)}}\right] = \mathbb{E}_{x \sim \hat{p}_{\text{data}}} [\log \hat{p}_{\text{data}} (x) - \log p_{\text{model}}(x)]
+    \end{equation}
+
+    The term on the left of \eqref{7.1.3} is a function only of the data-generating process, not the model. This means when we train the model to minimize the KL divergence, we need only minimize the following \cite{Goodfellow-et-al-2016}:
+    \[ -\mathbb{E}_{x \sim \hat{p}_{\text{data}}} [\log p_{\text{model}}(x)] \]
+    
+    which is of course the same as maximizing its positive counterpart:
+    \[ \mathbb{E}_{x \sim \hat{p}_{\text{data}}} [\log p_{\text{model}}(x)] \]
+    
+    which is equal to the same maximization process in \eqref{7.1.2}.
+    \end{adjustwidth}
 
 \end{homeworkProblem}
 
@@ -372,7 +429,7 @@
             \frac{\partial \bm{h}}{\partial \bm{z^{(1)}}} = 
             \begin{bmatrix}
                 1. \\
-                1. \\
+                1.o  \\
                 0.01 
             \end{bmatrix}
         \]
@@ -492,5 +549,7 @@
     \end{itemize}
 
 \end{homeworkProblem}
+
+\printbibliography
 
 \end{document}
