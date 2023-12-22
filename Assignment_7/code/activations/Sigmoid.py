@@ -6,10 +6,12 @@ class Sigmoid:
         pass
 
     def __call__(self, x):
-        raise NotImplementedError()
+        self.x = x
+        return 1 / (1 + np.exp(-self.x))
 
     def get_type(self):
         return "activation"
 
     def grad(self, in_gradient):
-        raise NotImplementedError()
+        y = 1 / (1 + np.exp(-self.x))
+        return in_gradient * (y * (1 - y))

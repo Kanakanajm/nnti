@@ -12,10 +12,10 @@ class MSELoss:
         self.y_true = y_true
         self.y_pred = y_pred
         self.n = y_true.shape[0]
-        return 1 / self.n * (y_true - y_pred) ** 2
+        return 1 / self.n * np.sum((y_true - y_pred) ** 2)
 
     def grad(self):
         """
         returns gradient equal to the the size of input vector (self.y_pred)
         """
-        return 2 * (self.y_pred - self.y_true)
+        return 2 / self.n * (self.y_pred - self.y_true)
