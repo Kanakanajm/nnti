@@ -191,8 +191,6 @@
     \end{align*}
     One can observe that before substracting the gradient $w_t$ is reduced by a constant $\eta\lambda$
 
-    \subsection*{(d)}
-    We only regularize weights, because regularizing the bias term would lead to significant underfitting \cite{Goodfellow-et-al-2016}. The reason is because, with a regularization term, we penalize weights with large values, effectively preventing the model from overfitting, since small changes to features no longer would produce large values, thus implying high variance in the model and causing overfitting. If we regularized the bias term, something similar would happen; the bias term would be dragged down to zero, because the loss now penalizes it. This will cause the line of best fit to move towards the origin and end up in a similar situation as fixing the bias to 0, which is the same as having started with a model without a bias, thus leading to underfitting.
     \subsection*{(c)}
     After single value decomposition with $X = U\Sigma V^T$ we have
     \begin{align*}
@@ -206,6 +204,10 @@
     We know that $U$ consists of the eigenvectors of $X^TX$ (i.e. $u_i$) and
     $\Sigma (\Sigma^2 + \lambda I)^{-1}\Sigma$ consists of $\frac{\sigma^2_i}{\sigma^2_i + \lambda}$ on its diagonal
     which $\sigma_i$ is the square root of the eigenvalue of $X^TX$
+
+    \subsection*{(d)}
+    We only regularize weights, because regularizing the bias term would lead to significant underfitting \cite{Goodfellow-et-al-2016}. The reason is because, with a regularization term, we penalize weights with large values, effectively preventing the model from overfitting, since small changes to features no longer would produce large values, thus implying high variance in the model and causing overfitting. If we regularized the bias term, something similar would happen; the bias term would be dragged down to zero, because the loss now penalizes it. This will cause the line of best fit to move towards the origin and end up in a similar situation as fixing the bias to 0, which is the same as having started with a model without a bias, thus leading to underfitting.
+    
 \end{homeworkProblem}
 
 \printbibliography
