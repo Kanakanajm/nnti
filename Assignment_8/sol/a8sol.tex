@@ -188,6 +188,19 @@
                 &=  (1 - \eta\lambda) w_t - \eta\nabla_w J
     \end{align*}
     One can observe that before substracting the gradient $w_t$ is reduced by a constant $\eta\lambda$
+    \subsection*{(c)}
+    After single value decomposition with $X = U\Sigma V^T$ we have
+    \begin{align*}
+        Xw^\ast &=  X(X^TX + \lambda I)^{-1}X^Ty\\
+                &=  U\Sigma V^T (V\Sigma U^TU\Sigma V^T + \lambda I)^{-1}V\Sigma U^Ty\\
+                &=  U\Sigma V^T (V\Sigma^2 V^T + \lambda I)^{-1}V\Sigma U^Ty\\
+                &=  U\Sigma V^T (V(\Sigma^2 + \lambda I)V^T)^{-1}V\Sigma U^Ty\\
+                &=  U\Sigma V^TV(\Sigma^2 + \lambda I)^{-1}V^TV\Sigma U^Ty\\
+                &=  U\Sigma (\Sigma^2 + \lambda I)^{-1}\Sigma U^Ty\\
+    \end{align*}
+    We know that $U$ consists of the eigenvectors of $X^TX$ (i.e. $u_i$) and
+    $\Sigma (\Sigma^2 + \lambda I)^{-1}\Sigma$ consists of $\frac{\sigma^2_i}{\sigma^2_i + \lambda}$ on its diagonal
+    which $\sigma_i$ is the square root of the eigenvalue of $X^TX$
 \end{homeworkProblem}
 
 \end{document}
