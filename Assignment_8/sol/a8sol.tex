@@ -179,8 +179,15 @@
     \end{align*}
     \subsection*{(b)}
     \begin{align*}
-        \nabla_w\tilde{J}  &=  \frac{\lambda}{2}\\
+        \nabla_w\tilde{J}  &=  \frac{\lambda}{2} \cdot 2w + \nabla_w J\\
+                           &=  \lambda w + \nabla_w J\\
     \end{align*}
+    Thus we have the weight update rule for the reularized loss
+    \begin{align*}
+        w_{t+1} &=  w_t - \eta(\lambda w_t + \nabla_w J)\\
+                &=  (1 - \eta\lambda) w_t - \eta\nabla_w J
+    \end{align*}
+    One can observe that before substracting the gradient $w_t$ is reduced by a constant $\eta\lambda$
 \end{homeworkProblem}
 
 \end{document}
