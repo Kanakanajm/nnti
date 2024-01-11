@@ -66,3 +66,6 @@ dkms.conf
 */sol/*.blg
 # Packed files
 *.zip
+
+# Special cases
+Assignment_8/data/
