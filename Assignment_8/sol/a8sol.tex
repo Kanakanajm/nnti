@@ -160,7 +160,27 @@
 
 \begin{homeworkProblem}{Regularization}
     \subsection*{(a)}
-    
+    \newcommand*{\evep}[1]{\mathbb{E}_\epsilon \left[#1\right]}
+    \newcommand*{\avgm}{\frac{1}{m}\sum_{i=1}^{m}}
+    To avoid confusion on indicies, we rewrite $\hat{y}$ as $\hat{y}(x_i, w) = w_0 + w^Tx_i$.
+    We have such derivation
+    \begin{align*}
+        \evep{J(w; \{x_i+\epsilon_i\}^m_{i=1}, y)}    &=  \evep{\avgm (y_i - w_0 - w^T(x_i + \epsilon_i))^2}\\
+                                                &=  \evep{\avgm (y_i - w_0 - w^Tx_i - w^T\epsilon_i)^2}\\
+                                                &=  \evep{\avgm ((y_i - \hat{y}(x_i, w)) - w^T\epsilon_i)^2}\\
+                                                &=  \evep{\avgm ((y_i - \hat{y}(x_i, w))^2 - 2(y_i - \hat{y}(x_i, w))(w^T\epsilon_i) +  (w^T\epsilon_i)^2)}\\
+                                                &=  \evep{\avgm ((y_i - \hat{y}(x_i, w))^2)} - \evep{\avgm 2(y_i - \hat{y}(x_i, w))(w^T\epsilon_i)} +  \evep{\avgm((w^T\epsilon_i)^2)}\\
+                                                &=  \avgm ((y_i - \hat{y}(x_i, w))^2) - \avgm 2(y_i - \hat{y}(x_i, w))(w^T\evep{\epsilon_i}) +  \evep{\avgm (w^T\epsilon_iw^T\epsilon_i)}\\
+                                                &=  \avgm ((y_i - \hat{y}(x_i, w))^2) - \avgm 2(y_i - \hat{y}(x_i, w))(w^T\evep{\epsilon_i}) +  \evep{\avgm (w^T\epsilon_i^T\epsilon_iw)}\\
+                                                &=  \avgm ((y_i - \hat{y}(x_i, w))^2) - \avgm 2(y_i - \hat{y}(x_i, w))(w^T\evep{\epsilon_i}) +  \avgm (w^T\evep{\epsilon_i^T\epsilon_i}w)\\
+                                                &=  \avgm ((y_i - \hat{y}(x_i, w))^2) - \avgm 2(y_i - \hat{y}(x_i, w))(w^T \cdot 0) +  \avgm (w^T\sigma^2Iw)\\
+                                                &=  \avgm ((y_i - \hat{y}(x_i, w))^2) +  \avgm (\sigma^2w^TIw)\\
+                                                &=  \avgm ((y_i - \hat{y}(x_i, w))^2 + \sigma^2w^Tw)\\
+    \end{align*}
+    \subsection*{(b)}
+    \begin{align*}
+        \nabla_w\tilde{J}  &=  \frac{\lambda}{2}\\
+    \end{align*}
 \end{homeworkProblem}
 
 \end{document}
