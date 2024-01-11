@@ -207,7 +207,16 @@
 
     \subsection*{(d)}
     We only regularize weights, because regularizing the bias term would lead to significant underfitting \cite{Goodfellow-et-al-2016}. The reason is because, with a regularization term, we penalize weights with large values, effectively preventing the model from overfitting, since small changes to features no longer would produce large values, thus implying high variance in the model and causing overfitting. If we regularized the bias term, something similar would happen; the bias term would be dragged down to zero, because the loss now penalizes it. This will cause the line of best fit to move towards the origin and end up in a similar situation as fixing the bias to 0, which is the same as having started with a model without a bias, thus leading to underfitting.
-    
+\end{homeworkProblem}
+\begin{homeworkProblem}{Data Augmentation}
+    \subsection*{(a)}
+    By appending it back to the dataset with the original label, The model may overfit to the augmentated data.
+    An improvement on this could be use the apply augmentation directly at the data.
+    \subsection*{(b)}
+    Applying augmentation to the training set is to increase the variance of our model,
+    thus make it not overfit. By applying augmentation to the test set as well,
+    the test set and training set may share similar distribution,
+    i.e. our model may overfit to the data after augmentation.
 \end{homeworkProblem}
 
 \printbibliography

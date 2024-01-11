@@ -8,12 +8,21 @@ from torchvision.datasets import MNIST
 from torch.utils.data import Subset
 
 from assignment8 import training_loop
-
+import itertools
 
 # 8.5
 def hyperparameter_search(train_set, test_set):
     # Your code here
-    raise NotImplementedError
+    lrs = [0.001, 0.002, 0.005, 0.01]
+    wds = [0.0, 0.01, 0.1, 1]
+    for lr, wd in list(itertools.product(lrs, wds)):
+        training_loop(
+        train_set, test_set, 
+        epochs=100, 
+        batch_size=32,
+        learning_rate=lr,
+        weight_decay=wd, 
+        early_stopping_patience=1)
 
 
     
