@@ -15,6 +15,8 @@
 
 \usetikzlibrary{automata,positioning}
 
+\usepackage{biblatex} 
+\addbibresource{bibliography.bib} % Import the bibliography file
 
 %
 % Basic Document Settings
@@ -175,7 +177,7 @@
                                                 &=  \avgm ((y_i - \hat{y}(x_i, w))^2) - \avgm 2(y_i - \hat{y}(x_i, w))(w^T\evep{\epsilon_i}) +  \avgm (w^T\evep{\epsilon_i^T\epsilon_i}w)\\
                                                 &=  \avgm ((y_i - \hat{y}(x_i, w))^2) - \avgm 2(y_i - \hat{y}(x_i, w))(w^T \cdot 0) +  \avgm (w^T\sigma^2Iw)\\
                                                 &=  \avgm ((y_i - \hat{y}(x_i, w))^2) +  \avgm (\sigma^2w^TIw)\\
-                                                &=  \avgm ((y_i - \hat{y}(x_i, w))^2 + \sigma^2w^Tw)\\
+                                                &=  \avgm ((y_i - \hat{y}(x_i, w))^2 + \sigma^2w^Tw)
     \end{align*}
     \subsection*{(b)}
     \begin{align*}
@@ -188,6 +190,11 @@
                 &=  (1 - \eta\lambda) w_t - \eta\nabla_w J
     \end{align*}
     One can observe that before substracting the gradient $w_t$ is reduced by a constant $\eta\lambda$
+
+    \subsection*{(d)}
+    We only regularize weights, because regularizing the bias term would lead to significant underfitting \cite{Goodfellow-et-al-2016}. The reason is because, with a regularization term, we penalize weights with large values, effectively preventing the model from overfitting, since small changes to features no longer would produce large values, thus implying high variance in the model and causing overfitting. If we regularized the bias term, something similar would happen; the bias term would be dragged down to zero, because the loss now penalizes it. This will cause the line of best fit to move towards the origin and end up in a similar situation as fixing the bias to 0, which is the same as having started with a model without a bias, thus leading to underfitting.
 \end{homeworkProblem}
+
+\printbibliography
 
 \end{document}
