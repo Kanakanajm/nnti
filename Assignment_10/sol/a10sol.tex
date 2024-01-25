@@ -2,7 +2,7 @@
 
 \usepackage{fancyhdr}
 \usepackage{extramarks}
-\usepackage{amsmath}
+\usepackage{amsmath,siunitx}
 \usepackage{amsthm}
 \usepackage{bm}
 \usepackage{amssymb}
@@ -11,6 +11,7 @@
 \usepackage{tikz}
 \usepackage[plain]{algorithm}
 \usepackage{algpseudocode}
+\usepackage{changepage}
 
 \usetikzlibrary{automata,positioning}
 
@@ -136,12 +137,81 @@
 \newcommand{\Cov}{\mathrm{Cov}}
 \newcommand{\Bias}{\mathrm{Bias}}
 
+\newenvironment{homeworkSubsection}{\begin{adjustwidth}{2.5em}{0pt}}{\end{adjustwidth}}
 
 \begin{document}
 
 \maketitle
 
-% \begin{homeworkProblem}{}
-% \end{homeworkProblem}
+\begin{homeworkProblem}{Initialization}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+        An initialization of zero for all weights will result in a zero output in each layer.
+        One can calculate that the gradients for each weight are also zero thus the network is not improving.
+    \end{homeworkSubsection}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+    For networks with ReLU, a small constant is usually used to initialize bias so that ReLU will not output zero 
+    and the gradient will not be zero as well.
+    \end{homeworkSubsection}
+\end{homeworkProblem}
+
+\begin{homeworkProblem}{Convolutional Neural Networks}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+        CNNs are well suited for images because the output after each convolution can represent specific features of the image.
+        Instead of reducing the input size by preprocessing the image (the input size is huge) into features (the size is relatively small)
+        before feed it into a feed forward neural network (usually we have to decide which feature to extract),
+        we use kernels to extract features on the go and let the network to learn/decide how the kernels look like (which features they give).
+    \end{homeworkSubsection}
+
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        One can represent such convolution in matrix multiplication form as:
+        \[
+            \begin{pmatrix}
+                w_1 & w_2 & 0 & w_3 & w_4 & 0 & 0 & 0 & 0\\
+                0 & w_1 & w_2 & 0 & w_3 & w_4 & 0 & 0 & 0\\
+                0 & 0 & 0 & w_1 & w_2 & 0 & w_3 & w_4 & 0\\
+                0 & 0 & 0 & 0 & w_1 & w_2 & 0 & w_3 & w_4 \\
+            \end{pmatrix}
+            \cdot
+            \begin{pmatrix}
+                x_1\\
+                x_2\\
+                x_3\\
+                x_4\\
+                x_5\\
+                x_6\\
+                x_7\\
+                x_8\\
+                x_9\\
+            \end{pmatrix}
+        \]
+    \end{homeworkSubsection}
+    
+    \subsection*{(c)}
+    \begin{homeworkSubsection}
+        \textbf{Proof by Induction}\\
+        \textbf{Base Step: $l = 1$}\\
+        Both formulas give the equality: $R_1 = R_0 + (k - 1)s_1$\\
+        \textbf{Induction Step: $l = n$}\\
+        Now assume that $R_n = 1 + (k - 1) \sum_{j=1}^{n-1}\prod_{i=1}^{j}s_i$.
+        And we want to prove that it holds for the case $R_{n+1}$.
+        \begin{align*}
+            R_{n+1} &= R_n + (k - 1)\prod_{i=1}^{n}s_i\\
+                    &= 1 + (k - 1) \sum_{j=1}^{n-1}\prod_{i=1}^{j}s_i + (k - 1)\prod_{i=1}^{n}s_i\\
+                    &= 1 + (k - 1) \sum_{j=1}^{n}\prod_{i=1}^{j}s_i\\
+        \end{align*}
+    \end{homeworkSubsection}
+    
+    \subsection*{(d)}
+    \begin{homeworkSubsection}
+        The output shape is 28x28x30 as you have 10 5x5 kernels, 
+        each of them will give you 28x28x3 output and after stacking the 10 result together depthwise, 
+        we get 28x28x30.
+        The number of parameters is 2500 as we have 10 5x5 kernels.
+    \end{homeworkSubsection}
+\end{homeworkProblem}
 
 \end{document}
