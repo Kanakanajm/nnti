@@ -1,5 +1,7 @@
 # py
-__pycache__/
+**/__pycache__/
+**/env/
+
 # Prerequisites
 *.d
 
@@ -69,3 +71,4 @@ dkms.conf
 
 # Special cases
 Assignment_8/data/
+Assignment_10/data/
