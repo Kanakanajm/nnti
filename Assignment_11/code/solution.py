@@ -1,11 +1,11 @@
-import random
 import torch
 import pickle
-import os
+# import os
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
-from corpus import load, IMDBTrainCorpus, IMDBTestCorpus, IMDBTrainLabels, IMDBTestLabels
-
+from torch.nn.utils.rnn import pad_sequence
+# from corpus import load, IMDBTrainCorpus, IMDBTestCorpus, IMDBTrainLabels, IMDBTestLabels
+from corpus import load
 
 w2vmodel = load()
 
@@ -27,23 +27,29 @@ class IMDBDataset(Dataset):
 
 BATCH_SIZE = 64
 
+def pad_collate(batch):
+  (xx, yy) = zip(*batch)
+  xx_pad = pad_sequence(xx, batch_first=True, padding_value=0)
+
+  return xx_pad, torch.Tensor(yy)
+
 class IMDBSentimentModel(nn.Module):
     def __init__(self):
         super(IMDBSentimentModel, self).__init__()
-        self.rnn = nn.RNN(100, 200, batch_first=True)
-        self.fc = nn.Linear(200, 10)
+        self.rnn = nn.RNN(100, 10, batch_first=True)
+        # self.fc = nn.Linear(1, 10)
 
     def init_hidden(self, batch_size):
-        hidden = torch.zeros(1, batch_size, 200)
+        hidden = torch.randn(1, batch_size, 10)
         return hidden
     
     def forward(self, x):
             batch_size = x.size(0)
-            # hidden = self.init_hidden(batch_size)
-            hidden = torch.randn(1, 200)
+            hidden = self.init_hidden(batch_size)
+
             out, _ = self.rnn(x, hidden)
             
-            return self.fc(out[-1, :])
+            return out[:, -1, :]
 
 def save_pickle(obj, filename):
     with open(filename, 'wb') as file:
@@ -64,49 +70,70 @@ TRAIN_DATA_PICKLE = 'train_data.pkl'
 TEST_DATA_PICKLE = 'test_data.pkl'
 
 
-
-
 train_data = load_pickle(TRAIN_DATA_PICKLE)
-# test_data = load_pickle(TEST_DATA_PICKLE)
+test_data = load_pickle(TEST_DATA_PICKLE)
 print("Dataset loaded")
 
-# train_dataloader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
-# test_dataloader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True)
-print("Dataloader loaded")
+train_dataloader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, collate_fn=pad_collate)
+test_dataloader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True, collate_fn=pad_collate)
+
+MODEL_FILE = 'imdb_sentiment.model'
+
+def train():
+    # Define hyperparameters
+    n_epochs = 2
+    lr=0.001
+
+    model = IMDBSentimentModel()
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr)
+
+    model.train()
+    print("Start Training")
+    for epoch in range(n_epochs):
+        running_loss = 0.0
+        for i, data in enumerate(train_dataloader):
+            optimizer.zero_grad()
+
+            inputs, labels = data
+            outputs = model(inputs)
+            loss = criterion(outputs, nn.functional.one_hot(labels.long() - 1, num_classes = 10).float())
+            loss.backward() 
+            optimizer.step()
+
+            running_loss += loss.item()
+            if i%100 == 99:
+                print('Epoch: {}/{} Training Sample {}.............'.format(epoch+1, n_epochs, i+1), end=' ')
+                print("Loss: {:.4f}".format(running_loss / 100))
+                running_loss = 0.0
+
+    print('Finished Training')
+    torch.save(model, MODEL_FILE)
+    print('Saved model to' + MODEL_FILE)
+    return model
+
+def evaluate(model: IMDBSentimentModel):
+    print('Evaluating')
+    model.eval()
+
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for i, data in enumerate(train_dataloader):
+            inputs, labels = data
+            outputs = model(inputs)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
 
 
-# Define hyperparameters
-# n_epochs = 2
-lr=0.01
-
-model = IMDBSentimentModel()
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-
-print("Start training")
-# for epoch in range(n_epochs):
-#     for i, data in enumerate(train_dataloader):
-#         optimizer.zero_grad() # Clears existing gradients from previous epoch
-
-#         inputs, labels = data
-#         outputs = model(inputs)
-#         loss = criterion(outputs, labels)
-#         loss.backward() 
-#         optimizer.step()
+    print('Accuracy: %d %%' % (
+        100 * correct / total))
     
-#         if i%10 == 0:
-#             print('Epoch: {}/{} Training Sample {}.............'.format(epoch, n_epochs, i), end=' ')
-#             print("Loss: {:.4f}".format(loss.item()))
+model = train()
+# model = torch.load(MODEL_FILE)
+evaluate(model)
 
-for i in range(1000):
-    idx = random.randint(0, 25000)
-    optimizer.zero_grad() # Clears existing gradients from previous epoch
-    input, label = train_data[idx]
-    output = model(input)
-    loss = criterion(output, torch.eye(10)[label - 1])
-    loss.backward() 
-    optimizer.step()
 
-    if i%10 == 0:
-        print('Training Sample {}.............'.format(i), end=' ')
-        print("Loss: {:.4f}".format(loss.item()))
+
+
