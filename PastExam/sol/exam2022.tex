@@ -1,0 +1,261 @@
+\documentclass{article}
+
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\usepackage{amsmath,siunitx}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage[plain]{algorithm}
+\usepackage{algpseudocode}
+\usepackage{changepage}
+\usepackage{color}
+
+
+\usetikzlibrary{automata,positioning}
+
+
+%
+% Basic Document Settings
+%
+
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\linespread{1.1}
+
+\pagestyle{fancy}
+% \lhead{\hmwkTeam}
+\chead{\hmwkClass: \hmwkTitle}
+\rhead{\firstxmark}
+\lfoot{\lastxmark}
+\cfoot{\thepage}
+
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\setlength\parindent{0pt}
+
+\newcommand{\setsep}{,    \ }
+
+%
+% Create Problem Sections
+%
+
+\newcommand{\enterProblemHeader}[1]{
+    \nobreak\extramarks{}{Problem \hmwkNumber.\arabic{#1} continued on next page\ldots}\nobreak{}
+    \nobreak\extramarks{Problem \hmwkNumber.\arabic{#1} (continued)}{Problem \hmwkNumber.\arabic{#1} continued on next page\ldots}\nobreak{}
+}
+
+\newcommand{\exitProblemHeader}[1]{
+    \nobreak\extramarks{Problem \hmwkNumber.\arabic{#1} (continued)}{Problem \hmwkNumber.\arabic{#1} continued on next page\ldots}\nobreak{}
+    \stepcounter{#1}
+    \nobreak\extramarks{Problem \hmwkNumber.\arabic{#1}}{}\nobreak{}
+}
+
+\setcounter{secnumdepth}{0}
+\newcounter{partCounter}
+\newcounter{homeworkProblemCounter}
+\setcounter{homeworkProblemCounter}{1}
+\nobreak\extramarks{Problem \arabic{homeworkProblemCounter}}{}\nobreak{}
+
+%
+% Homework Problem Environment
+%
+% This environment takes an optional argument. When given, it will adjust the
+% problem counter. This is useful for when the problems given for your
+% assignment aren't sequential. See the last 3 problems of this template for an
+% example.
+%
+\newenvironment{homeworkProblem}[2][-2]{
+    \ifnum#1>0
+        \setcounter{homeworkProblemCounter}{#1}
+    \fi
+    \section{Problem \hmwkNumber.\arabic{homeworkProblemCounter} #2}
+    \setcounter{partCounter}{1}
+    \enterProblemHeader{homeworkProblemCounter}
+}{
+    \exitProblemHeader{homeworkProblemCounter}
+}
+
+%
+% Homework Details
+%   - Title
+%   - Due date
+%   - Class
+%   - Section/Time
+%   - Instructor
+%   - Author
+%
+\newcommand{\hmwkNumber}{E22}
+\newcommand{\hmwkTitle}{Exam 2022}
+\newcommand{\hmwkClass}{NNTI}
+% \newcommand{\hmwkTeam}{Team \#25}
+\newcommand{\hmwkAuthorName}{Jackie, Camilo, Kai, Dhimitrios, Hevra}
+
+%
+% Title Page
+%
+
+\title{
+    % \vspace{2in}
+    \textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+}
+
+\author{\hmwkAuthorName}
+\date \today
+
+\renewcommand{\part}[1]{\textbf{\large Part \Alph{partCounter}}\stepcounter{partCounter}\\}
+
+%
+% Various Helper Commands
+%
+
+% Useful for algorithms
+\newcommand{\alg}[1]{\textsc{\bfseries \footnotesize #1}}
+
+% For derivatives
+\newcommand{\deriv}[1]{\frac{\mathrm{d}}{\mathrm{d}x} (#1)}
+
+% For partial derivatives
+\newcommand{\pderiv}[2]{\frac{\partial}{\partial #1} (#2)}
+
+% Integral dx
+\newcommand{\dx}{\mathrm{d}x}
+
+% Alias for the Solution section header
+\newcommand{\solution}{\textbf{\large Solution}}
+
+% Probability commands: Expectation, Variance, Covariance, Bias
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Bias}{\mathrm{Bias}}
+
+\newenvironment{homeworkSubsection}{\begin{adjustwidth}{2.5em}{0pt}}{\end{adjustwidth}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\begin{document}
+
+\maketitle
+
+\begin{homeworkProblem}{Short questions}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+        (i) is not a good candidate because the derivative is 0 that will make gradient vanish.
+        (ii)'s \red{derivative is linear, is it a candidate?}.
+        (iii) \red{is similar to sigmod, I am not sure}.
+    \end{homeworkSubsection}
+    \subsection*{\red{(b)}}
+    \subsection*{\red{(c)}}
+    \subsection*{(d)}
+    \begin{homeworkSubsection}
+        (i) No because the number of weights depends on the dimension of the kernels.\\
+        \red{(ii)}\\
+        (iii) No because it only affects output dimension.
+        (iv) No because it only affects output dimension.
+    \end{homeworkSubsection}
+    \subsection*{(e)}
+    \begin{homeworkSubsection}
+        Datasets that are not linearly separable are difficult for a linear classifier to correctly
+        classify.
+    \end{homeworkSubsection}
+    \subsection*{(f)}
+    \begin{homeworkSubsection}
+        Because it is computationally expensive.
+    \end{homeworkSubsection}
+    \subsection*{(g)}
+    \begin{homeworkSubsection}
+        Max pooling can make the kernels pick up feature even if it is rotated.
+    \end{homeworkSubsection}
+    \subsection*{(h)}
+    \begin{homeworkSubsection}
+        It is not a good idea because sigmoid's exponential term may be overflow.
+    \end{homeworkSubsection}
+    \subsection*{\red{(i)}}
+    \subsection*{\red{(j)}}
+\end{homeworkProblem}
+\begin{homeworkProblem}{\red{Principal Component Analysis (PCA)}}
+    
+\end{homeworkProblem}
+\begin{homeworkProblem}{Machine Learning Basics}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+        We have the loss function $J(w) = \frac{1}{n}||Xw-y||^2_2 + \lambda w^\top w$.
+        We can find the $w$ minimizes $J(W)$ by setting the gradient $\nabla_wJ(w) = 0$.
+        \begin{align*}
+            \nabla_wJ(w) &= 0\\
+            \frac{2}{n}X^\top(Xw-y) + 2\lambda w &= 0\\
+            X^\top Xw-X^\top y + n\lambda w &= 0\\
+            (X^\top X + n\lambda I)w-X^\top y &= 0\\
+            (X^\top X + n\lambda I)w &= X^\top y \\
+            w  &=(X^\top X + n\lambda I)^{-1}X^\top y\\
+        \end{align*}
+    \end{homeworkSubsection}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        The equation is the same as $J(w) = \frac{1}{2}||Xw-y||^2_2 + \alpha ||w||_1  + \frac{\lambda}{2}w^Tw$.
+        One can observe that there is an L1 norm in the equation.
+        The derivative of L1 norm cannot be expressed as a closed form because it depends on the sign of each element in vector $w$.
+    \end{homeworkSubsection}
+    \subsection*{(c)}
+    \begin{homeworkSubsection}
+        Now we have the $J(w) = \frac{1}{n}||Xw-y||^2_2 + \lambda w^\top T w$.
+        Similarly we solve $\nabla_wJ(w) = 0$.
+        \begin{align*}
+            \frac{2}{n}X^\top(Xw-y) + \lambda (T + T^\top)w &= 0\\
+            X^\top(Xw-y) + \frac{n\lambda}{2} (2T)w &= 0\\
+            X^\top Xw- X^\top y + n\lambda Tw &= 0\\
+            (X^\top X + n\lambda T)w &= X^\top y\\
+            w &= (X^\top X + n\lambda T)^{-1}X^\top y\\
+        \end{align*}
+    \end{homeworkSubsection}
+    \subsection*{(d)}
+    \begin{homeworkSubsection}
+        We can rewrite $w^\top w$ as $w^\top (ww^\top)^{\gamma-1} w$.
+        Since $(ww^\top)^{\gamma-1}$ is symmetric matrix we can reuse the result from (c) and get
+        \[
+            w = (X^\top X + n\lambda (ww^\top)^{\gamma-1})^{-1}X^\top y\\
+        \]
+    \end{homeworkSubsection}
+\end{homeworkProblem}
+\begin{homeworkProblem}{Feed-Forward Neural Networks}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+        A deep nn can be computationally effecient as it can learn the same function with fewer parameters \red{Why?}
+    \end{homeworkSubsection}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        A saddle point is when the gradient is 0 (derivatives are 0 in both x and y direction)
+        but the second derivatives in x and y direction are of different sign.
+        As the gradient is 0, it may stop the gradient descent process even though it is not at a minimal.
+    \end{homeworkSubsection}
+    \subsection*{\red{(c)}}
+    \subsection*{(d)}
+    \begin{homeworkSubsection}
+        MSE (Mean square error) measures the euclidean distance between the true value and the predicted one.
+        It can be used for regression task.
+        \red{Cross Entropy} can be used for classification task.
+    \end{homeworkSubsection}
+    \subsection*{(e)}
+    \begin{homeworkSubsection}
+        Quoted from Assignment 5.2:\\
+        \textit{Consider a Neural Network with a single hidden layer consisting of M neurons and tanh
+        activation function.For any neuron in the hidden layer, simultaneous change of sign of input
+        and output weights from the neuron leads to no change in the output layer therefore producing
+        an equivalent transformation.Similarly, for any pair of neurons interchange of input weights
+        between the neurons and simultaneous interchange of output weights produces an equivalent
+        transformation}
+    \end{homeworkSubsection}
+    \begin{homeworkSubsection}
+    \end{homeworkSubsection}
+\end{homeworkProblem}
+
+
+\end{document}
