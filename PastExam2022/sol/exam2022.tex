@@ -149,17 +149,30 @@
     \subsection*{(a)}
     \begin{homeworkSubsection}
         (i) is not a good candidate because the derivative is 0 that will make gradient vanish.
-        (ii)'s \red{derivative is linear, is it a candidate?}.
-        (iii) \red{is similar to sigmod, I am not sure}.
+        (ii) is not a good candidate because the network is limited to learn only quadratic functions.
+        (iii) Uhh.. what is the normal distribution formular doing here?
     \end{homeworkSubsection}
-    \subsection*{\red{(b)}}
-    \subsection*{\red{(c)}}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        (ii) is correct because a deep network will face a problem called covariance shift
+        , that is the variance of the intermediate layer output may change after the weights from the previous layer being updated.
+        Batch norm make sure that the variance of such layer so we can introduce a higher learning rate to the network
+        thus speeds up the convergence.
+    \end{homeworkSubsection}
+    \subsection*{(c)}
+    \begin{homeworkSubsection}
+        Batch Size = 1? The batch norm video from Andrew Ng says batch norm is applied to the intermediate layer output. Confused.
+    \end{homeworkSubsection}
     \subsection*{(d)}
     \begin{homeworkSubsection}
-        (i) No because the number of weights depends on the dimension of the kernels.\\
-        \red{(ii)}\\
+        (i) Yes because the kernel depth has to match the input volumn depth
+
+        (ii) Yes, usually one bias per kernel/filter.
+
         (iii) No because it only affects output dimension.
+
         (iv) No because it only affects output dimension.
+
     \end{homeworkSubsection}
     \subsection*{(e)}
     \begin{homeworkSubsection}
@@ -181,8 +194,46 @@
     \subsection*{\red{(i)}}
     \subsection*{\red{(j)}}
 \end{homeworkProblem}
-\begin{homeworkProblem}{\red{Principal Component Analysis (PCA)}}
-    
+\begin{homeworkProblem}{Principal Component Analysis (PCA)}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+        The first assumption is that the dataset are centered at 0
+        i.e. the mean is substracted from each data point
+        because PCA trys to project the points on the the pca hyperplane (or line)
+        so that the variance of the original dataset does not change much
+        and the new axes are go through the original.
+
+        The second one is that the dataset is normalized
+        because different variables (axes) have different scales.
+        Their covariances are not comparable if the data are not under the same scale.
+    \end{homeworkSubsection}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        The objective function is given by:
+        \[
+            \underset{D}{\mathrm{argmin}}\underset{i}{\sum}||x^{(i)}-DD^\top x^{(i)}||
+        \]
+        where matrix $D \in \mathbb{R}^{m\times l}$ and vectors $x^{(i)} \in \mathbb{R}^{m}$.
+        We are looking for a matrix $D$ that tranforms $x^{(i)}$ into a lower dimention($l$) space
+        and minimizes the reconstruction error.
+    \end{homeworkSubsection}
+    \subsection*{(c)}
+    \subsection*{(d)}
+    \begin{homeworkSubsection}
+        From A3.2b we know that the objective function can also be written as
+        $\underset{D}{\mathrm{argmin}}||X-XDD^\top||_F^2$ and later derived as
+        $\underset{D}{\mathrm{argmax}}\sum_{i=1}^{m}D_{.i}^\top X^\top XD_{.i}$
+        where $D_{.i}$ is a column of $D$.
+        We simplify the problem by treating $D_{.i}$ as a vector $d$ with constraint $d^\top d = 1$:
+        \begin{align*}
+            \underset{d}{\mathrm{argmax}}d^\top X^\top Xd
+            &= \underset{d}{\mathrm{argmax}}(Xd)^2\\
+            &= \underset{d}{\mathrm{argmax}}\sum_{i=1}^{n}(d^\top x^{(i)})^2\\
+            &= \underset{d}{\mathrm{argmax}}\frac{1}{n}\sum_{i=1}^{n}(d^\top x^{(i)} - 0)^2
+        \end{align*}
+        One can observe that the formular $\frac{1}{n}\sum_{i=1}^{n}(d^\top x^{(i)} - 0)^2$ is 
+        calculating the variance of the points projected onto direction $d$ (note that the mean is 0 from assumption).
+    \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{Machine Learning Basics}
     \subsection*{(a)}
@@ -254,6 +305,47 @@
         transformation}
     \end{homeworkSubsection}
     \begin{homeworkSubsection}
+    \end{homeworkSubsection}
+\end{homeworkProblem}
+\begin{homeworkProblem}{\red{Regularization}}
+    
+\end{homeworkProblem}
+\begin{homeworkProblem}{Back propagation}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+        \[
+            y = [\frac{27}{106}, \frac{1}{106}, \frac{2}{53}, \frac{27}{53}]
+        \]
+    \end{homeworkSubsection}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        \begin{center}
+            \begin{tikzpicture}[scale=0.2]
+            \tikzstyle{every node}+=[inner sep=0pt]
+            \draw [black] (27.5,-28.3) circle (3);
+            \draw (27.5,-28.3) node {$z_1$};
+            \draw [black] (39.8,-28.3) circle (3);
+            \draw (39.8,-28.3) node {$z_2$};
+            \draw [black] (33.6,-19.7) circle (3);
+            \draw (33.6,-19.7) node {$r$};
+            \draw [black] (27.5,-12.2) circle (3);
+            \draw (27.5,-12.2) node {$y_1$};
+            \draw [black] (39.8,-12.2) circle (3);
+            \draw (39.8,-12.2) node {$y_2$};
+            \draw [black] (38.05,-25.87) -- (35.35,-22.13);
+            \fill [black] (35.35,-22.13) -- (35.42,-23.07) -- (36.23,-22.49);
+            \draw [black] (29.24,-25.85) -- (31.86,-22.15);
+            \fill [black] (31.86,-22.15) -- (30.99,-22.51) -- (31.81,-23.09);
+            \draw [black] (27.5,-25.3) -- (27.5,-15.2);
+            \fill [black] (27.5,-15.2) -- (27,-16) -- (28,-16);
+            \draw [black] (39.8,-25.3) -- (39.8,-15.2);
+            \fill [black] (39.8,-15.2) -- (39.3,-16) -- (40.3,-16);
+            \draw [black] (35.51,-17.39) -- (37.89,-14.51);
+            \fill [black] (37.89,-14.51) -- (36.99,-14.81) -- (37.76,-15.45);
+            \draw [black] (31.71,-17.37) -- (29.39,-14.53);
+            \fill [black] (29.39,-14.53) -- (29.51,-15.46) -- (30.29,-14.83);
+            \end{tikzpicture}
+            \end{center}
     \end{homeworkSubsection}
 \end{homeworkProblem}
 
