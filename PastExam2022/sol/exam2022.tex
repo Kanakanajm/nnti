@@ -13,6 +13,7 @@
 \usepackage{algpseudocode}
 \usepackage{changepage}
 \usepackage{color}
+\usepackage{hyperref}
 
 
 \usetikzlibrary{automata,positioning}
@@ -322,31 +323,135 @@
         \begin{center}
             \begin{tikzpicture}[scale=0.2]
             \tikzstyle{every node}+=[inner sep=0pt]
-            \draw [black] (27.5,-28.3) circle (3);
-            \draw (27.5,-28.3) node {$z_1$};
-            \draw [black] (39.8,-28.3) circle (3);
-            \draw (39.8,-28.3) node {$z_2$};
-            \draw [black] (33.6,-19.7) circle (3);
-            \draw (33.6,-19.7) node {$r$};
-            \draw [black] (27.5,-12.2) circle (3);
-            \draw (27.5,-12.2) node {$y_1$};
-            \draw [black] (39.8,-12.2) circle (3);
-            \draw (39.8,-12.2) node {$y_2$};
-            \draw [black] (38.05,-25.87) -- (35.35,-22.13);
-            \fill [black] (35.35,-22.13) -- (35.42,-23.07) -- (36.23,-22.49);
-            \draw [black] (29.24,-25.85) -- (31.86,-22.15);
-            \fill [black] (31.86,-22.15) -- (30.99,-22.51) -- (31.81,-23.09);
-            \draw [black] (27.5,-25.3) -- (27.5,-15.2);
-            \fill [black] (27.5,-15.2) -- (27,-16) -- (28,-16);
-            \draw [black] (39.8,-25.3) -- (39.8,-15.2);
-            \fill [black] (39.8,-15.2) -- (39.3,-16) -- (40.3,-16);
-            \draw [black] (35.51,-17.39) -- (37.89,-14.51);
-            \fill [black] (37.89,-14.51) -- (36.99,-14.81) -- (37.76,-15.45);
-            \draw [black] (31.71,-17.37) -- (29.39,-14.53);
-            \fill [black] (29.39,-14.53) -- (29.51,-15.46) -- (30.29,-14.83);
+            \draw [black] (14.9,-8.7) circle (3);
+            \draw (14.9,-8.7) node {$z_1$};
+            \draw [black] (14.9,-27.5) circle (3);
+            \draw (14.9,-27.5) node {$z_2$};
+            \draw [black] (29.2,-18) circle (3);
+            \draw (29.2,-18) node {$+$};
+            \draw (29.2,-15) node[above] {$r$};
+            \draw [black] (46.6,-8.7) circle (3);
+            \draw (46.6,-8.7) node {$\div$};
+            \draw (46.6,-5.7) node[above] {$y_1$};
+            \draw [black] (47.5,-27.5) circle (3);
+            \draw (47.5,-27.5) node {$\div$};
+            \draw (47.5,-24.5) node[above] {$y_2$};
+            \draw [black] (17.4,-25.84) -- (26.7,-19.66);
+            \fill [black] (26.7,-19.66) -- (25.76,-19.69) -- (26.31,-20.52);
+            \draw [black] (17.41,-10.34) -- (26.69,-16.36);
+            \fill [black] (26.69,-16.36) -- (26.29,-15.51) -- (25.74,-16.35);
+            \draw [black] (17.9,-8.7) -- (43.6,-8.7);
+            \fill [black] (43.6,-8.7) -- (42.8,-8.2) -- (42.8,-9.2);
+            \draw [black] (17.9,-27.5) -- (44.5,-27.5);
+            \fill [black] (44.5,-27.5) -- (43.7,-27) -- (43.7,-28);
+            \draw [black] (31.86,-19.38) -- (44.84,-26.12);
+            \fill [black] (44.84,-26.12) -- (44.36,-25.31) -- (43.9,-26.19);
+            \draw [black] (31.85,-16.59) -- (43.95,-10.11);
+            \fill [black] (43.95,-10.11) -- (43.01,-10.05) -- (43.48,-10.93);
             \end{tikzpicture}
-            \end{center}
+        \end{center}
     \end{homeworkSubsection}
+    \subsection*{(c)}
+    \begin{homeworkSubsection}
+        (i)\,We have these local gradients:
+        \[
+            \frac{\partial L}{\partial z_1} = \frac{\partial L}{\partial y_1}
+            \cdot\frac{\partial y_1}{\partial r}
+            \cdot\frac{\partial r}{\partial z_1}
+            = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{z_1}}{r^2}\cdot e^{z_1}
+            = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{2z_1}}{r^2}
+        \]
+        \[
+            \frac{\partial L}{\partial z_2} = \frac{\partial L}{\partial y_2}
+            \cdot\frac{\partial y_2}{\partial r}
+            \cdot\frac{\partial r}{\partial z_2}
+            = \frac{\partial L}{\partial y_2}\cdot\frac{-e^{2z_2}}{r^2}
+        \]
+        \[
+            \frac{\partial L}{\partial r} = \frac{\partial L}{\partial y_1}
+            \cdot\frac{\partial y_1}{\partial r} + \frac{\partial L}{\partial y_2}
+            \cdot\frac{\partial y_2}{\partial r}
+            = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{z_1}}{r^2} +
+            \frac{\partial L}{\partial y_2}\cdot\frac{-e^{z_2}}{r^2}
+        \]
+        (ii)\,For the general d-dimentional case, we have:
+        \[
+            \frac{\partial L}{\partial z_i} = \frac{\partial L}{\partial y_i}
+            \cdot\frac{\partial y_i}{\partial r}
+            \cdot\frac{\partial r}{\partial z_i}
+            = \frac{\partial L}{\partial y_i}\cdot\frac{-e^{2z_i}}{r^2}
+        \]
+        \[
+            \frac{\partial L}{\partial r} = \sum_{i=1}^{d}\frac{\partial L}{\partial y_i}
+            \cdot\frac{\partial y_i}{\partial r}
+            = \sum_{i=1}^{d}\frac{\partial L}{\partial y_i}\cdot\frac{-e^{z_i}}{r^2}
+        \]
+    \end{homeworkSubsection}
+\end{homeworkProblem}
+\begin{homeworkProblem}{Optimization}
+    \subsection*{(a)}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        We modified the term into $x_{k+1} = x_k - \alpha_k(v_k + \epsilon)$
+        where $v_k = \beta v_{k-1} + (1-\beta)\nabla_f(x_k)$.
+        Momentum can speed up gradient descent process. 
+        It can also prevent the gradient from oscillating or overshooting.
+    \end{homeworkSubsection}
+\end{homeworkProblem}
+\begin{homeworkProblem}{Convolutional Neural Networks}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+    \begin{table}[htbp]
+        \centering
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            Layer & Feature map dimensions & Number of weights & Number of biases \\
+            \hline
+            INPUT & $128\times128\times3$ & 0 & 0 \\
+            \hline
+            CONV-9-32 & $120\times120\times96$ & $9\times9\times3\times32$ & 32 \\
+            \hline
+            POOL-2 & $60\times60\times96$ & 0 & 0 \\
+            \hline
+            CONV-5-64 & $56\times56\times6144$ & $5\times5\times96\times64$ & 64 \\
+            \hline
+            POOL-2 & $28\times28\times6144$ & 0 & 0 \\
+            \hline
+            CONV-5-64 & $24\times24\times393216$ & $5\times5\times6144\times64$ & 64 \\
+            \hline
+            POOL-2 & $12\times12\times393216$ & 0 & 0 \\
+            \hline
+            FC-9 & 9 & $12\times12\times393216\times9$ & 1 \\
+            \hline
+        \end{tabular}
+    \end{table}
+    \end{homeworkSubsection}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        \[
+            y = \begin{pmatrix}
+                x_1w_1 + x_2w_2\\
+                x_2w_1 + x_3w_2\\
+                x_3w_1 + x_4w_2\\
+            \end{pmatrix}
+        \]
+        so we have $\nabla_wy_1= \left[x_1, x_2\right]^\top$, 
+        $\nabla_wy_2= \left[x_2, x_3\right]^\top$,
+        $\nabla_wy_3= \left[x_3, x_4\right]^\top$.
+    \end{homeworkSubsection}
+    \subsection*{(c)}
+    \begin{homeworkSubsection}
+        Overlapped groups allocates their gradients to the same max elements in the group
+        which is explained \href{https://ai.stackexchange.com/questions/17107/how-can-we-compute-the-gradient-of-max-pooling-with-overlapping-regions}{here}.
+    \end{homeworkSubsection}
+    \subsection*{(d)}
+    \begin{homeworkSubsection}
+        In a fully connected network with one hidden layer,
+        increasing in the hidden layer size will increase variance of the output.
+    \end{homeworkSubsection}
+\end{homeworkProblem}
+\begin{homeworkProblem}{RNNs}
+    See Assignment 11
 \end{homeworkProblem}
 
 
