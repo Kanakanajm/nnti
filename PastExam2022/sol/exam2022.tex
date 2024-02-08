@@ -308,8 +308,49 @@
     \begin{homeworkSubsection}
     \end{homeworkSubsection}
 \end{homeworkProblem}
-\begin{homeworkProblem}{\red{Regularization}}
-    
+\begin{homeworkProblem}{Regularization}
+    \subsection*{(a)}
+    \begin{homeworkSubsection}
+        \begin{align*}
+            \theta^{MAP*}   &= \underset{\theta}{\mathrm{argmax}}\;P(\theta|D)\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;P(\theta)P(D|\theta)\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;\mathrm{log}(P(\theta)P(D|\theta))\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(\mathrm{log}P(\theta) + \mathrm{log}P(D|\theta))\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(\mathrm{log}\prod_{i=j}^{M}P(\theta_j) + \mathrm{log}P(D|\theta))\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}\mathrm{log}P(\theta_j) + \mathrm{log}P(D|\theta))\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}\mathrm{log}(\frac{1}{\sigma_1\,\sqrt[]{2\pi}}e^{-\frac{\theta_j^2}{2\sigma_1^2}}) + \mathrm{log}P(D|\theta))\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}(\mathrm{log}(\frac{1}{\sigma_1\,\sqrt[]{2\pi}}) + \mathrm{log}(e^{-\frac{\theta_j^2}{2\sigma_1^2}})) + \mathrm{log}P(D|\theta))\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}(\mathrm{log}(\frac{1}{\sigma_1\,\sqrt[]{2\pi}}) -\frac{\theta_j^2}{2\sigma_1^2}) + \mathrm{log}P(D|\theta))\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}\mathrm{log}(\frac{1}{\sigma_1\,\sqrt[]{2\pi}}) -\sum_{j=1}^{M}\frac{\theta_j^2}{2\sigma_1^2} + \mathrm{log}P(D|\theta))\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(-\sum_{j=1}^{M}\frac{\theta_j^2}{2\sigma_1^2} + \mathrm{log}P(D|\theta))\\
+                            \intertext{similarly for $P(D|\theta)$}\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;(-\sum_{j=1}^{M}\frac{\theta_j^2}{2\sigma_1^2} -\sum_{i=1}^{N}\frac{(y_i - f(x_i, \theta))^2}{2\sigma_2^2})\\
+                            &= \underset{\theta}{\mathrm{argmin}}\;(\frac{\sigma_2^2}{\sigma_1^2}\sum_{j=1}^{M}\theta_j^2 + \sum_{i=1}^{N}((y_i - f(x_i, \theta))^2))\\
+        \end{align*}
+        One can observe that $\sum_{j=1}^{M}\theta_j^2$ corresponds to the $w^\top w$ term in the L2 regularization.
+
+        Check out this \href{http://shaofanlai.com/post/79}{article} for more details.
+    \end{homeworkSubsection}
+    \subsection*{(b)}
+    \begin{homeworkSubsection}
+        We have now the loss function $\hat{J}(w) = \frac{1}{n}||Xw-y||^2_2 + \lambda w^\top w$ with L2 regularization
+        which can be rewritten in terms of the normal loss function $\hat{J}(w) = J(w) + \lambda w^\top w$.
+        We calculate its gradient:
+        \begin{align*}
+            \nabla_w\hat{J}(w) &= \nabla_w(J(w) + \lambda w^\top w)\\
+            &= \nabla_wJ(w) + \nabla_w(\lambda w^\top w)\\
+            &= \nabla_wJ(w) + \lambda \nabla_w(w^\top w)\\
+            &= \nabla_wJ(w) + \lambda 2w\\
+        \end{align*}
+        and the weights update step becomes:
+        \begin{align*}
+            w_{t+1} \longleftarrow w_t - \alpha(\nabla_w\hat{J}(w)) &= w_t - \alpha(\nabla_wJ(w) + 2\lambda w)\\
+            &= w_t - \alpha\nabla_wJ(w) - 2\alpha\lambda w\\
+            &= (1-2\alpha\lambda)w_t - \alpha\nabla_wJ(w)\\
+        \end{align*}
+        One can observe that the weights are shrinked by a factor of $(1-2\alpha\lambda)$.
+
+    \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{Back propagation}
     \subsection*{(a)}
@@ -390,6 +431,11 @@
 \end{homeworkProblem}
 \begin{homeworkProblem}{Optimization}
     \subsection*{(a)}
+    \begin{homeworkSubsection}
+        i.\.RMSProp\; $\beta_1=\rho^3(1-\rho), \beta_2=\rho^2(1-\rho), \beta_3=\rho(1-\rho), \beta_4=1-\rho$
+
+        ii.\.AdaGrad\;$\beta_i=1,\forall i$
+    \end{homeworkSubsection}
     \subsection*{(b)}
     \begin{homeworkSubsection}
         We modified the term into $x_{k+1} = x_k - \alpha_k(v_k + \epsilon)$
