@@ -159,10 +159,13 @@
         , that is the variance of the intermediate layer output may change after the weights from the previous layer being updated.
         Batch norm make sure that the variance of such layer so we can introduce a higher learning rate to the network
         thus speeds up the convergence.
+        it smooth the loss landscape
+        (iii) is correct
     \end{homeworkSubsection}
     \subsection*{(c)}
     \begin{homeworkSubsection}
         Batch Size = 1? The batch norm video from Andrew Ng says batch norm is applied to the intermediate layer output. Confused.
+        divide by 0 (std)
     \end{homeworkSubsection}
     \subsection*{(d)}
     \begin{homeworkSubsection}
@@ -182,18 +185,21 @@
     \end{homeworkSubsection}
     \subsection*{(f)}
     \begin{homeworkSubsection}
-        Because it is computationally expensive.
+        Because it is computationally expensive. (matrix inversion and hessian)
     \end{homeworkSubsection}
     \subsection*{(g)}
     \begin{homeworkSubsection}
-        Max pooling can make the kernels pick up feature even if it is rotated.
+        Efficiency (shrinking the input of the next layer) and non-linearity (introducing non-linearity to the network)
     \end{homeworkSubsection}
     \subsection*{(h)}
     \begin{homeworkSubsection}
         It is not a good idea because sigmoid's exponential term may be overflow.
+        vanishing gradient
     \end{homeworkSubsection}
-    \subsection*{\red{(i)}}
-    \subsection*{\red{(j)}}
+    \subsection*{(i)}
+    Yes
+    \subsection*{(j)}
+    computational efficient
 \end{homeworkProblem}
 \begin{homeworkProblem}{Principal Component Analysis (PCA)}
     \subsection*{(a)}
@@ -207,18 +213,23 @@
         The second one is that the dataset is normalized
         because different variables (axes) have different scales.
         Their covariances are not comparable if the data are not under the same scale.
+
+        % the D has to be column orthogonal
+
     \end{homeworkSubsection}
     \subsection*{(b)}
     \begin{homeworkSubsection}
         The objective function is given by:
         \[
-            \underset{D}{\mathrm{argmin}}\underset{i}{\sum}||x^{(i)}-DD^\top x^{(i)}||
+            \underset{D}{\mathrm{argmin}}\underset{i}{\sum}||x^{(i)}-DD^\top x^{(i)}||_2
         \]
         where matrix $D \in \mathbb{R}^{m\times l}$ and vectors $x^{(i)} \in \mathbb{R}^{m}$.
         We are looking for a matrix $D$ that tranforms $x^{(i)}$ into a lower dimention($l$) space
         and minimizes the reconstruction error.
+        without argmin
     \end{homeworkSubsection}
     \subsection*{(c)}
+    $D^\top$ is the encoder and $D$ is the decoder and $D = D^\top$.
     \subsection*{(d)}
     \begin{homeworkSubsection}
         From A3.2b we know that the objective function can also be written as
@@ -287,6 +298,9 @@
         A saddle point is when the gradient is 0 (derivatives are 0 in both x and y direction)
         but the second derivatives in x and y direction are of different sign.
         As the gradient is 0, it may stop the gradient descent process even though it is not at a minimal.
+
+        When you go to higher dimension, the probability of finding a saddle point increases because the hessian matrix has more eigenvalues.
+        Check more on saddle points and Hessian.
     \end{homeworkSubsection}
     \subsection*{\red{(c)}}
     \subsection*{(d)}
