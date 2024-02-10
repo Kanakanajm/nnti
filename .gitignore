@@ -70,7 +70,7 @@ dkms.conf
 *.zip
 
 # Special cases
-Assignment_8/data/
-Assignment_10/data/
-Assignment_11/code/data/
-Assignment_11/code/aclImdb_v1.tar.gz
+Assignment08/data/
+Assignment10/data/
+Assignment11/code/data/
+Assignment11/code/aclImdb_v1.tar.gz
