@@ -149,23 +149,18 @@
 \begin{homeworkProblem}{Short questions}
     \subsection*{(a)}
     \begin{homeworkSubsection}
-        (i) is not a good candidate because the derivative is 0 that will make gradient vanish.
-        (ii) is not a good candidate because the network is limited to learn only quadratic functions.
-        (iii) Uhh.. what is the normal distribution formular doing here?
+        (i) is not a good candidate because the derivative is 0 (vanishing gradient)
+        (ii) is not a good candidate because the derivative is linear (exploding gradient).
+        (iii) could be a candidate but the gradient also vanishes at extrema.
     \end{homeworkSubsection}
     \subsection*{(b)}
     \begin{homeworkSubsection}
-        (ii) is correct because a deep network will face a problem called covariance shift
-        , that is the variance of the intermediate layer output may change after the weights from the previous layer being updated.
-        Batch norm make sure that the variance of such layer so we can introduce a higher learning rate to the network
-        thus speeds up the convergence.
-        it smooth the loss landscape
-        (iii) is correct
+        (ii) is correct because batch norm smooths the loss landscape so that the network can converge faster.
+        (iii) is correct (*though it'd more precise to say "computed over each channel")
     \end{homeworkSubsection}
     \subsection*{(c)}
     \begin{homeworkSubsection}
-        Batch Size = 1? The batch norm video from Andrew Ng says batch norm is applied to the intermediate layer output. Confused.
-        divide by 0 (std)
+        The problem is to calculate the batch norm, the dividend is the standard diviation which in this case is 0 (division by 0).
     \end{homeworkSubsection}
     \subsection*{(d)}
     \begin{homeworkSubsection}
@@ -185,7 +180,7 @@
     \end{homeworkSubsection}
     \subsection*{(f)}
     \begin{homeworkSubsection}
-        Because it is computationally expensive. (matrix inversion and hessian)
+        Because it is computationally expensive (e.g. to compute matrix inversion).
     \end{homeworkSubsection}
     \subsection*{(g)}
     \begin{homeworkSubsection}
@@ -193,13 +188,14 @@
     \end{homeworkSubsection}
     \subsection*{(h)}
     \begin{homeworkSubsection}
-        It is not a good idea because sigmoid's exponential term may be overflow.
-        vanishing gradient
+        It is not a good idea because sigmoid function has vanishing gradient problem on large values.
     \end{homeworkSubsection}
     \subsection*{(i)}
-    Yes
+    Yes, you shuffle the data for mini batch gradient descent because you want to avoid introducing bias in the training.
+    You do not need to shuffle the data for batch gradient descent because you are using the whole dataset 
+    (changing rows of the input matrix does not change the output).
     \subsection*{(j)}
-    computational efficient
+    It is computational efficient.
 \end{homeworkProblem}
 \begin{homeworkProblem}{Principal Component Analysis (PCA)}
     \subsection*{(a)}
@@ -213,15 +209,12 @@
         The second one is that the dataset is normalized
         because different variables (axes) have different scales.
         Their covariances are not comparable if the data are not under the same scale.
-
-        % the D has to be column orthogonal
-
     \end{homeworkSubsection}
     \subsection*{(b)}
     \begin{homeworkSubsection}
         The objective function is given by:
         \[
-            \underset{D}{\mathrm{argmin}}\underset{i}{\sum}||x^{(i)}-DD^\top x^{(i)}||_2
+            \underset{i}{\sum}||x^{(i)}-DD^\top x^{(i)}||_2
         \]
         where matrix $D \in \mathbb{R}^{m\times l}$ and vectors $x^{(i)} \in \mathbb{R}^{m}$.
         We are looking for a matrix $D$ that tranforms $x^{(i)}$ into a lower dimention($l$) space
@@ -229,7 +222,9 @@
         without argmin
     \end{homeworkSubsection}
     \subsection*{(c)}
-    $D^\top$ is the encoder and $D$ is the decoder and $D = D^\top$.
+    \begin{homeworkSubsection}
+        In PCA, one can think of $D^\top$ as the encoder and $D$ as the decoder with constraint $D^\top D = I$.
+    \end{homeworkSubsection}
     \subsection*{(d)}
     \begin{homeworkSubsection}
         From A3.2b we know that the objective function can also be written as
@@ -291,23 +286,36 @@
 \begin{homeworkProblem}{Feed-Forward Neural Networks}
     \subsection*{(a)}
     \begin{homeworkSubsection}
-        A deep nn can be computationally effecient as it can learn the same function with fewer parameters \red{Why?}
+        The number of units in a shallow network grows exponentially with function complexity
+        so that requires more computation and memory. 
+        See \href{https://stats.stackexchange.com/questions/182734/what-is-the-difference-between-a-neural-network-and-a-deep-neural-network-and-w}{here}
+        for more details.
     \end{homeworkSubsection}
     \subsection*{(b)}
     \begin{homeworkSubsection}
-        A saddle point is when the gradient is 0 (derivatives are 0 in both x and y direction)
-        but the second derivatives in x and y direction are of different sign.
+        A saddle point is when the first derivatives are 0 (derivatives are 0 in both x and y direction)
+        but the second derivatives in x and y direction are of different signs.
         As the gradient is 0, it may stop the gradient descent process even though it is not at a minimal.
-
         When you go to higher dimension, the probability of finding a saddle point increases because the hessian matrix has more eigenvalues.
-        Check more on saddle points and Hessian.
+
+        \href{https://en.wikipedia.org/wiki/Second_partial_derivative_test}{Check more}
+        on saddle points and Hessian.
     \end{homeworkSubsection}
-    \subsection*{\red{(c)}}
+    \subsection*{(c)}
+    \begin{homeworkSubsection}
+        Mini batch approach introduces noice to gradient estimation and can help the network escape from saddle points.
+
+        Using a small minibatch size introduces more noise into the optimization process, which can help escape saddle points more easily.
+        However, excessively small minibatches may also lead to slower convergence or instability in training due to noisy gradient estimates.
+
+        Larger minibatches provide more accurate gradient estimates but may reduce the effectiveness of noise injection in escaping saddle points.
+    \end{homeworkSubsection}
     \subsection*{(d)}
     \begin{homeworkSubsection}
-        MSE (Mean square error) measures the euclidean distance between the true value and the predicted one.
-        It can be used for regression task.
-        \red{Cross Entropy} can be used for classification task.
+        MSE (Mean square error) measures the euclidean distance between the true value and the predicted one
+        which penalise the euclidean distance from the true value. It is used for regression task.
+        Cross Entropy penalises the difference between the predicted probability distribution and the true probability distribution of the classes.
+        It is used for classification task.
     \end{homeworkSubsection}
     \subsection*{(e)}
     \begin{homeworkSubsection}
@@ -330,40 +338,112 @@
                             &= \underset{\theta}{\mathrm{argmax}}\;P(\theta)P(D|\theta)\\
                             &= \underset{\theta}{\mathrm{argmax}}\;\mathrm{log}(P(\theta)P(D|\theta))\\
                             &= \underset{\theta}{\mathrm{argmax}}\;(\mathrm{log}P(\theta) + \mathrm{log}P(D|\theta))\\
-                            &= \underset{\theta}{\mathrm{argmax}}\;(\mathrm{log}\prod_{i=j}^{M}P(\theta_j) + \mathrm{log}P(D|\theta))\\
-                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}\mathrm{log}P(\theta_j) + \mathrm{log}P(D|\theta))\\
-                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}\mathrm{log}(\frac{1}{\sigma_1\,\sqrt[]{2\pi}}e^{-\frac{\theta_j^2}{2\sigma_1^2}}) + \mathrm{log}P(D|\theta))\\
-                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}(\mathrm{log}(\frac{1}{\sigma_1\,\sqrt[]{2\pi}}) + \mathrm{log}(e^{-\frac{\theta_j^2}{2\sigma_1^2}})) + \mathrm{log}P(D|\theta))\\
-                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}(\mathrm{log}(\frac{1}{\sigma_1\,\sqrt[]{2\pi}}) -\frac{\theta_j^2}{2\sigma_1^2}) + \mathrm{log}P(D|\theta))\\
-                            &= \underset{\theta}{\mathrm{argmax}}\;(\sum_{j=1}^{M}\mathrm{log}(\frac{1}{\sigma_1\,\sqrt[]{2\pi}}) -\sum_{j=1}^{M}\frac{\theta_j^2}{2\sigma_1^2} + \mathrm{log}P(D|\theta))\\
-                            &= \underset{\theta}{\mathrm{argmax}}\;(-\sum_{j=1}^{M}\frac{\theta_j^2}{2\sigma_1^2} + \mathrm{log}P(D|\theta))\\
-                            \intertext{similarly for $P(D|\theta)$}\\
-                            &= \underset{\theta}{\mathrm{argmax}}\;(-\sum_{j=1}^{M}\frac{\theta_j^2}{2\sigma_1^2} -\sum_{i=1}^{N}\frac{(y_i - f(x_i, \theta))^2}{2\sigma_2^2})\\
-                            &= \underset{\theta}{\mathrm{argmin}}\;(\frac{\sigma_2^2}{\sigma_1^2}\sum_{j=1}^{M}\theta_j^2 + \sum_{i=1}^{N}((y_i - f(x_i, \theta))^2))\\
+                            \intertext{Omitting the expansion of the probability with normal distribution term}\\
+                            &= \underset{\theta}{\mathrm{argmax}}\;-(\frac{\theta^\top\theta}{2\sigma_1^2} + \sum_{i=1}^{N}\frac{(y_i - f(x_i, \theta))^2}{2\sigma_2^2})\\
+                            &= \underset{\theta}{\mathrm{argmin}}\;\frac{\sigma_2^2}{\sigma_1^2}\theta^\top\theta + \sum_{i=1}^{N}(y_i - f(x_i, \theta))^2\\
         \end{align*}
-        One can observe that $\sum_{j=1}^{M}\theta_j^2$ corresponds to the $w^\top w$ term in the L2 regularization.
+        One can observe that $\theta^\top\theta$ corresponds to the $w^\top w$ term in the L2 regularization.
 
         Check out this \href{http://shaofanlai.com/post/79}{article} for more details.
     \end{homeworkSubsection}
     \subsection*{(b)}
     \begin{homeworkSubsection}
-        We have now the loss function $\hat{J}(w) = \frac{1}{n}||Xw-y||^2_2 + \lambda w^\top w$ with L2 regularization
-        which can be rewritten in terms of the normal loss function $\hat{J}(w) = J(w) + \lambda w^\top w$.
-        We calculate its gradient:
-        \begin{align*}
-            \nabla_w\hat{J}(w) &= \nabla_w(J(w) + \lambda w^\top w)\\
-            &= \nabla_wJ(w) + \nabla_w(\lambda w^\top w)\\
-            &= \nabla_wJ(w) + \lambda \nabla_w(w^\top w)\\
-            &= \nabla_wJ(w) + \lambda 2w\\
-        \end{align*}
-        and the weights update step becomes:
-        \begin{align*}
-            w_{t+1} \longleftarrow w_t - \alpha(\nabla_w\hat{J}(w)) &= w_t - \alpha(\nabla_wJ(w) + 2\lambda w)\\
-            &= w_t - \alpha\nabla_wJ(w) - 2\alpha\lambda w\\
-            &= (1-2\alpha\lambda)w_t - \alpha\nabla_wJ(w)\\
-        \end{align*}
-        One can observe that the weights are shrinked by a factor of $(1-2\alpha\lambda)$.
+        In \href{https://www.deeplearningbook.org/contents/regularization.html#pf19}{this section}
+        of the Goodfellow book, the proof is covered briefly.
+        The derivation below is a bit more detailed.
 
+        We have our normal loss function $J(w)$ and $J(w^*)$ is the minimum of the loss function.
+        We can approximate the loss function around $w^*$ with a second order taylor expansion:
+        \begin{align*}
+            \hat{J}(w)  &= J(w^*) + (w-w^*)^\top\nabla_wJ(w^*) + \frac{1}{2}(w-w^*)^\top\cdot\mathrm{Hess}(w^*)\cdot(w-w^*)\\
+            \intertext{We know that $\nabla_wJ(w^*) = 0$ because we are around minimum}\\
+                        &= J(w^*) + 0 + \frac{1}{2}(w-w^*)^\top\cdot\mathrm{Hess}(w^*)\cdot(w-w^*)\\
+                        &= J(w^*) + \frac{1}{2}(w-w^*)^\top\cdot\mathrm{Hess}(w^*)\cdot(w-w^*)\\
+        \end{align*}
+        \textbf{Note that the $\hat{J}(w)$ is an approximation of our loss function around $w^*$
+        which we haven't introduced any regularization term/technique yet.}
+
+        Let us first write the weights update in a iterative manner
+        so that we can observe the affect of early stopping (stop in a certain iteration before the minimum):
+        \begin{align*}
+            \intertext{Notation clarification: \textit{$w^{(t)}$ denotes the weights at time step $t$, $\epsilon$ is the learning rate}}\\
+            w^{(t)} &= w^{(t-1)} - \epsilon\nabla_w\hat{J}(w^{(t-1)})\\
+            w^{(t)} &= w^{(t-1)} - \epsilon\mathrm{Hess}(w^*)\cdot(w^{(t-1)}-w^*)\\
+            \Rightarrow w^{(t)} - w^* &= w^{(t-1)} - \epsilon\mathrm{Hess}(w^*)\cdot(w^{(t-1)}-w^*) - w^* \\
+                        w^{(t)} - w^* &= w^{(t-1)} - w^* - \epsilon\mathrm{Hess}(w^*)\cdot(w^{(t-1)}-w^*) \\
+                        w^{(t)} - w^* &= I(w^{(t-1)} - w^*) - \epsilon\mathrm{Hess}(w^*)\cdot(w^{(t-1)}-w^*) \\
+                        w^{(t)} - w^* &= (I - \epsilon\mathrm{Hess}(w^*))\cdot(w^{(t-1)}-w^*) \\
+            \intertext{We can rewrite $\mathrm{Hess}(w^*)$ as $Q\Lambda Q^\top$ by eigendecomposition}\\
+                        w^{(t)} - w^* &= (I - \epsilon Q\Lambda Q^\top)\cdot(w^{(t-1)}-w^*) \\
+            \Rightarrow Q^\top(w^{(t)} - w^*) &= Q^\top\cdot(I - \epsilon Q\Lambda Q^\top)\cdot(w^{(t-1)}-w^*) \\
+                        Q^\top(w^{(t)} - w^*) &= (Q^\top - \epsilon Q^\top Q\Lambda Q^\top)\cdot(w^{(t-1)}-w^*) \\
+                        Q^\top(w^{(t)} - w^*) &= (Q^\top - \epsilon \Lambda Q^\top)\cdot(w^{(t-1)}-w^*) \\
+                        Q^\top(w^{(t)} - w^*) &= (IQ^\top - \epsilon \Lambda Q^\top)\cdot(w^{(t-1)}-w^*) \\
+                        Q^\top(w^{(t)} - w^*) &= (I - \epsilon\Lambda)\cdot Q^\top\cdot(w^{(t-1)}-w^*) \\
+        \end{align*}
+        We can show that for each time step $t$ we have $Q^\top w^{(t)} = (I - (I - \epsilon\Lambda)^t)Q^\top w^*$ by induction:
+        \textbf{Base case: $t=1$}
+        \begin{align*}
+            Q^\top(w^{(1)} - w^*) &= (I - \epsilon\Lambda)\cdot Q^\top\cdot(w^{(0)}-w^*) \\
+            Q^\top(w^{(1)} - w^*) &= (I - \epsilon\Lambda)\cdot Q^\top\cdot(0-w^*) \\
+            Q^\top(w^{(1)} - w^*) &= (I - \epsilon\Lambda)\cdot Q^\top\cdot(-w^*) \\
+            Q^\top w^{(1)} - Q^\top w^* &= (I - \epsilon\Lambda)\cdot Q^\top\cdot(-w^*) \\
+            Q^\top w^{(1)} &= (I - \epsilon\Lambda)\cdot Q^\top\cdot(-w^*) + Q^\top w^* \\
+            Q^\top w^{(1)} &= -(I - \epsilon\Lambda)\cdot Q^\top w^* + Q^\top w^* \\
+            Q^\top w^{(1)} &= (I -(I - \epsilon\Lambda))\cdot Q^\top w^* \\
+        \end{align*}
+        \textbf{Inductive step: $t=k$}
+        where we assume $Q^\top w^{(k-1)} = (I - (I - \epsilon\Lambda)^{k-1})Q^\top w^*$ we simplify it as:
+        \begin{align*}
+            Q^\top w^{(k-1)} = (I - (I - \epsilon\Lambda)^{k-1})Q^\top w^*\\
+            \Rightarrow w^{(k-1)} =  {Q^\top}^{-1}(I - (I - \epsilon\Lambda)^{k-1})Q^\top w^*\\
+            \Rightarrow w^{(k-1)} =  Q(I - (I - \epsilon\Lambda)^{k-1})Q^\top w^*\\
+        \end{align*}
+        replace $w^{(k-1)}$ in the equation for time step $k$:
+        \begin{align*}
+            Q^\top(w^{(k)} - w^*) &= (I - \epsilon\Lambda)\cdot Q^\top\cdot(w^{(k-1)}-w^*) \\
+            \Rightarrow Q^\top(w^{(k)} - w^*) &= (I - \epsilon\Lambda)\cdot Q^\top\cdot(Q(I - (I - \epsilon\Lambda)^{k-1})Q^\top w^* - w^*) \\
+            \Rightarrow Q^\top(w^{(k)} - w^*) &= (I - \epsilon\Lambda)\cdot Q^\top\cdot Q(I - (I - \epsilon\Lambda)^{k-1})Q^\top w^* - (I - \epsilon\Lambda)\cdot Q^\top w^*\\
+            \Rightarrow Q^\top(w^{(k)} - w^*) &= (I - \epsilon\Lambda)\cdot (I - (I - \epsilon\Lambda)^{k-1})Q^\top w^* - (I - \epsilon\Lambda)\cdot Q^\top w^*\\
+            \Rightarrow Q^\top(w^{(k)} - w^*) &= (I - \epsilon\Lambda)\cdot (I - (I - \epsilon\Lambda)^{k-1} - I)Q^\top w^*\\
+            \Rightarrow Q^\top(w^{(k)} - w^*) &= (I - \epsilon\Lambda)\cdot (-(I - \epsilon\Lambda)^{k-1})Q^\top w^*\\
+            \Rightarrow Q^\top w^{(k)} - Q^\top w^* &= (I - \epsilon\Lambda)\cdot (-(I - \epsilon\Lambda)^{k-1})Q^\top w^*\\
+            \Rightarrow Q^\top w^{(k)} - Q^\top w^* &= -(I - \epsilon\Lambda)^k Q^\top w^*\\
+            \Rightarrow Q^\top w^{(k)} &= Q^\top w^* -(I - \epsilon\Lambda)^k Q^\top w^*\\
+            \Rightarrow Q^\top w^{(k)} &= (I -(I - \epsilon\Lambda)^k) Q^\top w^*\\
+        \end{align*}
+        Now we have a general formular for the weights at each time step $t$, i.e.
+        \[
+            Q^\top w^{(t)} = (I -(I - \epsilon\Lambda)^t) Q^\top w^*
+        \]
+        Let's introduce L2 regularization term into the loss function and we have the new gradient formular:
+        \begin{align*}
+            \nabla_w\tilde{J}(w)    &= \alpha w + \nabla_w\hat{J}(w)\\
+                                    &= \alpha w + \mathrm{Hess}(w^*)(w-w^*)\\
+        \end{align*}
+        set it to 0 and solve for $w$:
+        \begin{align*}
+            \nabla_w\tilde{J}(w) &= 0\\
+            \alpha w + \mathrm{Hess}(w^*)(w-w^*) &= 0\\
+            \alpha w + \mathrm{Hess}(w^*)w - \mathrm{Hess}(w^*)w^* &= 0\\
+            \alpha w + \mathrm{Hess}(w^*)w &= \mathrm{Hess}(w^*)w^*\\
+            (\alpha I + \mathrm{Hess}(w^*))w &= \mathrm{Hess}(w^*)w^*\\
+            w &= (\alpha I + \mathrm{Hess}(w^*))^{-1}\mathrm{Hess}(w^*)w^*\\
+            \intertext{eigendecompose $\mathrm{Hess}(w^*)$ into $Q\Lambda Q^\top$}\\
+            w &= (\alpha I + Q\Lambda Q^\top)^{-1}Q\Lambda Q^\top w^*\\
+            w &= Q(\alpha I + \Lambda)^{-1}Q^\top Q\Lambda Q^\top w^*\\
+            w &= Q(\alpha I + \Lambda)^{-1}\Lambda Q^\top w^*\\
+            Q^\top w &= (\alpha I + \Lambda)^{-1}\Lambda Q^\top w^*\\
+            \intertext{$(\alpha I + \Lambda)^{-1}\Lambda$ is a matrix with diagonal elements $\frac{\lambda_i}{\alpha + \lambda_i}$ which is the same as $1 -\frac{\alpha}{\alpha + \lambda_i} $}\\
+            Q^\top w &= (I - \alpha(\alpha I + \Lambda)^{-1}) Q^\top w^*\\
+        \end{align*}
+        comparing this result with the iterative method we derived earlier: $Q^\top w^{(t)} = (I -(I - \epsilon\Lambda)^t) Q^\top w^*$.
+        We can see that if we choose the time step $t$ and learning rate $\epsilon$ accordingly so that 
+        $(I - \epsilon\Lambda)^t = \alpha(\alpha I + \Lambda)^{-1}$ the two methods are equivalent.
+    \end{homeworkSubsection}
+    \subsection*{(c)}
+    \begin{homeworkSubsection}
+        See Page 253 of \href{https://www.deeplearningbook.org/contents/regularization.html}{this chapter on regularization}.
     \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{Back propagation}
@@ -378,33 +458,33 @@
         \begin{center}
             \begin{tikzpicture}[scale=0.2]
             \tikzstyle{every node}+=[inner sep=0pt]
-            \draw [black] (14.9,-8.7) circle (3);
-            \draw (14.9,-8.7) node {$z_1$};
+            \draw [black] (14.9,-18) circle (3);
+            \draw (14.9,-18) node {$e^{z_1}$};
             \draw [black] (14.9,-27.5) circle (3);
-            \draw (14.9,-27.5) node {$z_2$};
-            \draw [black] (29.2,-18) circle (3);
-            \draw (29.2,-18) node {$+$};
-            \draw (29.2,-15) node[above] {$r$};
-            \draw [black] (46.6,-8.7) circle (3);
-            \draw (46.6,-8.7) node {$\div$};
-            \draw (46.6,-5.7) node[above] {$y_1$};
-            \draw [black] (47.5,-27.5) circle (3);
-            \draw (47.5,-27.5) node {$\div$};
-            \draw (47.5,-24.5) node[above] {$y_2$};
-            \draw [black] (17.4,-25.84) -- (26.7,-19.66);
-            \fill [black] (26.7,-19.66) -- (25.76,-19.69) -- (26.31,-20.52);
-            \draw [black] (17.41,-10.34) -- (26.69,-16.36);
-            \fill [black] (26.69,-16.36) -- (26.29,-15.51) -- (25.74,-16.35);
-            \draw [black] (17.9,-8.7) -- (43.6,-8.7);
-            \fill [black] (43.6,-8.7) -- (42.8,-8.2) -- (42.8,-9.2);
-            \draw [black] (17.9,-27.5) -- (44.5,-27.5);
-            \fill [black] (44.5,-27.5) -- (43.7,-27) -- (43.7,-28);
-            \draw [black] (31.86,-19.38) -- (44.84,-26.12);
-            \fill [black] (44.84,-26.12) -- (44.36,-25.31) -- (43.9,-26.19);
-            \draw [black] (31.85,-16.59) -- (43.95,-10.11);
-            \fill [black] (43.95,-10.11) -- (43.01,-10.05) -- (43.48,-10.93);
+            \draw (14.9,-27.5) node {$e^{z_2}$};
+            \draw [black] (24.8,-21.6) circle (3);
+            \draw (24.8,-21.6) node {$r$};
+            \draw [black] (32.9,-12.4) circle (3);
+            \draw (32.9,-12.4) node {$y_1$};
+            \draw [black] (32.9,-27.5) circle (3);
+            \draw (32.9,-27.5) node {$y_2$};
+            \draw [black] (17.48,-25.96) -- (22.22,-23.14);
+            \fill [black] (22.22,-23.14) -- (21.28,-23.12) -- (21.79,-23.97);
+            \draw (18.79,-24.05) node [above] {$+$};
+            \draw [black] (17.72,-19.03) -- (21.98,-20.57);
+            \fill [black] (21.98,-20.57) -- (21.4,-19.83) -- (21.06,-20.77);
+            \draw [black] (17.76,-17.11) -- (30.04,-13.29);
+            \fill [black] (30.04,-13.29) -- (29.12,-13.05) -- (29.42,-14.01);
+            \draw (24.57,-15.73) node [below] {$\div$};
+            \draw [black] (17.9,-27.5) -- (29.9,-27.5);
+            \fill [black] (29.9,-27.5) -- (29.1,-27) -- (29.1,-28);
+            \draw [black] (27.22,-23.37) -- (30.48,-25.73);
+            \fill [black] (30.48,-25.73) -- (30.12,-24.86) -- (29.53,-25.67);
+            \draw (28.07,-25.05) node [below] {$\div$};
+            \draw [black] (26.78,-19.35) -- (30.92,-14.65);
+            \fill [black] (30.92,-14.65) -- (30.01,-14.92) -- (30.76,-15.58);
             \end{tikzpicture}
-        \end{center}
+            \end{center}
     \end{homeworkSubsection}
     \subsection*{(c)}
     \begin{homeworkSubsection}
@@ -442,6 +522,9 @@
             = \sum_{i=1}^{d}\frac{\partial L}{\partial y_i}\cdot\frac{-e^{z_i}}{r^2}
         \]
     \end{homeworkSubsection}
+    \subsection*{(c)}
+    \begin{homeworkSubsection}
+    \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{Optimization}
     \subsection*{(a)}
@@ -469,19 +552,19 @@
             \hline
             INPUT & $128\times128\times3$ & 0 & 0 \\
             \hline
-            CONV-9-32 & $120\times120\times96$ & $9\times9\times3\times32$ & 32 \\
+            CONV-9-32 & $120\times120\times32$ & $9\times9\times3\times32$ & 32 \\
             \hline
-            POOL-2 & $60\times60\times96$ & 0 & 0 \\
+            POOL-2 & $60\times60\times32$ & 0 & 0 \\
             \hline
-            CONV-5-64 & $56\times56\times6144$ & $5\times5\times96\times64$ & 64 \\
+            CONV-5-64 & $56\times56\times64$ & $5\times5\times32\times64$ & 64 \\
             \hline
-            POOL-2 & $28\times28\times6144$ & 0 & 0 \\
+            POOL-2 & $28\times28\times64$ & 0 & 0 \\
             \hline
-            CONV-5-64 & $24\times24\times393216$ & $5\times5\times6144\times64$ & 64 \\
+            CONV-5-64 & $24\times24\times64$ & $5\times5\times64\times64$ & 64 \\
             \hline
-            POOL-2 & $12\times12\times393216$ & 0 & 0 \\
+            POOL-2 & $12\times12\times64$ & 0 & 0 \\
             \hline
-            FC-9 & 9 & $12\times12\times393216\times9$ & 1 \\
+            FC-9 & 9 & $12\times12\times64\times9$ & 1 \\
             \hline
         \end{tabular}
     \end{table}
