@@ -99,7 +99,7 @@
 \newcommand{\hmwkTitle}{Exam 2022}
 \newcommand{\hmwkClass}{NNTI}
 % \newcommand{\hmwkTeam}{Team \#25}
-\newcommand{\hmwkAuthorName}{Jackie, Camilo, Kai, Dhimitrios, Hevra}
+\newcommand{\hmwkAuthorName}{Jackie, Camilo, Kai, Dhimitrios, Hevra, Filippo}
 
 %
 % Title Page
@@ -191,11 +191,15 @@
         It is not a good idea because sigmoid function has vanishing gradient problem on large values.
     \end{homeworkSubsection}
     \subsection*{(i)}
-    Yes, you shuffle the data for mini batch gradient descent because you want to avoid introducing bias in the training.
-    You do not need to shuffle the data for batch gradient descent because you are using the whole dataset 
-    (changing rows of the input matrix does not change the output).
+    \begin{homeworkSubsection}
+        Yes, you shuffle the data for mini batch gradient descent because you want to avoid introducing bias in the training.
+        You do not need to shuffle the data for batch gradient descent because you are using the whole dataset 
+        (changing rows of the input matrix does not change the output).
+    \end{homeworkSubsection}
     \subsection*{(j)}
-    It is computational efficient.
+    \begin{homeworkSubsection}
+        It is computational efficient.
+    \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{Principal Component Analysis (PCA)}
     \subsection*{(a)}
@@ -521,9 +525,6 @@
             \cdot\frac{\partial y_i}{\partial r}
             = \sum_{i=1}^{d}\frac{\partial L}{\partial y_i}\cdot\frac{-e^{z_i}}{r^2}
         \]
-    \end{homeworkSubsection}
-    \subsection*{(c)}
-    \begin{homeworkSubsection}
     \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{Optimization}
