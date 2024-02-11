@@ -280,11 +280,34 @@
     \end{homeworkSubsection}
     \subsection*{(d)}
     \begin{homeworkSubsection}
-        We can rewrite $w^\top w$ as $w^\top (ww^\top)^{\gamma-1} w$.
-        Since $(ww^\top)^{\gamma-1}$ is symmetric matrix we can reuse the result from (c) and get
+        % We can rewrite $w^\top w$ as $w^\top (ww^\top)^{\gamma-1} w$.
+        % Since $(ww^\top)^{\gamma-1}$ is symmetric matrix we can reuse the result from (c) and get
+        % \[
+        %     w = (X^\top X + n\lambda (ww^\top)^{\gamma-1})^{-1}X^\top y\\
+        % \]
         \[
-            w = (X^\top X + n\lambda (ww^\top)^{\gamma-1})^{-1}X^\top y\\
+            f(w) = \lambda'(w^\top w)^\gamma = \lambda'(\underset{i}{\sum} w_i^2)^\gamma
         \]
+        \[
+            \frac{\partial f}{\partial w_j} = \lambda'\gamma(\underset{i}{\sum} w_i^2)^{\gamma-1}2w_j
+        \]
+        so
+        \[
+            \nabla_w f(w) = \lambda'\gamma(w^\top w)^{\gamma-1}2w
+        \]
+        Thus we have the gradient of the regularization term:
+        \[
+            \frac{\partial}{\partial w}\lambda'(w^\top w)^{\gamma} = \lambda'\gamma(w^\top w)^{\gamma-1}2w
+        \]
+        and the gradient of the new loss function becomes:
+        \begin{align*}
+            \nabla_wJ(w)    &= 0\\
+            \frac{2}{n}X^\top(Xw-y) + 2\lambda'\gamma(w^\top w)^{\gamma-1}w &= 0\\
+            \frac{1}{n}X^\top(Xw-y) + \lambda'\gamma(w^\top w)^{\gamma-1}w &= 0\\
+            X^\top Xw-X^\top y + n\lambda'\gamma(w^\top w)^{\gamma-1}w &= 0\\
+            X^\top Xw + n\lambda'\gamma(w^\top w)^{\gamma-1}w &= X^\top y\\
+        \end{align*}
+        which can not be solved in closed form.
     \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{Feed-Forward Neural Networks}
