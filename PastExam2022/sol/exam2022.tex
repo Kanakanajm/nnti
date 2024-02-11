@@ -513,41 +513,68 @@
             \end{tikzpicture}
             \end{center}
     \end{homeworkSubsection}
+    \newpage
     \subsection*{(c)}
     \begin{homeworkSubsection}
+        
         (i)\,We have these local gradients:
         \[
-            \frac{\partial L}{\partial z_1} = \frac{\partial L}{\partial y_1}
-            \cdot\frac{\partial y_1}{\partial r}
-            \cdot\frac{\partial r}{\partial z_1}
-            = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{z_1}}{r^2}\cdot e^{z_1}
-            = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{2z_1}}{r^2}
+            \frac{\partial y}{\partial z} = \begin{pmatrix}
+                \frac{\partial y_1}{\partial z_1} & \frac{\partial y_1}{\partial z_2}\\
+                \frac{\partial y_2}{\partial z_1} & \frac{\partial y_2}{\partial z_2}
+            \end{pmatrix} = \begin{pmatrix}
+                y_1(1-y_1) & -y_1y_2\\
+                -y_1y_2 & y_2(1-y_2)
+            \end{pmatrix}
         \]
-        \[
-            \frac{\partial L}{\partial z_2} = \frac{\partial L}{\partial y_2}
-            \cdot\frac{\partial y_2}{\partial r}
-            \cdot\frac{\partial r}{\partial z_2}
-            = \frac{\partial L}{\partial y_2}\cdot\frac{-e^{2z_2}}{r^2}
-        \]
-        \[
-            \frac{\partial L}{\partial r} = \frac{\partial L}{\partial y_1}
-            \cdot\frac{\partial y_1}{\partial r} + \frac{\partial L}{\partial y_2}
-            \cdot\frac{\partial y_2}{\partial r}
-            = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{z_1}}{r^2} +
-            \frac{\partial L}{\partial y_2}\cdot\frac{-e^{z_2}}{r^2}
-        \]
-        (ii)\,For the general d-dimentional case, we have:
-        \[
-            \frac{\partial L}{\partial z_i} = \frac{\partial L}{\partial y_i}
-            \cdot\frac{\partial y_i}{\partial r}
-            \cdot\frac{\partial r}{\partial z_i}
-            = \frac{\partial L}{\partial y_i}\cdot\frac{-e^{2z_i}}{r^2}
-        \]
-        \[
-            \frac{\partial L}{\partial r} = \sum_{i=1}^{d}\frac{\partial L}{\partial y_i}
-            \cdot\frac{\partial y_i}{\partial r}
-            = \sum_{i=1}^{d}\frac{\partial L}{\partial y_i}\cdot\frac{-e^{z_i}}{r^2}
-        \]
+        (ii) The cross entropy loss looks like this: $L = -\underset{i}{\sum}y^{true}_i\mathrm{log}(y_i)$
+        where $y_i$ is the prediction and $y^{true}_i$ is the true value.
+        We have $\frac{\partial L}{\partial y_i} = -\frac{y^{true}_i}{y_i}$.
+        Each $y_j$ is actually a function of $z_i$ so we have 
+        \begin{align*}
+            \frac{\partial L}{\partial z_i} &= \frac{\partial L}{\partial y_i}\cdot\frac{\partial y_i}{\partial z_i} + \underset{k\ne i}{\sum}\frac{\partial L}{\partial y_k}\cdot\frac{\partial y_k}{\partial z_i}\\
+            \frac{\partial L}{\partial z_i} &= \frac{\partial L}{\partial y_i}\cdot y_i(1-y_i) + \underset{k\ne i}{\sum}\frac{\partial L}{\partial y_k}\cdot(-y_iy_k)\\
+            \intertext{The result above is suffient for this question but you can simplify it further}
+            &= -\frac{y^{true}_i}{y_i}\cdot y_i(1-y_i) + \underset{k\ne i}{\sum}-\frac{y^{true}_k}{y_k}\cdot(-y_iy_k)\\
+            &= -y^{true}_i(1-y_i) + y_i\underset{k\ne i}{\sum}y^{true}_k\\
+            &= -y^{true}_i + y^{true}_i y_i + y_i\underset{k\ne i}{\sum}y^{true}_k\\
+            &= -y^{true}_i + y_i\underset{j}{\sum}y^{true}_j\\
+            &= -y^{true}_i + y_i\cdot 1\\
+            &= -y^{true}_i + y_i\\
+        \end{align*}
+
+        % \[
+        %     \frac{\partial L}{\partial z_1} = \frac{\partial L}{\partial y_1}
+        %     \cdot\frac{\partial y_1}{\partial r}
+        %     \cdot\frac{\partial r}{\partial z_1}
+        %     = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{z_1}}{r^2}\cdot e^{z_1}
+        %     = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{2z_1}}{r^2}
+        % \]
+        % \[
+        %     \frac{\partial L}{\partial z_2} = \frac{\partial L}{\partial y_2}
+        %     \cdot\frac{\partial y_2}{\partial r}
+        %     \cdot\frac{\partial r}{\partial z_2}
+        %     = \frac{\partial L}{\partial y_2}\cdot\frac{-e^{2z_2}}{r^2}
+        % \]
+        % \[
+        %     \frac{\partial L}{\partial r} = \frac{\partial L}{\partial y_1}
+        %     \cdot\frac{\partial y_1}{\partial r} + \frac{\partial L}{\partial y_2}
+        %     \cdot\frac{\partial y_2}{\partial r}
+        %     = \frac{\partial L}{\partial y_1}\cdot\frac{-e^{z_1}}{r^2} +
+        %     \frac{\partial L}{\partial y_2}\cdot\frac{-e^{z_2}}{r^2}
+        % \]
+        % (ii)\,For the general d-dimentional case, we have:
+        % \[
+        %     \frac{\partial L}{\partial z_i} = \frac{\partial L}{\partial y_i}
+        %     \cdot\frac{\partial y_i}{\partial r}
+        %     \cdot\frac{\partial r}{\partial z_i}
+        %     = \frac{\partial L}{\partial y_i}\cdot\frac{-e^{2z_i}}{r^2}
+        % \]
+        % \[
+        %     \frac{\partial L}{\partial r} = \sum_{i=1}^{d}\frac{\partial L}{\partial y_i}
+        %     \cdot\frac{\partial y_i}{\partial r}
+        %     = \sum_{i=1}^{d}\frac{\partial L}{\partial y_i}\cdot\frac{-e^{z_i}}{r^2}
+        % \]
     \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{Optimization}
