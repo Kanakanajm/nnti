@@ -645,7 +645,43 @@
     \end{homeworkSubsection}
 \end{homeworkProblem}
 \begin{homeworkProblem}{RNNs}
-    See Assignment 11
+    See Assignment 11\\
+    Question about gradient:
+    \[
+        \frac{\partial L}{\partial \mathbf{W}} =
+        \underset{t}{\sum}\;\frac{\partial L^{(t)}}{\partial \mathbf{W}}
+    \]
+    List of the gradients:
+    \[
+        \mathbf{\delta_1^{(t)}} =
+        \mathbf{\hat{y}^{(t)}} - \mathbf{y^{(t)}}
+    \]
+    \[
+        \frac{\partial L^{(t)}}{\partial \mathbf{V}} =
+        \mathbf{\delta_1^{(t)}}^\top \mathbf{h^{(t)}}^\top
+    \]
+    \[
+        \frac{\partial L^{(t)}}{\partial \mathbf{c}} =
+        \mathbf{\delta_1^{(t)}}^\top
+    \]
+    \[
+        \mathbf{\delta_2^{(t)}} = 
+        \mathbf{\delta_1^{(t)}}\cdot\mathbf{V}\cdot\mathrm{diag}(\sigma'(\mathbf{a^{(t)}}))
+    \]
+    \[
+        \frac{\partial L^{(t)}}{\partial \mathbf{U}} =
+        \mathbf{\delta_2^{(t)}}^\top\mathbf{x^{(t)}}^\top
+    \]
+    \[
+        \frac{\partial L^{(t)}}{\partial \mathbf{W}} =
+        \mathbf{\delta_2^{(t)}}^\top\mathbf{h^{(t-1)}}^\top
+    \]
+    \[
+        \frac{\partial L^{(t)}}{\partial \mathbf{b}} =
+        \mathbf{\delta_2^{(t)}}^\top
+    \]
+    Something is wrong with the recusive definition of $\mathbf{h}^{(t)}$
+
 \end{homeworkProblem}
 
 
