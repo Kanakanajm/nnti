@@ -79,6 +79,9 @@ dkms.conf
 # Packed files
 *.zip
 
+# Project cache
+*/cache
+
 # Special cases
 Assignment08/data/
 Assignment10/data/
