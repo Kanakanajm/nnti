@@ -80,7 +80,9 @@ dkms.conf
 *.zip
 
 # Project cache
-*/cache
+*/cache/languages/*
+*/cache/models/*
+*/cache/tokenizers/*
 
 # Special cases
 Assignment08/data/
