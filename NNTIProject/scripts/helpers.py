@@ -6,6 +6,7 @@ from torch.cuda import is_available as cuda_available
 from torch.utils.data import DataLoader
 from os.path import join as path_join
 
+
 def apply_tokenizer(tokenizer: XGLMTokenizerFast, example: dict, padding: str = None):
     """Specify the tokenization function. If padding is specified, then it is used inside the tokenizer function."""
     return tokenizer(
@@ -15,6 +16,7 @@ def apply_tokenizer(tokenizer: XGLMTokenizerFast, example: dict, padding: str = 
         return_tensors="pt",
     )
 
+
 def add_batch_dimension(example: dict) -> dict:
     """Adds a batch dimension to the tensors. This function assumes the tensors are already in PyTorch tensors and
     simply unsqueezes them at the first dimension.
@@ -23,6 +25,7 @@ def add_batch_dimension(example: dict) -> dict:
     example["input_ids"] = example["input_ids"].unsqueeze(0)
     example["attention_mask"] = example["attention_mask"].unsqueeze(0)
     return example
+
 
 def per_batch_padding_collate_fn(batch: list, tokenizer: XGLMTokenizerFast, padding: str = "longest"):
     """Dynamically pad to the longest sequence in the batch."""
@@ -35,25 +38,39 @@ def per_batch_padding_collate_fn(batch: list, tokenizer: XGLMTokenizerFast, padd
     )
     return batch_padded
 
+
 class TaskRunner:
-    def __init__(self, langs, splits) -> None:
+    def __init__(
+        self,
+        langs: list[str],
+        splits: list[str],
+        batch_size: int = 2,
+        per_batch_padding: bool = True,
+        ignore_padding_token: int = -100,
+        cache_dir: str = "../cache/",
+        verbose: bool = True,
+    ) -> None:
         self.model_name = "facebook/xglm-564M"
         self.dataset_name = "facebook/flores"
         self.device = "cuda" if cuda_available() else "cpu"
         self.langs = langs
         self.splits = splits
-        self.per_batch_padding = True
-        self.verbose = True
-        self.ignore_padding_token_int = -100
-        self.cache_dir = "cache"
-        self.batch_size = 2
+        self.per_batch_padding = per_batch_padding
+        self.verbose = verbose
+        self.ignore_padding_token_int = ignore_padding_token
+        self.cache_dir = cache_dir
+        self.batch_size = batch_size
 
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=path_join(self.cache_dir, "tokenizers"))
-        
-        """Load pre-trained model from the huggingface hub."""
-        self.model = AutoModelForCausalLM.from_pretrained(self.model_name, cache_dir=path_join(self.cache_dir,"models"))
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.model_name, cache_dir=path_join(self.cache_dir, "tokenizers")
+        )
 
-        # specify device on model and put the model into evaluation mode
+        # Load pre-trained model from the huggingface hub.
+        self.model = AutoModelForCausalLM.from_pretrained(
+            self.model_name, cache_dir=path_join(self.cache_dir, "models")
+        )
+
+        # Specify device on model and put the model into evaluation mode
         self.model = self.model.to(self.device)
         if cuda_available():
             self.model = self.model.cuda()
@@ -61,30 +78,35 @@ class TaskRunner:
         if self.verbose:
             print(f"Using device: {self.device}")
 
-    """
-    load flores data for each language
-    structure:
-    dataset_per_lang = {
-      language: {
-          "dataset": {
-               split (dev/devtest): {
-                   "raw": raw dataset (without tokenization),
-                   "tokenized": tokenized dataset
-               }
-          },
-          "dataloader": {
-               split (dev/devtest): dataloader for the split
-          }
-      }
-    }
-    """
-    def load_langs(self) -> dict:
+    def load_langs(self, subset: int = -1) -> dict:
+        """Load flores+ dataset for each language. The structure of the returned dictionary is as follows:
+        ```
+        dataset_per_lang = {
+            language: {
+                "dataset": {
+                    split (dev/devtest): {
+                        "raw": raw dataset (without tokenization),
+                        "tokenized": tokenized dataset
+                    }
+                }
+            }
+        }
+        ```
+        Parameters
+        ----------
+        subset : int
+            Number of examples to load for each language. If -1, all examples are loaded.
+        Returns
+        -------
+        dict
+            A dictionary with the dataset and dataloader for each language and split.
+        """
         dataset = {}
         for language in self.langs:
-            print(f"Loading dataset for {language}", end="... ")
+            if self.verbose:
+                print(f"Loading dataset for {language}", end="... ")
 
-            # add a dataloader key set to None, they are defined in the cell tagged @dataloader-creation
-            dataset[language] = {"dataset": {}, "dataloader": None}
+            dataset[language] = {"dataset": {}}
 
             for split in self.splits:
                 dataset[language]["dataset"][split] = {}
@@ -93,12 +115,28 @@ class TaskRunner:
                     language,
                     split=split,
                     trust_remote_code=True,
-                    cache_dir=path_join(self.cache_dir,"languages"),
+                    cache_dir=path_join(self.cache_dir, "languages"),
                 )
 
-            print("done")
+            if self.verbose:
+                print("done")
+
+        # Subset the dataset to a certain number of sentencer per language, if subset != -1
+        if subset > 0:
+            if self.verbose:
+                print(f"Subsetting dataset to {subset} examples per language... ", end="")
+
+            for language in self.langs:
+                for split in self.splits:
+                    dataset[language]["dataset"][split]["raw"] = dataset[language]["dataset"][split]["raw"].select(
+                        list(range(subset))
+                    )
+
+            if self.verbose:
+                print("Done")
+
         return dataset
-    
+
     def tokenize_dataset(self, dataset: dict) -> dict:
         """Tokenize the dataset using a loaded pre-trained tokenizer from huggingface that goes with the specified model."""
 
@@ -183,12 +221,12 @@ class TaskRunner:
                 print(" instances)")
 
         return batched_dataset
-    
+
     def load_langs_in_batches(self):
         dataset = self.load_langs()
         tokenized_dataset = self.tokenize_dataset(dataset)
         batched_dataset = self.batchify_dataset(tokenized_dataset)
         return batched_dataset
-    
+
     def run(self):
         raise NotImplementedError("This method should be implemented in the child class")
