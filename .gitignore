@@ -83,6 +83,7 @@ dkms.conf
 */cache/languages/*
 */cache/models/*
 */cache/tokenizers/*
+*/cache/representations/*
 
 # Special cases
 Assignment08/data/
