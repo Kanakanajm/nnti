@@ -21,10 +21,7 @@ from time import time
 
 # This is the minimal set of languages that you should analyze, feel free to experiment with additional lanuages
 # available in the flores+ dataset
-LANGUAGES = [
-    "eng_Latn",
-    "spa_Latn",
-]  # , "ita_Latn", "deu_Latn", "arb_Arab", "tel_Telu", "tam_Taml", "quy_Latn", "zho_Hans"]
+LANGUAGES = ["eng_Latn", "spa_Latn", "deu_Latn", "arb_Arab", "tam_Taml", "quy_Latn"]
 SPLITS = ["devtest"]
 MODELS = ["facebook/xglm-564M", "gpt2"]
 
@@ -193,25 +190,27 @@ class Task2Plotter:
 
         # Get the representations for the specified layer for each language
         # For example, {('eng_Latn', 'devtest'): (2, 100, 69, 1024), ('spa_Latn', 'devtest'): (2, 100, 89, 1024)}
-        self.representations = self.load_representations(self.layer)
+        self.initial_representations = self.load_representations(self.layer)
 
         if Task2Ran.verbose:
             print("Initial setup:")
-            print_dict_of_ndarrays(self.representations)
+            print_dict_of_ndarrays(self.initial_representations)
 
         # Apply the function `join_axes_of_ndarray` to the representations to join the first, second and third axes,
         # which are the batch and sequence axes, respectively. Now, the representations would look like:
         # For example, {('eng_Latn', 'devtest'): (17800, 1024), ('spa_Latn', 'devtest'): (13800, 1024)}
-        self.representations = apply_func_to_dict_arrays(self.representations, join_axes_of_ndarray, (0, 1, 2))
+        self.flattened_representations = apply_func_to_dict_arrays(
+            self.initial_representations, join_axes_of_ndarray, (0, 1, 2)
+        )
 
         # Stack the representations for each language so that they can be used for dimensionality reduction
         # For example, the stacked representations would have a shape of: (31600, 1024)
-        reprs_to_stack = [value for _, value in self.representations.items()]
+        reprs_to_stack = [value for _, value in self.flattened_representations.items()]
         stacked_reprs = np_vstack(reprs_to_stack)
 
         if Task2Ran.verbose:
             print(f"Intermediate setup (before {self.dim_reduction}):")
-            print_dict_of_ndarrays(self.representations)
+            print_dict_of_ndarrays(self.flattened_representations)
             print(f"Shape of flattened array: {stacked_reprs.shape}")
             print(f"Applying {self.dim_reduction}... ", end="")
 
@@ -268,14 +267,15 @@ class Task2Plotter:
 
     def to_repr_by_language(self, reduced_data: ndarray) -> dict:
         """Separate the reduced data back into a dictionary where the keys are the languages and the values are the
-        reduced data for the corresponding language. This is a necessary method to fit into `plot_representations`."""
+        reduced data for the corresponding language. This is a necessary method to fit into `plot_representations`.
+        This function assumes that the `self.flattened_representations` dictionary has already been flattened for each
+        language, so that the values are ndarrays of shape `(n_samples, n_features)`.
+        """
         repr_by_language = {}
         offset = 0
-        for key, array in self.representations.items():
+        for key, array in self.flattened_representations.items():
             lang, _ = key
-            num_samples = (
-                array.shape[0] * array.shape[1]
-            )  # number of sentences times the number of samples per language
+            num_samples = array.shape[0]
             repr_by_language[lang] = reduced_data[offset : offset + num_samples]
             offset += num_samples
         return repr_by_language
@@ -285,9 +285,7 @@ class Task2Plotter:
         title = f"{self.dim_reduction} visualization of #{self.layer} hidden layer"
         plt.figure(figsize=(10, 8))
         for lang, reduced_repr in self.reduced_reprs.items():
-            plt.scatter(
-                reduced_repr[:, 0], reduced_repr[:, 1], label=lang, c="lightblue", edgecolor="black", s=50, alpha=0.6
-            )
+            plt.scatter(reduced_repr[:, 0], reduced_repr[:, 1], label=lang, edgecolor="black", s=50, alpha=0.6)
         plt.legend()
         plt.title(title)
         plt.xlabel("Component 1")
@@ -302,7 +300,7 @@ if __name__ == "__main__":
         runner = Task2Runner(LANGUAGES, SPLITS, model_name, seq_by_seq=False, subset=200, perform_early_setup=False)
         runner.run()
         runner.cleanup()
-        plotter = Task2Plotter(runner, dim_reduction="PCA", layer=24, only_langs=["eng_Latn", "spa_Latn"])
+        plotter = Task2Plotter(runner, dim_reduction="PCA", layer=24)
         plotter.plot_representations()
         import sys
 
