@@ -1,10 +1,13 @@
+import h5py
 from copy import deepcopy
 from functools import partial
 from transformers import AutoTokenizer, AutoModelForCausalLM, XGLMForCausalLM, XGLMTokenizerFast
 from datasets import load_dataset
 from torch.cuda import is_available as cuda_available
 from torch.utils.data import DataLoader
-from os.path import join as path_join
+from os.path import join as path_join, exists as path_exists
+from os import makedirs as make_dirs
+from numpy import ndarray, stack as np_stack, pad as np_pad
 
 
 def apply_tokenizer(tokenizer: XGLMTokenizerFast, example: dict, padding: str = None):
@@ -39,19 +42,85 @@ def per_batch_padding_collate_fn(batch: list, tokenizer: XGLMTokenizerFast, padd
     return batch_padded
 
 
+def pad_and_stack(arrays: list[ndarray], pad_value: float = 0, pad_axis: int = 0, shift_axis: int = 0) -> ndarray:
+    """Pads and stacks a list of numpy arrays along a specified axis so that they all have the same shape.
+    The padding is applied to match the largest dimension size along the `pad_axis`.
+
+    Usage:
+    ```
+    >>> a = np.zeros((54, 1024))
+    >>> b = np.zeros((37, 1024))
+    >>> pad_and_stack([a, b], pad_value=0, pad_axis=0).shape
+        (2, 54, 1024)
+    >>> a = np.zeros((54, 1024))
+    >>> b = np.zeros((54, 1025))
+    >>> pad_and_stack([a, b], pad_value=0, pad_axis=1, shift_axis=-1)
+        (2, 54, 1025)
+    >>> pad_and_stack([a, b], pad_value=0, pad_axis=1, shift_axis=0)
+        (54, 2, 1025)
+    >>> pad_and_stack([a, b], pad_value=0, pad_axis=1, shift_axis=1)
+        (54, 1025, 2)
+    ```
+
+    Parameters
+    ----------
+    arrays : list[ndarray]
+        list of numpy arrays to pad and stack
+    pad_value : float, optional
+        Value to use for padding the shorter arrays, by default 0
+    pad_axis : int, optional
+        Axis along which to pad and stack the arrays, by default 0
+    shift_axis : int, optional
+        Axis along which to shift the arrays, by default 0
+
+    Returns
+    -------
+    np.ndarray
+        A single numpy array with all input arrays padded and stacked along the specified axis. If `shift_axis` is not 0,
+        then the resulting new dimension is shifted by that amount to the right.
+    """
+    max_size = max(array.shape[pad_axis] for array in arrays)
+    padded_arrays = []
+
+    for array in arrays:
+        # Calculate padding for each dimension
+        padding = [(0, 0) for _ in range(array.ndim)]
+        padding[pad_axis] = (0, max_size - array.shape[pad_axis])  # Apply padding only on the pad_axis
+
+        padded_array = np_pad(array, padding, mode="constant", constant_values=pad_value)
+        padded_arrays.append(padded_array)
+
+    # Stack along the next axis after pad_axis, to maintain separate items distinctly
+    # stack_axis = pad_axis + 1 if pad_axis < arrays[0].ndim else pad_axis
+    return np_stack(padded_arrays, axis=pad_axis + shift_axis)
+
+
+def save_hdf5(data: dict, dst: str, filename: str) -> None:
+    """Save a dictionary to an HDF5 file."""
+    if not path_exists(path_join(dst, "representations")):
+        make_dirs(path_join(dst, "representations"))
+
+    with h5py.File(path_join(dst, "representations", filename), "w") as f:
+        for key, value in data.items():
+            f.create_dataset(key, data=value)
+
+
 class TaskRunner:
     def __init__(
         self,
         langs: list[str],
         splits: list[str],
+        model_name: str,
+        dataset_name: str = "facebook/flores",
         batch_size: int = 2,
         per_batch_padding: bool = True,
         ignore_padding_token: int = -100,
         cache_dir: str = "../cache/",
         verbose: bool = True,
     ) -> None:
-        self.model_name = "facebook/xglm-564M"
-        self.dataset_name = "facebook/flores"
+        self.model_name = model_name
+        self.str_model_name = "xglm-564M" if self.model_name == "facebook/xglm-564M" else self.model_name
+        self.dataset_name = dataset_name
         self.device = "cuda" if cuda_available() else "cpu"
         self.langs = langs
         self.splits = splits
@@ -64,6 +133,10 @@ class TaskRunner:
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name, cache_dir=path_join(self.cache_dir, "tokenizers")
         )
+
+        # gpt2 does not have a padding token, so we have to add it manually
+        if self.model_name == "gpt2":
+            self.tokenizer.add_special_tokens({"pad_token": self.tokenizer.unk_token})
 
         # Load pre-trained model from the huggingface hub.
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -139,11 +212,6 @@ class TaskRunner:
 
     def tokenize_dataset(self, dataset: dict) -> dict:
         """Tokenize the dataset using a loaded pre-trained tokenizer from huggingface that goes with the specified model."""
-
-        # gpt2 does not have a padding token, so we have to add it manually
-        if self.model_name == "gpt2":
-            self.tokenizer.add_special_tokens({"pad_token": self.tokenizer.unk_token})
-
         new_dataset = deepcopy(dataset)
         for language in dataset:
             for split in dataset[language]["dataset"]:
@@ -222,8 +290,8 @@ class TaskRunner:
 
         return batched_dataset
 
-    def load_langs_in_batches(self):
-        dataset = self.load_langs()
+    def load_langs_in_batches(self, subset: int = -1) -> dict:
+        dataset = self.load_langs(subset=subset)
         tokenized_dataset = self.tokenize_dataset(dataset)
         batched_dataset = self.batchify_dataset(tokenized_dataset)
         return batched_dataset
