@@ -1,6 +1,6 @@
 import h5py
 from copy import deepcopy
-from typing import Hashable
+from typing import Hashable, Callable
 from functools import partial
 from transformers import AutoTokenizer, AutoModelForCausalLM, XGLMTokenizerFast
 from datasets import load_dataset
@@ -16,6 +16,7 @@ from numpy import (
     zeros as np_zeros,
     mean as np_mean,
     vstack as np_vstack,
+    squeeze as np_squeeze,
 )
 from warnings import warn
 from itertools import product
@@ -106,6 +107,74 @@ def pad_and_stack(arrays: list[ndarray], pad_value: float = 0, pad_axis: int = 0
     # Stack along the next axis after pad_axis, to maintain separate items distinctly
     # stack_axis = pad_axis + 1 if pad_axis < arrays[0].ndim else pad_axis
     return np_stack(padded_arrays, axis=pad_axis + shift_axis)
+
+
+def join_axes_of_ndarray(array: ndarray, axes_to_join: tuple[int]) -> ndarray:
+    """Joins multiple axes of an array into a single axis.
+    ```
+    >>> a = np.zeros((2, 100, 69, 1024))
+    >>> join_axes_of_array(a, (0, 1)).shape
+        (200, 69, 1024)
+    ```
+    Parameters
+    ----------
+    array : ndarray
+        The array to reshape.
+    axes_to_join : tuple[int]
+        The axes to join together.
+
+    Returns
+    -------
+    ndarray
+        The reshaped array with joined axes.
+
+    Raises
+    ------
+    ValueError
+        If the `axes_to_join` is not within the dimensions of the array or if the axes are not consecutive.
+    """
+    if not 0 < len(axes_to_join) <= array.ndim:
+        raise ValueError("Axes to join must be within the dimensions of the array.")
+
+    # Sort the axes and check if they are consecutive
+    sorted_axes = sorted(axes_to_join)
+    if sorted_axes != list(range(min(axes_to_join), max(axes_to_join) + 1)):
+        raise ValueError("Axes to join must be consecutive.")
+
+    # Calculate new shape
+    new_shape = list(array.shape)
+    for axis in sorted_axes[1:]:
+        new_shape[sorted_axes[0]] *= new_shape[axis]
+        new_shape[axis] = 1
+    array = array.reshape(new_shape)
+
+    # Now we need to move the joined axis back to the place of the first joined axis and remove all singleton dimensions
+    array = np_squeeze(array, axis=tuple(range(sorted_axes[1], max(axes_to_join) + 1)))
+    return array
+
+
+def apply_func_to_dict_arrays(
+    dict_of_arrays: dict[Hashable, ndarray], func: Callable, *args, **kwargs
+) -> dict[Hashable, ndarray]:
+    """Applies a function to each array in a dictionary.
+
+    Parameters
+    ----------
+    dict_of_arrays : dict[Hashable, ndarray]
+        The dictionary with array values to apply the function to.
+    func : Callable
+        Function to apply to the ndarray. The first argument must be a ndarray.
+    *args
+        Positional arguments to pass to the generation function.
+    **kwargs
+        Keyword arguments to pass to the generation function.
+
+    Returns
+    -------
+    dict[Hashable, ndarray]
+        A dictionary with the new arrays.
+    """
+    return {k: func(v, *args, **kwargs) for k, v in dict_of_arrays.items()}
 
 
 def flatten_and_align_representations(representations: dict, pad_value: float = 0) -> ndarray:

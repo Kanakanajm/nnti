@@ -1,7 +1,16 @@
 from torch import inference_mode as torch_inference_mode, nonzero as torch_nonzero
 from torch.cuda import empty_cache as cuda_empty_cache
 
-from helpers import TaskRunner, save_hdf5, pad_and_stack, files_from_pattern, load_hdf5, print_dict_of_ndarrays
+from helpers import (
+    TaskRunner,
+    save_hdf5,
+    pad_and_stack,
+    files_from_pattern,
+    load_hdf5,
+    print_dict_of_ndarrays,
+    apply_func_to_dict_arrays,
+    join_axes_of_ndarray,
+)
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -179,15 +188,21 @@ class Task2Plotter:
             self.repr_folder, self.repr_pattern, False, self.langs, self.splits
         )
 
-        # Get the representations for the specified layer
+        # Get the representations for the specified layer for each language
+        # For example, {('eng_Latn', 'devtest'): (2, 100, 69, 1024), ('spa_Latn', 'devtest'): (2, 100, 89, 1024)}
         self.representations = self.load_representations(self.layer)
+
+        # Apply the function `join_axes_of_ndarray` to the representations to join the first and second axes, which
+        # are the batch and sequence axes, respectively. Now, the representations would look like:
+        # For example, {('eng_Latn', 'devtest'): (200, 69, 1024), ('spa_Latn', 'devtest'): (200, 89, 1024)}
+        self.representations = apply_func_to_dict_arrays(self.representations, join_axes_of_ndarray, (0, 1))
 
         # Stack the representations for each language so that they can be used for dimensionality reduction
         reprs_to_pad = [value for _, value in self.representations.items()]
 
         # Use the pad_and_stack function to equalize the third dimension (sequence length)
         # (batch size, number of sequences, sequence length, feature size)
-        padded_reprs = pad_and_stack(reprs_to_pad, pad_axis=2, shift_axis=-2)
+        padded_reprs = pad_and_stack(reprs_to_pad, pad_axis=1, shift_axis=-1)
 
         # Now each sequence in 'padded_arrays' has the same length along axis=2
         # Next step is to flatten the arrays and concatenate all the data
