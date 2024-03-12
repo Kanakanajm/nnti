@@ -1,7 +1,7 @@
 from torch import inference_mode as torch_inference_mode, nonzero as torch_nonzero
 from torch.cuda import empty_cache as cuda_empty_cache
 
-from helpers import TaskRunner, save_hdf5, pad_and_stack, files_from_pattern, load_hdf5
+from helpers import TaskRunner, save_hdf5, pad_and_stack, files_from_pattern, load_hdf5, print_dict_of_ndarrays
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -194,6 +194,8 @@ class Task2Plotter:
         flattened_reprs = padded_reprs.reshape(padded_reprs.shape[0] * padded_reprs.shape[1], -1)
 
         if Task2Ran.verbose:
+            print("Initial setup:")
+            print_dict_of_ndarrays(self.representations)
             print(f"Shape of flattened array: {flattened_reprs.shape}")
             print(f"Applying {self.dim_reduction}... ", end="")
 
@@ -209,8 +211,8 @@ class Task2Plotter:
         if Task2Ran.verbose:
             print("Done")
             print(f"Shape of reduced array: {reduced_repr.shape}")
-            for lang in self.reduced_reprs:
-                print(f"Shape of array for {lang}: {self.reduced_reprs[lang].shape}")
+            print("Final setup:")
+            print_dict_of_ndarrays(self.reduced_reprs)
 
     def load_representations(self, layer: int) -> dict:
         """Load representations for a specific layer from the class HDF5 filepaths. The structure of the loaded data is

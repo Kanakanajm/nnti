@@ -253,6 +253,12 @@ def files_from_pattern(directory: str, pattern: str, return_missing: bool, *args
         return file_paths, existing_combinations
 
 
+def print_dict_of_ndarrays(dictionary: dict[Hashable, ndarray], tab: str = "\t") -> None:
+    """Print the shape of each array in a dictionary of numpy arrays."""
+    for key, value in dictionary.items():
+        print(f"{tab}Shape of array for {key}: {value.shape}")
+
+
 class TaskRunner:
     def __init__(
         self,
