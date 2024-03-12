@@ -15,13 +15,16 @@ from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from os.path import join as path_join
-from numpy import ndarray
+from numpy import ndarray, vstack as np_vstack
 from warnings import warn
 from time import time
 
 # This is the minimal set of languages that you should analyze, feel free to experiment with additional lanuages
 # available in the flores+ dataset
-LANGUAGES = ["eng_Latn", "spa_Latn", "ita_Latn", "deu_Latn", "arb_Arab", "tel_Telu", "tam_Taml", "quy_Latn", "zho_Hans"]
+LANGUAGES = [
+    "eng_Latn",
+    "spa_Latn",
+]  # , "ita_Latn", "deu_Latn", "arb_Arab", "tel_Telu", "tam_Taml", "quy_Latn", "zho_Hans"]
 SPLITS = ["devtest"]
 MODELS = ["facebook/xglm-564M", "gpt2"]
 
@@ -192,33 +195,31 @@ class Task2Plotter:
         # For example, {('eng_Latn', 'devtest'): (2, 100, 69, 1024), ('spa_Latn', 'devtest'): (2, 100, 89, 1024)}
         self.representations = self.load_representations(self.layer)
 
-        # Apply the function `join_axes_of_ndarray` to the representations to join the first and second axes, which
-        # are the batch and sequence axes, respectively. Now, the representations would look like:
-        # For example, {('eng_Latn', 'devtest'): (200, 69, 1024), ('spa_Latn', 'devtest'): (200, 89, 1024)}
-        self.representations = apply_func_to_dict_arrays(self.representations, join_axes_of_ndarray, (0, 1))
-
-        # Stack the representations for each language so that they can be used for dimensionality reduction
-        reprs_to_pad = [value for _, value in self.representations.items()]
-
-        # Use the pad_and_stack function to equalize the third dimension (sequence length)
-        # (batch size, number of sequences, sequence length, feature size)
-        padded_reprs = pad_and_stack(reprs_to_pad, pad_axis=1, shift_axis=-1)
-
-        # Now each sequence in 'padded_arrays' has the same length along axis=2
-        # Next step is to flatten the arrays and concatenate all the data
-        flattened_reprs = padded_reprs.reshape(padded_reprs.shape[0] * padded_reprs.shape[1], -1)
-
         if Task2Ran.verbose:
             print("Initial setup:")
             print_dict_of_ndarrays(self.representations)
-            print(f"Shape of flattened array: {flattened_reprs.shape}")
+
+        # Apply the function `join_axes_of_ndarray` to the representations to join the first, second and third axes,
+        # which are the batch and sequence axes, respectively. Now, the representations would look like:
+        # For example, {('eng_Latn', 'devtest'): (17800, 1024), ('spa_Latn', 'devtest'): (13800, 1024)}
+        self.representations = apply_func_to_dict_arrays(self.representations, join_axes_of_ndarray, (0, 1, 2))
+
+        # Stack the representations for each language so that they can be used for dimensionality reduction
+        # For example, the stacked representations would have a shape of: (31600, 1024)
+        reprs_to_stack = [value for _, value in self.representations.items()]
+        stacked_reprs = np_vstack(reprs_to_stack)
+
+        if Task2Ran.verbose:
+            print(f"Intermediate setup (before {self.dim_reduction}):")
+            print_dict_of_ndarrays(self.representations)
+            print(f"Shape of flattened array: {stacked_reprs.shape}")
             print(f"Applying {self.dim_reduction}... ", end="")
 
         # Perform dimensionality reduction
         if self.dim_reduction == "PCA":
-            reduced_repr = self.apply_pca(flattened_reprs)
+            reduced_repr = self.apply_pca(stacked_reprs)
         elif self.dim_reduction == "t-SNE":
-            reduced_repr = self.apply_tsne(flattened_reprs)
+            reduced_repr = self.apply_tsne(stacked_reprs)
 
         # Separate the reduced data so we can plot it by language
         self.reduced_reprs = self.to_repr_by_language(reduced_repr)
