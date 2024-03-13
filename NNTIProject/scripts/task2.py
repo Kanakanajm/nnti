@@ -436,12 +436,9 @@ class Task2Plotter:
 
         if save_to_disk:
             # Use the extension as a subfolder if `subfolder_for_ext` is True
-            if subfolder_for_ext:
-                save_path = path_join(self.plots_folder, ext, f"{filename}.{ext}")
-            else:
-                save_path = path_join(self.plots_folder, f"{filename}.{ext}")
-
+            save_path = path_join(self.plots_folder, ext) if subfolder_for_ext else self.plots_folder
             make_dirs(save_path, exist_ok=True)  # Ensure the save folder exists
+            save_path = path_join(save_path, f"{filename}")
 
             # Save the plot with the specified extension
             if ext == "svg":
@@ -460,7 +457,7 @@ class Task2Plotter:
         """Explicitly delete the class attributes to free up memory."""
         if hasattr(self, "initial_representations") and self.initial_representations is not None:
             del self.initial_representations
-            self.model = None
+            self.initial_representations = None
 
         if hasattr(self, "flattened_representations") and self.flattened_representations is not None:
             del self.flattened_representations
@@ -527,7 +524,6 @@ if __name__ == "__main__":
                     edgecolor="black",
                     linewidth=0.1,
                 )
-                plotter.cleanup()
                 del plotter
             del runner
 
