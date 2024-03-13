@@ -11,18 +11,21 @@ from helpers import (
     print_dict_of_ndarrays,
     apply_func_to_dict_arrays,
     flatten_all_but_last,
+    random_subset_from_dict_arrays,
 )
 from matplotlib import pyplot as plt, rcParams
 from sklearn.decomposition import PCA
 
 # from sklearn.manifold import TSNE
+# Using tsnecuda instead of sklearn.manifold.TSNE because it is faster and can be run on the GPU
+# See: https://github.com/CannyLab/tsne-cuda/blob/main/INSTALL.md
+# Install with: conda install tsnecuda -c conda-forge
 from tsnecuda import TSNE
 
-# from fitsne import FItSNE as TSNE
-# from openTSNE import TSNE, initialization
-# from MulticoreTSNE import MulticoreTSNE as TSNE
 from os.path import join as path_join
-from numpy import ndarray, vstack as np_vstack
+from os import makedirs as make_dirs
+from os.path import join as path_join
+from numpy import ndarray, vstack as np_vstack, linspace as np_linspace
 from warnings import warn
 from time import time
 
@@ -36,8 +39,7 @@ MODELS = ["facebook/xglm-564M", "gpt2"]
 plt.rcParams["axes.formatter.use_mathtext"] = True
 rcParams["font.family"] = "cmr10"
 rcParams["axes.unicode_minus"] = False
-rcParams.update({"font.size": 11})
-rcParams["figure.dpi"] = 100
+rcParams.update({"font.size": 14})
 
 ########################################################
 # Entry point
@@ -52,11 +54,12 @@ class Task2Runner(TaskRunner):
         model_name: str,
         seq_by_seq: bool = True,
         subset: int = 10,
+        cache_dir: str = "../cache/",
         repr_folder: str = "representations",
         repr_key_pattern: str = "layer_{}",
         perform_early_setup: bool = True,
     ) -> None:
-        super().__init__(langs, splits, model_name, perform_early_setup=perform_early_setup)
+        super().__init__(langs, splits, model_name, cache_dir=cache_dir, perform_early_setup=perform_early_setup)
         self.seqbyseq = seq_by_seq
         self.subset = subset
         self.repr_folder = path_join(self.cache_dir, repr_folder)
@@ -173,16 +176,15 @@ class Task2Runner(TaskRunner):
 
 
 class Task2Plotter:
-    def __init__(self, Task2Ran: Task2Runner, dim_reduction: str, layer: int = 0, only_langs: list[str] = None) -> None:
+    def __init__(self, Task2Ran: Task2Runner, layer: int = 0, only_langs: list[str] = None) -> None:
         self.str_model_name = Task2Ran.str_model_name
         self.repr_folder = Task2Ran.repr_folder
         self.repr_pattern = Task2Ran.repr_pattern
         self.repr_key_pattern = Task2Ran.repr_key_pattern
         self.langs = Task2Ran.langs
         self.layer = layer
-        self.dim_reduction = dim_reduction
-        if self.dim_reduction not in ("PCA", "t-SNE"):
-            raise ValueError(f"Unrecognized dimensionality reduction technique: {dim_reduction}")
+        self.random_state = 42  # Random state for reproducibility used in PCA and t-SNE
+        self.verbose = Task2Ran.verbose
 
         # Pick the only_langs subset if it was provided
         if only_langs:
@@ -203,11 +205,30 @@ class Task2Plotter:
             self.repr_folder, self.repr_pattern, False, self.langs, self.splits
         )
 
+        # This attribute will be set in the `run` method. If it is None, the method `run` has not been called yet
+        self.reduced_reprs = None
+
+    def run(self, dim_reduction: str = "PCA", subsample: int = -1) -> None:
+        """Runs the dimensionality reduction technique specified in `dim_reduction` on the representations.
+
+        Parameters
+        ----------
+        dim_reduction : str, optional
+            String that indicates the dimensionality reduction technique to use. It can be either "PCA" or "t-SNE".
+            By default, "PCA" is used.
+        subsample : int, optional
+            Integer that indicates the number of samples to use for each language. If it is -1, all samples are used.
+        """
+        if dim_reduction not in ("PCA", "t-SNE"):
+            raise ValueError(f"Unrecognized dimensionality reduction technique: {dim_reduction}")
+
+        self.dim_reduction = dim_reduction
+
         # Get the representations for the specified layer for each language
         # For example, {('eng_Latn', 'devtest'): (2, 100, 69, 1024), ('spa_Latn', 'devtest'): (2, 100, 89, 1024)}
         self.initial_representations = self.load_representations(self.layer)
 
-        if Task2Ran.verbose:
+        if self.verbose:
             print("Initial setup:")
             print_dict_of_ndarrays(self.initial_representations)
 
@@ -217,28 +238,43 @@ class Task2Plotter:
         # For example, {('eng_Latn', 'devtest'): (17800, 1024), ('spa_Latn', 'devtest'): (13800, 1024)}
         self.flattened_representations = apply_func_to_dict_arrays(self.initial_representations, flatten_all_but_last)
 
-        # Stack the representations for each language so that they can be used for dimensionality reduction
-        # For example, the stacked representations would have a shape of: (31600, 1024)
-        reprs_to_stack = [value for _, value in self.flattened_representations.items()]
+        # Subsample the representations for each language if `subsample` is greater than 0
+        if subsample > 0:
+            if self.verbose:
+                print(f"Subsampling {subsample} samples for each language... ", end="")
+            self.flattened_representations = random_subset_from_dict_arrays(self.flattened_representations, subsample)
+            if self.verbose:
+                print("Done")
+
+        # Convert the dictionary of representations to a list of tuples, where each tuple is a language and its
+        # corresponding representation. This is necessary to stack the representations for each language, because
+        # dictionaries do not preserve the order of the keys.
+        self.ordered_reprs = list(self.flattened_representations.items())
+
+        # Stack the representations for each language so that they can be used for dimensionality reduction.
+        # For example, the stacked representations would have a shape of: (31600, 1024) for the example above
+        reprs_to_stack = [value for _, value in self.ordered_reprs]
         stacked_reprs = np_vstack(reprs_to_stack)
 
-        if Task2Ran.verbose:
+        if self.verbose:
             print(f"Intermediate setup (before {self.dim_reduction}):")
             print_dict_of_ndarrays(self.flattened_representations)
             print(f"Shape of flattened array: {stacked_reprs.shape}")
             print(f"Applying {self.dim_reduction}... ", end="")
 
         # Perform dimensionality reduction
+        start_time = time()
         if self.dim_reduction == "PCA":
-            reduced_repr = self.apply_pca(stacked_reprs)
+            reduced_repr = self.apply_pca(stacked_reprs, random_state=self.random_state)
         elif self.dim_reduction == "t-SNE":
-            reduced_repr = self.apply_tsne(stacked_reprs)
+            reduced_repr = self.apply_tsne(stacked_reprs, random_state=self.random_state)
+        elapsed_time = time() - start_time
 
         # Separate the reduced data so we can plot it by language
         self.reduced_reprs = self.to_repr_by_language(reduced_repr)
 
-        if Task2Ran.verbose:
-            print("Done")
+        if self.verbose:
+            print("Done (took {:.2f} s)".format(elapsed_time))
             print(f"Shape of reduced array: {reduced_repr.shape}")
             print("Final setup:")
             print_dict_of_ndarrays(self.reduced_reprs)
@@ -275,34 +311,13 @@ class Task2Plotter:
         return pca.fit_transform(stacked_data)
 
     def apply_tsne(self, stacked_data: ndarray, n_components: int = 2, random_state: int = 0) -> ndarray:
-        """Apply t-SNE to reduce the dimensionality of the given high-dimensional array."""
-        # sklearn: tsne = TSNE(n_components=n_components, random_state=random_state)
-        # tsnecuda: return tsne.fit_transform(stacked_data)
-        # fitsne: TSNE(stacked_data.astype("double"), early_exag_coeff=1, nthreads=8)
-        # opentsne: return TSNE(
-        #     perplexity=30,
-        #     metric="euclidean",
-        #     n_jobs=32,
-        #     random_state=42,
-        #     verbose=True,
-        # ).fit(stacked_data)
-        # aff50 = PerplexityBasedNN(
-        #     stacked_data,
-        #     perplexity=50,
-        #     n_jobs=32,
-        #     random_state=random_state,
-        # )
-        # init = initialization.pca(stacked_data, random_state=random_state)
-        # return TSNE(n_jobs=32, negative_gradient_method="auto", verbose=True).fit(stacked_data, initialization=init)
-        # multicoretsne: init = self.apply_pca(stacked_data, n_components=n_components, random_state=random_state)
-        # return TSNE(n_components=n_components, init=init, n_jobs=8, random_state=random_state).fit_transform(
-        #    stacked_data
-        # )
+        """Apply t-SNE to reduce the dimensionality of the given high-dimensional array. NOTE that this method uses the
+        `tsnecuda` package, which requires a GPU and of course, installing the package on the `conda` environment."""
         return TSNE(
             n_components=n_components,
             perplexity=50,
-            learning_rate=10,
-            verbose=True,
+            learning_rate="auto",
+            verbose=False,
             random_seed=random_state,
         ).fit_transform(stacked_data)
 
@@ -310,42 +325,114 @@ class Task2Plotter:
         """Separate the reduced data back into a dictionary where the keys are the languages and the values are the
         reduced data for the corresponding language. This is a necessary method to fit into `plot_representations`.
         This function assumes that the `self.flattened_representations` dictionary has already been flattened for each
-        language, so that the values are ndarrays of shape `(n_samples, n_features)`.
+        language, so that the values are ndarrays of shape `(n_samples, n_features)`, and this dictionary has been
+        dumped into `self.ordered_reprs` to preserve ordering as a list of tuples.
         """
         repr_by_language = {}
         offset = 0
-        for key, array in self.flattened_representations.items():
+        for key, array in self.ordered_reprs:
             lang, _ = key
             num_samples = array.shape[0]
             repr_by_language[lang] = reduced_data[offset : offset + num_samples]
             offset += num_samples
         return repr_by_language
 
-    def plot_representations(self, **kwargs) -> None:
+    def plot_representations(
+        self,
+        figsize: tuple = (10, 8),
+        dpi: int = 300,
+        cmap: str = "tab10",
+        legend_size: int = 60,
+        save_to_disk: bool = False,
+        show: bool = False,
+        extensions: list = ["png"],
+        save_folder: str = "../cache/plots",
+        **kwargs,
+    ) -> None:
         """Plot 2D version of the representations."""
+        if not self.reduced_reprs:
+            raise ValueError("The reduced representations have not been computed yet. Call `run` first.")
+
+        cmap = plt.get_cmap(cmap)  # Set the colormap
+        colors = cmap(np_linspace(0, 1, len(self.reduced_reprs.keys())))  # Generate colors from the colormap
+
         title = f"{self.dim_reduction} visualization of #{self.layer} hidden layer ({self.str_model_name})"
-        plt.figure(figsize=(10, 8))
-        for lang, reduced_repr in self.reduced_reprs.items():
+        plt.figure(figsize=figsize)
+        for i, (lang, reduced_repr) in enumerate(self.reduced_reprs.items()):
             label = lang.replace("_", "$\mathrm{\_}$")
-            plt.scatter(reduced_repr[:, 0], reduced_repr[:, 1], label=label, **kwargs)
-        plt.legend()
+            plt.scatter(reduced_repr[:, 0], reduced_repr[:, 1], label=label, color=colors[i], **kwargs)
+
+        legend = plt.legend()  # Generate legend
+        for handle in legend.legend_handles:  # Increase the size of the circles in the legend
+            handle.set_sizes([legend_size])
+
         plt.title(title)
         plt.xlabel("Component 1")
         plt.ylabel("Component 2")
         plt.grid(True, which="major", color="k", linestyle="-", alpha=0.2)
         plt.gca().set_axisbelow(True)
         plt.tight_layout()
-        plt.show()
+
+        if save_to_disk:
+            make_dirs(save_folder, exist_ok=True)  # Ensure the save folder exists
+            filename = f"{self.str_model_name}_layer_{self.layer}_{self.dim_reduction}"
+            # Save the plot with each specified extensions
+            for ext in extensions:
+                save_path = path_join(save_folder, f"{filename}.{ext}")
+                if ext == "svg":
+                    plt.savefig(save_path, format=ext)
+                else:
+                    plt.savefig(save_path, format=ext, dpi=dpi)
+                if self.verbose:
+                    print(f"Plot saved to {save_path}")
+
+        if show:
+            plt.show()
+        plt.close()
+
+    def cleanup(self):
+        """Explicitly delete the class attributes to free up memory."""
+        del self.hdf5_files, self.initial_representations, self.flattened_representations, self.reduced_reprs
 
 
 if __name__ == "__main__":
-    # Execute these lines to generate representations
-    for model_name in MODELS:
-        runner = Task2Runner(LANGUAGES, SPLITS, model_name, seq_by_seq=False, subset=200, perform_early_setup=False)
-        runner.run()
-        runner.cleanup()
-        plotter = Task2Plotter(runner, dim_reduction="t-SNE", layer=24)
-        plotter.plot_representations(edgecolor="black", linewidth=0.25)
-        import sys
+    for dim_reduction in ["PCA", "t-SNE"]:
+        for model_name in MODELS:
+            # Create a Task2Runner instance for the current model and run it
+            runner = Task2Runner(
+                LANGUAGES,
+                SPLITS,
+                model_name,
+                seq_by_seq=False,
+                subset=200,
+                cache_dir="/run/media/Camilo/Personal/Repositorios en Github/nnti/NNTIProject/cache",
+                perform_early_setup=False,
+            )
+            runner.run()
+            runner.cleanup()
 
-        sys.exit(0)
+            # Create a Task2Plotter instance for the current model, run the current dimensionality reduction technique
+            # and save each plot to disk for each layer
+            for layer in range(0, runner.num_layers + 1):
+                print(f"\nRunning {dim_reduction} for layer {layer} of {model_name}...\n")
+                plotter = Task2Plotter(runner, layer=layer)
+                plotter.run(dim_reduction=dim_reduction)
+                plotter.plot_representations(
+                    cmap="Accent",
+                    save_to_disk=True,
+                    extensions=["png"],
+                    save_folder="../cache/plots/png",
+                    edgecolor="black",
+                    linewidth=0.1,
+                )
+                plotter.plot_representations(
+                    cmap="Accent",
+                    save_to_disk=True,
+                    extensions=["svg"],
+                    save_folder="../cache/plots/svg",
+                    edgecolor="black",
+                    linewidth=0.1,
+                )
+                plotter.cleanup()
+                del plotter
+            del runner

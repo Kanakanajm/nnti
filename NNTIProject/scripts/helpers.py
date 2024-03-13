@@ -17,6 +17,7 @@ from numpy import (
     mean as np_mean,
     vstack as np_vstack,
     squeeze as np_squeeze,
+    random as np_random,
 )
 from warnings import warn
 from itertools import product
@@ -189,6 +190,39 @@ def apply_func_to_dict_arrays(
     return {k: func(v, *args, **kwargs) for k, v in dict_of_arrays.items()}
 
 
+def random_subset_from_dict_arrays(
+    dict_of_arrays: dict[Hashable, ndarray], subsample: int, random_state: int = None
+) -> dict:
+    """Randomly subsample the first axis of each array in a dictionary. This function is useful when we have a dictionary
+    of numpy arrays and the arrays have a shape `(n_samples, n_features)` or, in general, `(n_samples, ...)`, and we need
+    a random subset of the samples.
+
+    Parameters
+    ----------
+    dict_of_arrays : dict[Hashable, ndarray]
+        The dictionary with array values to subsample.
+    subsample : int
+        The number of samples to subsample from each array.
+    random_state : int, optional
+        The random state to use for reproducibility, by default None
+
+    Returns
+    -------
+    dict
+        A dictionary with the subsampled arrays.
+    """
+    np_random.seed(random_state)  # Set random state for reproducibility
+    subsampled_dict = {}
+    for key, array in dict_of_arrays.items():
+        if subsample < array.shape[0]:  # Only subsample if the requested size is smaller than the current size
+            # Randomly select indices without replacement
+            selected_indices = np_random.choice(array.shape[0], subsample, replace=False)
+            subsampled_dict[key] = array[selected_indices]
+        else:
+            subsampled_dict[key] = array  # If subsample size is equal or larger, return the original array
+    return subsampled_dict
+
+
 def save_hdf5(data: dict, filename: str, dst: str = None, to_cache: bool = False, subfolder: str = None) -> None:
     """Save a dictionary to an HDF5 file."""
     if to_cache:
@@ -327,6 +361,9 @@ class TaskRunner:
         self.cache_dir = cache_dir
         self.batch_size = batch_size
         self.setup_done = False
+
+        # facebook/xglm-564M has 1-24 layers, gpt2 has 0-12 layers
+        self.num_layers = 24 if self.model_name == "facebook/xglm-564M" else 12
 
         if perform_early_setup:
             self._setup()
