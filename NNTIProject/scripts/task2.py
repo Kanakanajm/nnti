@@ -3,17 +3,24 @@ from torch.cuda import empty_cache as cuda_empty_cache
 
 from helpers import (
     TaskRunner,
+    flatten_all_but_last,
     save_hdf5,
     pad_and_stack,
     files_from_pattern,
     load_hdf5,
     print_dict_of_ndarrays,
     apply_func_to_dict_arrays,
-    join_axes_of_ndarray,
+    flatten_all_but_last,
 )
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, rcParams
 from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
+
+# from sklearn.manifold import TSNE
+from tsnecuda import TSNE
+
+# from fitsne import FItSNE as TSNE
+# from openTSNE import TSNE, initialization
+# from MulticoreTSNE import MulticoreTSNE as TSNE
 from os.path import join as path_join
 from numpy import ndarray, vstack as np_vstack
 from warnings import warn
@@ -24,6 +31,13 @@ from time import time
 LANGUAGES = ["eng_Latn", "spa_Latn", "deu_Latn", "arb_Arab", "tam_Taml", "quy_Latn"]
 SPLITS = ["devtest"]
 MODELS = ["facebook/xglm-564M", "gpt2"]
+
+# Set up figure parameters to make them look nice
+plt.rcParams["axes.formatter.use_mathtext"] = True
+rcParams["font.family"] = "cmr10"
+rcParams["axes.unicode_minus"] = False
+rcParams.update({"font.size": 11})
+rcParams["figure.dpi"] = 100
 
 ########################################################
 # Entry point
@@ -160,6 +174,7 @@ class Task2Runner(TaskRunner):
 
 class Task2Plotter:
     def __init__(self, Task2Ran: Task2Runner, dim_reduction: str, layer: int = 0, only_langs: list[str] = None) -> None:
+        self.str_model_name = Task2Ran.str_model_name
         self.repr_folder = Task2Ran.repr_folder
         self.repr_pattern = Task2Ran.repr_pattern
         self.repr_key_pattern = Task2Ran.repr_key_pattern
@@ -196,12 +211,11 @@ class Task2Plotter:
             print("Initial setup:")
             print_dict_of_ndarrays(self.initial_representations)
 
-        # Apply the function `join_axes_of_ndarray` to the representations to join the first, second and third axes,
-        # which are the batch and sequence axes, respectively. Now, the representations would look like:
+        # Apply the function `flatten_all_but_last` to the representations to join the first, second and third axes,
+        # which are the batch, number of sequences and sequence length axes, respectively. Now, the representations
+        # would look like: `(n_samples, n_features)`.
         # For example, {('eng_Latn', 'devtest'): (17800, 1024), ('spa_Latn', 'devtest'): (13800, 1024)}
-        self.flattened_representations = apply_func_to_dict_arrays(
-            self.initial_representations, join_axes_of_ndarray, (0, 1, 2)
-        )
+        self.flattened_representations = apply_func_to_dict_arrays(self.initial_representations, flatten_all_but_last)
 
         # Stack the representations for each language so that they can be used for dimensionality reduction
         # For example, the stacked representations would have a shape of: (31600, 1024)
@@ -255,15 +269,42 @@ class Task2Plotter:
             representations[lang_split] = load_hdf5(path, filename_is_fullpath=True, only_keys=[str_layer])[str_layer]
         return representations
 
-    def apply_pca(self, stacked_data: ndarray, n_components: int = 2) -> ndarray:
+    def apply_pca(self, stacked_data: ndarray, n_components: int = 2, random_state: int = 0) -> ndarray:
         """Apply PCA to reduce the dimensionality of the given high-dimensional array."""
-        pca = PCA(n_components=n_components)
+        pca = PCA(n_components=n_components, random_state=random_state)
         return pca.fit_transform(stacked_data)
 
-    def apply_tsne(self, stacked_data: ndarray, n_components: int = 2, random_state: int = 42) -> ndarray:
+    def apply_tsne(self, stacked_data: ndarray, n_components: int = 2, random_state: int = 0) -> ndarray:
         """Apply t-SNE to reduce the dimensionality of the given high-dimensional array."""
-        tsne = TSNE(n_components=n_components, random_state=random_state)
-        return tsne.fit_transform(stacked_data)
+        # sklearn: tsne = TSNE(n_components=n_components, random_state=random_state)
+        # tsnecuda: return tsne.fit_transform(stacked_data)
+        # fitsne: TSNE(stacked_data.astype("double"), early_exag_coeff=1, nthreads=8)
+        # opentsne: return TSNE(
+        #     perplexity=30,
+        #     metric="euclidean",
+        #     n_jobs=32,
+        #     random_state=42,
+        #     verbose=True,
+        # ).fit(stacked_data)
+        # aff50 = PerplexityBasedNN(
+        #     stacked_data,
+        #     perplexity=50,
+        #     n_jobs=32,
+        #     random_state=random_state,
+        # )
+        # init = initialization.pca(stacked_data, random_state=random_state)
+        # return TSNE(n_jobs=32, negative_gradient_method="auto", verbose=True).fit(stacked_data, initialization=init)
+        # multicoretsne: init = self.apply_pca(stacked_data, n_components=n_components, random_state=random_state)
+        # return TSNE(n_components=n_components, init=init, n_jobs=8, random_state=random_state).fit_transform(
+        #    stacked_data
+        # )
+        return TSNE(
+            n_components=n_components,
+            perplexity=50,
+            learning_rate=10,
+            verbose=True,
+            random_seed=random_state,
+        ).fit_transform(stacked_data)
 
     def to_repr_by_language(self, reduced_data: ndarray) -> dict:
         """Separate the reduced data back into a dictionary where the keys are the languages and the values are the
@@ -280,16 +321,19 @@ class Task2Plotter:
             offset += num_samples
         return repr_by_language
 
-    def plot_representations(self) -> None:
+    def plot_representations(self, **kwargs) -> None:
         """Plot 2D version of the representations."""
-        title = f"{self.dim_reduction} visualization of #{self.layer} hidden layer"
+        title = f"{self.dim_reduction} visualization of #{self.layer} hidden layer ({self.str_model_name})"
         plt.figure(figsize=(10, 8))
         for lang, reduced_repr in self.reduced_reprs.items():
-            plt.scatter(reduced_repr[:, 0], reduced_repr[:, 1], label=lang, edgecolor="black", s=50, alpha=0.6)
+            label = lang.replace("_", "$\mathrm{\_}$")
+            plt.scatter(reduced_repr[:, 0], reduced_repr[:, 1], label=label, **kwargs)
         plt.legend()
         plt.title(title)
         plt.xlabel("Component 1")
         plt.ylabel("Component 2")
+        plt.grid(True, which="major", color="k", linestyle="-", alpha=0.2)
+        plt.gca().set_axisbelow(True)
         plt.tight_layout()
         plt.show()
 
@@ -300,8 +344,8 @@ if __name__ == "__main__":
         runner = Task2Runner(LANGUAGES, SPLITS, model_name, seq_by_seq=False, subset=200, perform_early_setup=False)
         runner.run()
         runner.cleanup()
-        plotter = Task2Plotter(runner, dim_reduction="PCA", layer=24)
-        plotter.plot_representations()
+        plotter = Task2Plotter(runner, dim_reduction="t-SNE", layer=24)
+        plotter.plot_representations(edgecolor="black", linewidth=0.25)
         import sys
 
         sys.exit(0)

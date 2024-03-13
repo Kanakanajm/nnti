@@ -153,6 +153,18 @@ def join_axes_of_ndarray(array: ndarray, axes_to_join: tuple[int]) -> ndarray:
     return array
 
 
+def flatten_all_but_last(array: ndarray) -> ndarray:
+    """Flattens all axes of an array except the last one.
+    Usage:
+    ```
+    >>> a = np.zeros((2, 100, 69, 1024))
+    >>> flatten_all_but_last(a).shape
+        (13800, 1024)
+    ```
+    """
+    return array.reshape(-1, array.shape[-1])
+
+
 def apply_func_to_dict_arrays(
     dict_of_arrays: dict[Hashable, ndarray], func: Callable, *args, **kwargs
 ) -> dict[Hashable, ndarray]:
@@ -175,45 +187,6 @@ def apply_func_to_dict_arrays(
         A dictionary with the new arrays.
     """
     return {k: func(v, *args, **kwargs) for k, v in dict_of_arrays.items()}
-
-
-def flatten_and_align_representations(representations: dict, pad_value: float = 0) -> ndarray:
-    """
-    Flatten and align the representations from different languages and batches
-    to a common shape for PCA and t-SNE analysis, taking into account variable sequence lengths.
-
-    Parameters:
-    - representations (dict): A dictionary with keys as tuples (language, split) and values as numpy arrays of shape (batches, sequences, tokens, features).
-    - pad_value (float, optional): Value for padding smaller arrays. Defaults to 0.
-
-    Returns:
-    - np.ndarray: A 2D numpy array suitable for PCA or t-SNE, with samples as rows and features as columns.
-    """
-    max_token_length = max(repr.shape[2] for repr in representations.values())
-    all_pooled_reps = []
-
-    for key, rep in representations.items():
-        # Pad sequences to max_token_length
-        padded_reps = [
-            np_pad(
-                arr,
-                ((0, 0), (0, 0), (0, max_token_length - arr.shape[2]), (0, 0)),
-                mode="constant",
-                constant_values=pad_value,
-            )
-            for arr in rep
-        ]
-        # Concatenate padded representations along the sequence axis
-        concatenated_reps = np_concatenate(padded_reps, axis=1)
-        # Mean pool over the token axis to get a single vector per sequence
-        mean_pooled_reps = np_mean(concatenated_reps, axis=2)
-        # Flatten across batches and sequences
-        flattened_reps = mean_pooled_reps.reshape(-1, mean_pooled_reps.shape[-1])
-        all_pooled_reps.append(flattened_reps)
-
-    # Stack all representations vertically
-    final_representation = np_vstack(all_pooled_reps)
-    return final_representation
 
 
 def save_hdf5(data: dict, filename: str, dst: str = None, to_cache: bool = False, subfolder: str = None) -> None:
