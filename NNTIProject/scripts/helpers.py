@@ -12,15 +12,12 @@ from numpy import (
     ndarray,
     stack as np_stack,
     pad as np_pad,
-    concatenate as np_concatenate,
-    zeros as np_zeros,
-    mean as np_mean,
-    vstack as np_vstack,
     squeeze as np_squeeze,
     random as np_random,
 )
 from warnings import warn
 from itertools import product
+from pathlib import Path
 
 CACHE_DIR = "../cache/"  # Path to the cache directory
 
@@ -327,6 +324,46 @@ def files_from_pattern(directory: str, pattern: str, return_missing: bool, *args
         return file_paths, missing_combinations
     else:
         return file_paths, existing_combinations
+
+
+def check_file_existence(folder: str, filename: str, recursive: bool = False, ignore_extension: bool = False) -> bool:
+    """Checks if a file exists in a specified folder, with options for recursive search and ignoring the file extension.
+
+    Parameters
+    ----------
+    folder : str
+        The folder in which to search for the file.
+    filename : str
+        The name of the file to search for, with or without extension.
+    recursive : bool, optional
+        If True, search for the file recursively in subfolders, by default False.
+    ignore_extension : bool, optional
+        If True, ignore the file extension in the search, by default False.
+
+    Returns
+    -------
+    bool
+        True if the file exists, False otherwise.
+    """
+    folder_path = Path(folder).resolve()
+    if recursive:
+        search_pattern = "**/*" if ignore_extension else f"**/{filename}"
+    else:
+        search_pattern = "*" if ignore_extension else filename
+
+    if recursive:
+        search_pattern = "**/*" if ignore_extension else f"**/{filename}"
+    else:
+        search_pattern = "*" if ignore_extension else filename
+
+    for path in folder_path.glob(search_pattern):
+        if ignore_extension:
+            if path.stem == Path(filename).stem and path.is_file():
+                return True
+        else:
+            if path.name == filename and path.is_file():
+                return True
+    return False
 
 
 def print_dict_of_ndarrays(dictionary: dict[Hashable, ndarray], tab: str = "\t") -> None:

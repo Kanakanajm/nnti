@@ -1,5 +1,6 @@
 from torch import inference_mode as torch_inference_mode, nonzero as torch_nonzero
 from torch.cuda import empty_cache as cuda_empty_cache
+from datetime import datetime
 
 from helpers import (
     TaskRunner,
@@ -12,15 +13,16 @@ from helpers import (
     apply_func_to_dict_arrays,
     flatten_all_but_last,
     random_subset_from_dict_arrays,
+    check_file_existence,
 )
 from matplotlib import pyplot as plt, rcParams
-from sklearn.decomposition import PCA
 
 # from sklearn.manifold import TSNE
 # Using tsnecuda instead of sklearn.manifold.TSNE because it is faster and can be run on the GPU
 # See: https://github.com/CannyLab/tsne-cuda/blob/main/INSTALL.md
 # Install with: conda install tsnecuda -c conda-forge
 from tsnecuda import TSNE
+from sklearn.decomposition import PCA
 
 from os.path import join as path_join
 from os import makedirs as make_dirs
@@ -176,15 +178,26 @@ class Task2Runner(TaskRunner):
 
 
 class Task2Plotter:
-    def __init__(self, Task2Ran: Task2Runner, layer: int = 0, only_langs: list[str] = None) -> None:
+    def __init__(
+        self,
+        Task2Ran: Task2Runner,
+        layer: int = 0,
+        only_langs: list[str] = None,
+        cache_dir: str = None,
+        plots_folder: str = "plots",
+    ) -> None:
         self.str_model_name = Task2Ran.str_model_name
         self.repr_folder = Task2Ran.repr_folder
         self.repr_pattern = Task2Ran.repr_pattern
         self.repr_key_pattern = Task2Ran.repr_key_pattern
         self.langs = Task2Ran.langs
         self.layer = layer
-        self.random_state = 42  # Random state for reproducibility used in PCA and t-SNE
+        self.random_state = 0  # Random state for reproducibility used in PCA and t-SNE
         self.verbose = Task2Ran.verbose
+
+        # Override the cache directory if it was provided, otherwise use the one from Task2Ran
+        self.cache_dir = cache_dir if cache_dir else Task2Ran.cache_dir
+        self.plots_folder = path_join(self.cache_dir, plots_folder)
 
         # Pick the only_langs subset if it was provided
         if only_langs:
@@ -205,10 +218,14 @@ class Task2Plotter:
             self.repr_folder, self.repr_pattern, False, self.langs, self.splits
         )
 
+        # Pattern for the filename of the plots, where the last 2 placeholders are intended for the layer number and
+        # the dimensionality reduction technique, respectively
+        self.plot_filename_pattern = f"{self.str_model_name}_layer_" + "{}_{}"
+
         # This attribute will be set in the `run` method. If it is None, the method `run` has not been called yet
         self.reduced_reprs = None
 
-    def run(self, dim_reduction: str = "PCA", subsample: int = -1) -> None:
+    def run(self, dim_reduction: str = "PCA", subsample: int = -1, check_plot_exists: bool = False) -> None:
         """Runs the dimensionality reduction technique specified in `dim_reduction` on the representations.
 
         Parameters
@@ -218,11 +235,21 @@ class Task2Plotter:
             By default, "PCA" is used.
         subsample : int, optional
             Integer that indicates the number of samples to use for each language. If it is -1, all samples are used.
+        check_plot_exists : bool, optional
+            Boolean that indicates whether to check if the plot already exists in the `self.plots_folder` before running
+            the dimensionality reduction technique. If it exists, the method will stop prematurely to avoid recomputing.
+            If False, it will recompute everything. By default, False.
         """
         if dim_reduction not in ("PCA", "t-SNE"):
             raise ValueError(f"Unrecognized dimensionality reduction technique: {dim_reduction}")
 
         self.dim_reduction = dim_reduction
+
+        # Check if the plot already exists if `check_plot_existence_in` is provided, which is intended to be a folder
+        if check_plot_exists:
+            plot_filename = self.plot_filename_pattern.format(self.layer, self.dim_reduction)
+            if check_file_existence(self.plots_folder, plot_filename, recursive=True, ignore_extension=True):
+                return
 
         # Get the representations for the specified layer for each language
         # For example, {('eng_Latn', 'devtest'): (2, 100, 69, 1024), ('spa_Latn', 'devtest'): (2, 100, 89, 1024)}
@@ -260,7 +287,6 @@ class Task2Plotter:
             print(f"Intermediate setup (before {self.dim_reduction}):")
             print_dict_of_ndarrays(self.flattened_representations)
             print(f"Shape of flattened array: {stacked_reprs.shape}")
-            print(f"Applying {self.dim_reduction}... ", end="")
 
         # Perform dimensionality reduction
         start_time = time()
@@ -274,7 +300,7 @@ class Task2Plotter:
         self.reduced_reprs = self.to_repr_by_language(reduced_repr)
 
         if self.verbose:
-            print("Done (took {:.2f} s)".format(elapsed_time))
+            print(" (took {:.2f} s)".format(elapsed_time))
             print(f"Shape of reduced array: {reduced_repr.shape}")
             print("Final setup:")
             print_dict_of_ndarrays(self.reduced_reprs)
@@ -307,19 +333,46 @@ class Task2Plotter:
 
     def apply_pca(self, stacked_data: ndarray, n_components: int = 2, random_state: int = 0) -> ndarray:
         """Apply PCA to reduce the dimensionality of the given high-dimensional array."""
-        pca = PCA(n_components=n_components, random_state=random_state)
-        return pca.fit_transform(stacked_data)
+        if self.verbose:
+            print(f"Applying PCA... ", end="")
+
+        embedded = PCA(n_components=n_components, random_state=random_state).fit_transform(stacked_data)
+
+        if self.verbose:
+            print("Done", end="")
+
+        return embedded
 
     def apply_tsne(self, stacked_data: ndarray, n_components: int = 2, random_state: int = 0) -> ndarray:
         """Apply t-SNE to reduce the dimensionality of the given high-dimensional array. NOTE that this method uses the
         `tsnecuda` package, which requires a GPU and of course, installing the package on the `conda` environment."""
-        return TSNE(
+
+        # The following parameters are set based on the number of samples in the data and the recommendations cited from
+        # various sources:
+        # * Uncertain Choices in Method Comparisons: An Illustration with t-SNE and UMAP (2023)
+        #   See: https://epub.ub.uni-muenchen.de/107259/1/BA_Weber_Philipp.pdf
+        # * New guidance for using t-SNE: Alternative defaults, hyperparameter selection automation, and comparative
+        #   evaluation (2022)
+        #   See: https://www.sciencedirect.com/science/article/pii/S2468502X22000201
+        n = stacked_data.shape[0]
+        learning_rate = max(200, int(n / 12))
+        perplexity = max(30, int(n / 100))
+
+        if self.verbose:
+            print(f"Applying t-SNE (perplexity={perplexity}, learning_rate={learning_rate})... ", end="")
+
+        embedded = TSNE(
             n_components=n_components,
-            perplexity=50,
-            learning_rate="auto",
+            perplexity=perplexity,
+            learning_rate=learning_rate,
             verbose=False,
             random_seed=random_state,
         ).fit_transform(stacked_data)
+
+        if self.verbose:
+            print("Done", end="")
+
+        return embedded
 
     def to_repr_by_language(self, reduced_data: ndarray) -> dict:
         """Separate the reduced data back into a dictionary where the keys are the languages and the values are the
@@ -345,11 +398,18 @@ class Task2Plotter:
         legend_size: int = 60,
         save_to_disk: bool = False,
         show: bool = False,
-        extensions: list = ["png"],
-        save_folder: str = "../cache/plots",
+        extension: str = "png",
         **kwargs,
     ) -> None:
         """Plot 2D version of the representations."""
+        filename = self.plot_filename_pattern.format(self.layer, self.dim_reduction) + f".{extension}"
+
+        # Check if the plot already exists in `self.plots_folder` and skip if it does
+        if check_file_existence(self.plots_folder, filename, recursive=True, ignore_extension=False):
+            if self.verbose:
+                print(f"Skipping because {filename} already exists in {self.plots_folder}")
+            return
+
         if not self.reduced_reprs:
             raise ValueError("The reduced representations have not been computed yet. Call `run` first.")
 
@@ -374,17 +434,15 @@ class Task2Plotter:
         plt.tight_layout()
 
         if save_to_disk:
-            make_dirs(save_folder, exist_ok=True)  # Ensure the save folder exists
-            filename = f"{self.str_model_name}_layer_{self.layer}_{self.dim_reduction}"
-            # Save the plot with each specified extensions
-            for ext in extensions:
-                save_path = path_join(save_folder, f"{filename}.{ext}")
-                if ext == "svg":
-                    plt.savefig(save_path, format=ext)
-                else:
-                    plt.savefig(save_path, format=ext, dpi=dpi)
-                if self.verbose:
-                    print(f"Plot saved to {save_path}")
+            make_dirs(self.plots_folder, exist_ok=True)  # Ensure the save folder exists
+            # Save the plot with specified extension
+            save_path = path_join(self.plots_folder, f"{filename}.{extension}")
+            if extension == "svg":
+                plt.savefig(save_path, format=extension)
+            else:
+                plt.savefig(save_path, format=extension, dpi=dpi)
+            if self.verbose:
+                print(f"Plot saved to {save_path}")
 
         if show:
             plt.show()
@@ -392,10 +450,31 @@ class Task2Plotter:
 
     def cleanup(self):
         """Explicitly delete the class attributes to free up memory."""
-        del self.hdf5_files, self.initial_representations, self.flattened_representations, self.reduced_reprs
+        if hasattr(self, "initial_representations") and self.initial_representations is not None:
+            del self.initial_representations
+            self.model = None
+
+        if hasattr(self, "flattened_representations") and self.flattened_representations is not None:
+            del self.flattened_representations
+            self.flattened_representations = None
+
+        if hasattr(self, "reduced_reprs") and self.reduced_reprs is not None:
+            del self.reduced_reprs
+            self.reduced_reprs = None
+
+        if hasattr(self, "ordered_reprs") and self.ordered_reprs is not None:
+            del self.ordered_reprs
+            self.ordered_reprs = None
+
+        # Clear CUDA cache
+        cuda_empty_cache()
+
+        del self.hdf5_files
 
 
 if __name__ == "__main__":
+    start_time = time()
+    print(f"Start time: {datetime.now()}\n")
     for dim_reduction in ["PCA", "t-SNE"]:
         for model_name in MODELS:
             # Create a Task2Runner instance for the current model and run it
@@ -415,24 +494,25 @@ if __name__ == "__main__":
             # and save each plot to disk for each layer
             for layer in range(0, runner.num_layers + 1):
                 print(f"\nRunning {dim_reduction} for layer {layer} of {model_name}...\n")
-                plotter = Task2Plotter(runner, layer=layer)
-                plotter.run(dim_reduction=dim_reduction)
+                plotter = Task2Plotter(runner, layer=layer, cache_dir="../cache/")
+                plotter.run(dim_reduction=dim_reduction, check_plot_exists=True)
                 plotter.plot_representations(
                     cmap="Accent",
                     save_to_disk=True,
-                    extensions=["png"],
-                    save_folder="../cache/plots/png",
+                    extension="png",
                     edgecolor="black",
                     linewidth=0.1,
                 )
                 plotter.plot_representations(
                     cmap="Accent",
                     save_to_disk=True,
-                    extensions=["svg"],
-                    save_folder="../cache/plots/svg",
+                    extension="svg",
                     edgecolor="black",
                     linewidth=0.1,
                 )
                 plotter.cleanup()
                 del plotter
             del runner
+
+    print(f"\nTotal elapsed time: {time() - start_time} s")
+    print(f"End time: {datetime.now()}\n")
