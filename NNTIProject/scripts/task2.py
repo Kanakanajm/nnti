@@ -398,11 +398,12 @@ class Task2Plotter:
         legend_size: int = 60,
         save_to_disk: bool = False,
         show: bool = False,
-        extension: str = "png",
+        ext: str = "png",
+        subfolder_for_ext: bool = False,
         **kwargs,
     ) -> None:
         """Plot 2D version of the representations."""
-        filename = self.plot_filename_pattern.format(self.layer, self.dim_reduction) + f".{extension}"
+        filename = self.plot_filename_pattern.format(self.layer, self.dim_reduction) + f".{ext}"
 
         # Check if the plot already exists in `self.plots_folder` and skip if it does
         if check_file_existence(self.plots_folder, filename, recursive=True, ignore_extension=False):
@@ -434,13 +435,20 @@ class Task2Plotter:
         plt.tight_layout()
 
         if save_to_disk:
-            make_dirs(self.plots_folder, exist_ok=True)  # Ensure the save folder exists
-            # Save the plot with specified extension
-            save_path = path_join(self.plots_folder, f"{filename}.{extension}")
-            if extension == "svg":
-                plt.savefig(save_path, format=extension)
+            # Use the extension as a subfolder if `subfolder_for_ext` is True
+            if subfolder_for_ext:
+                save_path = path_join(self.plots_folder, ext, f"{filename}.{ext}")
             else:
-                plt.savefig(save_path, format=extension, dpi=dpi)
+                save_path = path_join(self.plots_folder, f"{filename}.{ext}")
+
+            make_dirs(save_path, exist_ok=True)  # Ensure the save folder exists
+
+            # Save the plot with the specified extension
+            if ext == "svg":
+                plt.savefig(save_path, format=ext)
+            else:
+                plt.savefig(save_path, format=ext, dpi=dpi)
+
             if self.verbose:
                 print(f"Plot saved to {save_path}")
 
@@ -471,6 +479,13 @@ class Task2Plotter:
 
         del self.hdf5_files
 
+    def __del__(self):
+        """Destructor that cleans up the resources when the instance is about to be destroyed."""
+        try:
+            self.cleanup()
+        except Exception as e:
+            warn(f"Error during cleanup: {e}")
+
 
 if __name__ == "__main__":
     start_time = time()
@@ -499,14 +514,16 @@ if __name__ == "__main__":
                 plotter.plot_representations(
                     cmap="Accent",
                     save_to_disk=True,
-                    extension="png",
+                    ext="png",
+                    subfolder_for_ext=True,
                     edgecolor="black",
                     linewidth=0.1,
                 )
                 plotter.plot_representations(
                     cmap="Accent",
                     save_to_disk=True,
-                    extension="svg",
+                    ext="svg",
+                    subfolder_for_ext=True,
                     edgecolor="black",
                     linewidth=0.1,
                 )

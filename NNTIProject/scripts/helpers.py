@@ -604,7 +604,6 @@ class TaskRunner:
 
     def cleanup(self):
         """Cleans up the resources by deleting model, tokenizer, and clearing CUDA cache."""
-        print(f"Attempting cleanup for {self.str_model_name}... ", end="")
         if hasattr(self, "model") and self.model is not None:
             del self.model  # Deletes the model
             self.model = None
@@ -615,9 +614,6 @@ class TaskRunner:
 
         # Clear CUDA cache
         cuda_empty_cache()
-
-        if self.verbose:
-            print("Done")
 
     def __del__(self):
         """Destructor that cleans up the resources when the instance is about to be destroyed."""
