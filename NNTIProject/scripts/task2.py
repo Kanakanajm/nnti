@@ -320,7 +320,15 @@ class Task2Plotter:
             the setup for either `self.token_reprs` or `self.sentence_reprs`. If it exists, the corresponding variable
             will be set to `None` to avoid recomputing. By default, True.
         """
+        if for_dim_reduction not in ("PCA", "t-SNE"):
+            raise ValueError(f"Unrecognized dimensionality reduction technique: {for_dim_reduction}")
+
+        self.dim_reduction = for_dim_reduction
         self.token_reprs, self.sentence_reprs = self._token_and_sentence_representations()
+
+        # Set up the filename for the plots that would be used in the `plot` method
+        self.token_filename = self.token_filename_pattern.format(self.layer, self.dim_reduction)
+        self.sentence_filename = self.sentence_filename_pattern.format(self.layer, self.dim_reduction)
 
         if not token_reprs:
             self.token_reprs = None
@@ -328,15 +336,15 @@ class Task2Plotter:
             self.sentence_reprs = None
 
         if exclude_existent_plots:
-            if self.token_reprs:
-                token_plot_filename = self.token_filename_pattern.format(self.layer, for_dim_reduction)
-                if file_exists_in(self.plots_folder, token_plot_filename, recursive=True, ignore_extension=True):
-                    self.token_reprs = None
+            if self.token_reprs and file_exists_in(
+                self.plots_folder, self.token_filename, recursive=True, ignore_extension=True
+            ):
+                self.token_reprs = None
 
-            if self.token_reprs:
-                sentence_plot_filename = self.token_filename_pattern.format(self.layer, for_dim_reduction)
-                if file_exists_in(self.plots_folder, sentence_plot_filename, recursive=True, ignore_extension=True):
-                    self.sentence_reprs = None
+            if self.sentence_reprs and file_exists_in(
+                self.plots_folder, self.sentence_filename, recursive=True, ignore_extension=True
+            ):
+                self.sentence_reprs = None
 
         self.stacked_token_reprs, self.ordered_token_reprs = self._order_and_stack(self.token_reprs, subsample)
         self.stacked_sentence_reprs, self.ordered_sentence_reprs = self._order_and_stack(self.sentence_reprs, subsample)
@@ -382,11 +390,6 @@ class Task2Plotter:
             the dimensionality reduction technique. If it exists, the method will stop prematurely to avoid recomputing.
             If False, it will recompute everything. By default, False.
         """
-        if dim_reduction not in ("PCA", "t-SNE"):
-            raise ValueError(f"Unrecognized dimensionality reduction technique: {dim_reduction}")
-
-        self.dim_reduction = dim_reduction
-
         # The representations dictionary for either token and sentence should look like this after the setup:
         # For example, {('eng_Latn', 'devtest'): (17800, 1024), ('spa_Latn', 'devtest'): (13800, 1024)}
         self._setup(
@@ -490,8 +493,8 @@ class Task2Plotter:
         **kwargs,
     ) -> None:
         """Plot 2D version of the representations."""
-        token_filename = self.token_filename_pattern.format(self.layer, self.dim_reduction) + f".{ext}"
-        sentence_filename = self.sentence_filename_pattern.format(self.layer, self.dim_reduction) + f".{ext}"
+        self.token_filename += f".{ext}"
+        self.sentence_filename += f".{ext}"
 
         data_to_plot = []
         if token_repr:
@@ -501,9 +504,9 @@ class Task2Plotter:
 
         for name, data in data_to_plot:
             if name == "Tokens":
-                filename = token_filename
+                filename = self.token_filename
             elif name == "Sentences":
-                filename = sentence_filename
+                filename = self.sentence_filename
 
             # Check if the plot already exists in `self.plots_folder` and skip if it does
             if file_exists_in(self.plots_folder, filename, recursive=True, ignore_extension=False):
@@ -586,7 +589,7 @@ if __name__ == "__main__":
             # and save each plot to disk for each layer
             for layer in range(0, runner.num_layers + 1):
                 print(f"\nRunning {dim_reduction} for layer {layer} of {model_name}...\n")
-                plotter = Task2Plotter(runner, layer=layer, cache_dir="../cache/")
+                plotter = Task2Plotter(runner, layer=layer, cache_dir="../cache/", plots_folder="plots_task2")
                 plotter.run(dim_reduction=dim_reduction, check_plot_exists=True)
 
                 for ext in ["png", "svg"]:

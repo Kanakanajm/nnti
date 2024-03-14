@@ -430,11 +430,6 @@ def file_exists_in(folder: str, filename: str, recursive: bool = False, ignore_e
     else:
         search_pattern = "*" if ignore_extension else filename
 
-    if recursive:
-        search_pattern = "**/*" if ignore_extension else f"**/{filename}"
-    else:
-        search_pattern = "*" if ignore_extension else filename
-
     for path in folder_path.glob(search_pattern):
         if ignore_extension:
             if path.stem == Path(filename).stem and path.is_file():
