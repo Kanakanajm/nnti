@@ -4,16 +4,28 @@ from typing import Hashable, Callable
 from functools import partial
 from transformers import AutoTokenizer, AutoModelForCausalLM, XGLMTokenizerFast
 from datasets import load_dataset
+from gc import collect as collect_garbage
 from torch.cuda import is_available as cuda_available, empty_cache as cuda_empty_cache
 from torch.utils.data import DataLoader
 from os.path import join as path_join, exists as path_exists
 from os import makedirs as make_dirs
+from matplotlib import pyplot as plt, rcParams
+from time import time
+
+# from sklearn.manifold import TSNE
+# Using opentsne instead of sklearn.manifold.TSNE because it is faster by using the FFT method
+# See: https://github.com/pavlin-policar/openTSNE/
+# Install with: conda install --channel conda-forge opentsne
+from openTSNE import TSNE
+
+from sklearn.decomposition import PCA
 from numpy import (
     ndarray,
     stack as np_stack,
     pad as np_pad,
     squeeze as np_squeeze,
     random as np_random,
+    linspace as np_linspace,
 )
 from warnings import warn
 from itertools import product
@@ -220,8 +232,50 @@ def random_subset_from_dict_arrays(
     return subsampled_dict
 
 
-def save_hdf5(data: dict, filename: str, dst: str = None, to_cache: bool = False, subfolder: str = None) -> None:
-    """Save a dictionary to an HDF5 file."""
+def split_nested_dict_by_inner_keys(nested_dict: dict) -> dict:
+    """Reorganizes a nested dictionary into a dictionary of dictionaries based on the keys of the inner dictionaries,
+    maintaining the original language and split keys in each new dictionary.
+
+    Parameters
+    ----------
+    nested_dict : dict
+        The input dictionary, where each value is another dictionary with consistent keys across all items.
+        Example input:
+        ```
+        {
+            (lang1, split1): {"tokens": ndarray, "sentences": ndarray},
+            (lang2, split2): {"tokens": ndarray, "sentences": ndarray},
+            ...
+        }
+        ```
+
+    Returns
+    -------
+    dict
+        A dictionary where the keys are the original inner keys from the nested dictionary ("tokens", "sentences"),
+        and the values are dictionaries mapping the original outer keys (lang, split) to their respective ndarrays.
+        Example output:
+        ```
+        {
+            "tokens": {(lang1, split1): ndarray, (lang2, split2): ndarray},
+            "sentences": {(lang1, split1): ndarray, (lang2, split2): ndarray}
+        }
+        ```
+    """
+    # Initialize dictionaries to store separated data based on inner keys
+    reorganized_dict = {key: {} for key in next(iter(nested_dict.values())).keys()}
+
+    # Populate the reorganized dictionary with data
+    for outer_key, inner_dict in nested_dict.items():
+        for inner_key, value in inner_dict.items():
+            # Assigning ndarray directly to the respective key in the reorganized dictionary
+            reorganized_dict[inner_key][outer_key] = value
+
+    return reorganized_dict
+
+
+def dict_to_hdf5(data: dict, filename: str, dst: str = None, to_cache: bool = False, subfolder: str = None) -> None:
+    """Save a nested dictionary to an HDF5 file, handling up to two levels of nested dictionaries."""
     if to_cache:
         if dst is not None:
             warn("When 'to_cache' is True, 'dst' is ignored.")
@@ -236,11 +290,22 @@ def save_hdf5(data: dict, filename: str, dst: str = None, to_cache: bool = False
         make_dirs(final_path)
 
     with h5py.File(path_join(final_path, filename), "w") as f:
+
+        def recursive_save(group, key, value):
+            if isinstance(value, dict):
+                # For dict, create a subgroup
+                sub_group = group.create_group(key)
+                for sub_key, sub_value in value.items():
+                    recursive_save(sub_group, sub_key, sub_value)
+            else:
+                # Otherwise, create a dataset
+                group.create_dataset(key, data=value)
+
         for key, value in data.items():
-            f.create_dataset(key, data=value)
+            recursive_save(f, key, value)
 
 
-def load_hdf5(
+def hdf5_to_dict(
     filename: str,
     src: str = None,
     filename_is_fullpath: bool = False,
@@ -248,7 +313,7 @@ def load_hdf5(
     subfolder: str = None,
     only_keys: list[Hashable] = None,
 ) -> dict:
-    """Load a dictionary from an HDF5 file."""
+    """Load a nested dictionary from an HDF5 file."""
     if from_cache:
         if src is not None:
             warn("When 'from_cache' is True, 'src' is ignored.")
@@ -263,14 +328,28 @@ def load_hdf5(
     else:
         final_path = filename
 
+    data = {}
     with h5py.File(final_path, "r") as f:
-        data = {}
-        for key in f.keys():
-            if only_keys and key not in only_keys:
-                continue
+
+        def recursive_load(group, target_dict):
+            for key, item in group.items():
+                if isinstance(item, h5py.Dataset):
+                    target_dict[key] = item[()]
+                elif isinstance(item, h5py.Group):
+                    sub_dict = {}
+                    recursive_load(item, sub_dict)
+                    target_dict[key] = sub_dict
+
+        # Check if specific keys are requested and they exist
+        keys_to_load = only_keys if only_keys else f.keys()
+        for key in keys_to_load:
             if key not in f:
                 warn(f"{key} not found in {filename}.")
-            else:
+                continue
+            if isinstance(f[key], h5py.Group):
+                data[key] = {}
+                recursive_load(f[key], data[key])
+            else:  # It's a dataset
                 data[key] = f[key][()]
 
     return data
@@ -326,7 +405,7 @@ def files_from_pattern(directory: str, pattern: str, return_missing: bool, *args
         return file_paths, existing_combinations
 
 
-def check_file_existence(folder: str, filename: str, recursive: bool = False, ignore_extension: bool = False) -> bool:
+def file_exists_in(folder: str, filename: str, recursive: bool = False, ignore_extension: bool = False) -> bool:
     """Checks if a file exists in a specified folder, with options for recursive search and ignoring the file extension.
 
     Parameters
@@ -370,6 +449,129 @@ def print_dict_of_ndarrays(dictionary: dict[Hashable, ndarray], tab: str = "\t")
     """Print the shape of each array in a dictionary of numpy arrays."""
     for key, value in dictionary.items():
         print(f"{tab}Shape of array for {key}: {value.shape}")
+
+
+def apply_pca(stacked_data: ndarray, n_components: int = 2, random_state: int = 0, verbose: bool = True) -> ndarray:
+    """Apply PCA to reduce the dimensionality of the given high-dimensional array."""
+    if verbose:
+        print(f"\tApplying PCA... ", end="")
+
+    start_time = time()
+    pca_embedded = PCA(n_components=n_components, random_state=random_state).fit_transform(stacked_data)
+
+    if verbose:
+        print(f"Done (took {time() - start_time} s)")
+
+    return pca_embedded
+
+
+def apply_tsne(stacked_data: ndarray, n_components: int = 2, random_state: int = 0, verbose: bool = True) -> ndarray:
+    """Apply t-SNE to reduce the dimensionality of the given high-dimensional array. NOTE that this method uses the
+    `opentsne` package, which requires installing the package on the `conda` environment.
+
+    The following parameters are set based on the number of samples in the data and the recommendations cited from
+    various sources:
+    * Uncertain Choices in Method Comparisons: An Illustration with t-SNE and UMAP (2023)
+      See: https://epub.ub.uni-muenchen.de/107259/1/BA_Weber_Philipp.pdf
+    * New guidance for using t-SNE: Alternative defaults, hyperparameter selection automation, and comparative
+      evaluation (2022)
+      See: https://www.sciencedirect.com/science/article/pii/S2468502X22000201
+    """
+    n = stacked_data.shape[0]
+    learning_rate = max(200, int(n / 12))
+    perplexity = 50
+
+    if verbose:
+        print(f"\tApplying t-SNE (perplexity={perplexity}, learning_rate={learning_rate})... ", end="")
+
+    collect_garbage()  # Collect garbage
+    cuda_empty_cache()  # Clear CUDA cache before running t-SNE
+
+    start_time = time()
+    tsne_embedded = TSNE(
+        n_components=n_components,
+        n_jobs=32,
+        perplexity=perplexity,
+        learning_rate=learning_rate,
+        initialization="pca",
+        negative_gradient_method="fft",
+        random_state=random_state,
+    ).fit(stacked_data)
+
+    if verbose:
+        print(f"Done (took {time() - start_time} s)")
+
+    return tsne_embedded
+
+
+def scatter_plot(
+    data: dict[str, ndarray],
+    title: str,
+    xlabel: str,
+    ylabel: str,
+    figsize: tuple = (10, 8),
+    cmap: str = "tab10",
+    legend_size: int = 60,
+    save_to_disk: bool = False,
+    filename: str = None,
+    show: bool = False,
+    dpi: int = 300,
+    ext: str = "png",
+    plots_folder: str = "",
+    subfolder_for_ext: bool = False,
+    verbose: bool = True,
+    **kwargs,
+) -> None:
+    """Plot 2D version of the representations."""
+    # Set up figure parameters to make them look nice
+    plt.rcParams["axes.formatter.use_mathtext"] = True
+    rcParams["font.family"] = "cmr10"
+    rcParams["axes.unicode_minus"] = False
+    rcParams.update({"font.size": 14})
+
+    # Check if the plot already exists in `self.plots_folder` and skip if it does
+    if file_exists_in(plots_folder, filename, recursive=True, ignore_extension=False):
+        if verbose:
+            print(f"Skipped plot because {filename} already exists in {plots_folder}")
+        return
+
+    cmap = plt.get_cmap(cmap)  # Set the colormap
+    colors = cmap(np_linspace(0, 1, len(data.keys())))  # Generate colors from the colormap
+
+    plt.figure(figsize=figsize)
+    for i, (key, reduced_repr) in enumerate(data.items()):
+        label = key.replace("_", "$\mathrm{\_}$")
+        plt.scatter(reduced_repr[:, 0], reduced_repr[:, 1], label=label, color=colors[i], **kwargs)
+
+    legend = plt.legend()  # Generate legend
+    for handle in legend.legend_handles:  # Increase the size of the circles in the legend
+        handle.set_sizes([legend_size])
+
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid(True, which="major", color="k", linestyle="-", alpha=0.2)
+    plt.gca().set_axisbelow(True)
+    plt.tight_layout()
+
+    if save_to_disk:
+        # Use the extension as a subfolder if `subfolder_for_ext` is True
+        save_path = path_join(plots_folder, ext) if subfolder_for_ext else plots_folder
+        make_dirs(save_path, exist_ok=True)  # Ensure the save folder exists
+        save_path = path_join(save_path, f"{filename}")
+
+        # Save the plot with the specified extension
+        if ext == "svg":
+            plt.savefig(save_path, format=ext)
+        else:
+            plt.savefig(save_path, format=ext, dpi=dpi)
+
+        if verbose:
+            print(f"Plot saved to {save_path}")
+
+    if show:
+        plt.show()
+    plt.close()
 
 
 class TaskRunner:
@@ -433,6 +635,12 @@ class TaskRunner:
         elif warn:
             warn(f"Model {self.str_model_name} and tokenizer have previously being set up.")
 
+    def _load_dataset(self, path: str, name: str = None, split: str = None):
+        """Load the dataset from the specified path and name, and for the specified split, using the `datasets` library."""
+        return load_dataset(
+            path, name, split=split, trust_remote_code=True, cache_dir=path_join(self.cache_dir, "languages")
+        )
+
     def load_langs(self, subset: int = -1, skip: list[tuple] = None) -> dict:
         """Load flores+ dataset for each language. The structure of the returned dictionary is as follows:
         ```
@@ -473,12 +681,8 @@ class TaskRunner:
 
                 dataset[language] = {"dataset": {}}
                 dataset[language]["dataset"][split] = {}
-                dataset[language]["dataset"][split]["raw"] = load_dataset(
-                    self.dataset_name,
-                    language,
-                    split=split,
-                    trust_remote_code=True,
-                    cache_dir=path_join(self.cache_dir, "languages"),
+                dataset[language]["dataset"][split]["raw"] = self._load_dataset(
+                    self.dataset_name, name=language, split=split
                 )
 
                 # Subset the dataset to a certain number of sentencer per language, if subset != -1
@@ -612,8 +816,8 @@ class TaskRunner:
             del self.tokenizer  # Deletes the tokenizer
             self.tokenizer = None
 
-        # Clear CUDA cache
-        cuda_empty_cache()
+        collect_garbage()
+        cuda_empty_cache()  # Clear CUDA cache
 
     def __del__(self):
         """Destructor that cleans up the resources when the instance is about to be destroyed."""
