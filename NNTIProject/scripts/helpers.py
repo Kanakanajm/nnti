@@ -297,7 +297,7 @@ def dict_to_hdf5(data: dict, filename: str, dst: str = None, to_cache: bool = Fa
 
     final_path = path_join(dst, subfolder) if subfolder else dst
 
-    if subfolder and not path_exists(final_path):
+    if not path_exists(final_path):
         make_dirs(final_path)
 
     with h5py.File(path_join(final_path, filename), "w") as f:
