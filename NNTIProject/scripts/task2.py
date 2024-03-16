@@ -584,7 +584,7 @@ class Task2Plotter:
 if __name__ == "__main__":
     start_time = time()
     print(f"Start time: {datetime.now()}\n")
-    for dim_reduction in ["PCA", "t-SNE"]:
+    for dim_reduction in ["t-SNE", "PCA"]:
         for model_name in ["facebook/xglm-564M"]:
             # Create a Task2Runner instance for the current model and run it
             runner = Task2Runner(
@@ -602,7 +602,9 @@ if __name__ == "__main__":
             # and save each plot to disk for each layer
             for layer in range(0, runner.num_layers + 1):
                 print(f"\nRunning {dim_reduction} for layer {layer} of {model_name}...\n")
-                plotter = Task2Plotter(runner, layer=layer, cache_dir="../cache/", plots_folder="plots_task2")
+                plotter = Task2Plotter(
+                    runner, layer=layer, cache_dir="../cache/", plots_folder="plots_task2_test", use_tsnecuda=True
+                )
                 plotter.run(dim_reduction=dim_reduction, check_plot_exists=True)
 
                 for ext in ["png", "svg"]:
