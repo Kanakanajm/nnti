@@ -79,6 +79,9 @@ dkms.conf
 # Packed files
 *.zip
 
+# vscode
+.vscode/
+
 # Project cache
 */cache/languages/*
 */cache/models/*
