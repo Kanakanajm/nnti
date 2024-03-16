@@ -457,6 +457,17 @@ def print_dict_of_ndarrays(dictionary: dict[Hashable, ndarray], tab: str = "\t")
         print(f"{tab}Shape of array for {key}: {value.shape}")
 
 
+def calculate_array_memory_size(array):
+    """Calculate the memory footprint of a Numpy array."""
+    # Get the number of elements in the array
+    num_elements = array.size
+    # Determine the size of each element in bytes
+    element_size = array.itemsize
+    # Calculate total memory footprint
+    total_memory_bytes = num_elements * element_size
+    return total_memory_bytes
+
+
 def apply_pca(stacked_data: ndarray, n_components: int = 2, random_state: int = 0, verbose: bool = True) -> ndarray:
     """Apply PCA to reduce the dimensionality of the given high-dimensional array."""
     if verbose:
@@ -491,20 +502,34 @@ def apply_tsne(
     """
     n = stacked_data.shape[0]
     learning_rate = max(200, int(n / 12))
-    perplexity = max(30, int(n / 100))
+    perplexity = 50
 
     if verbose:
         print(f"\tApplying t-SNE (perplexity={perplexity}, learning_rate={learning_rate})... ", end="")
 
     collect_garbage()  # Collect garbage
     cuda_empty_cache()  # Clear CUDA cache before running t-SNE
+    tsnecuda_memoryerror = False  # Flag to check if tsnecuda failed due to a runtime error
 
     start_time = time()
     if use_tsnecuda and TSNE_CUDA_AVAILABLE:
-        tsne_embedded = TSNE_CUDA(
-            n_components=n_components, perplexity=perplexity, learning_rate=learning_rate, random_seed=random_state
-        ).fit_transform(stacked_data)
-    else:
+        try:
+            # Manual check for memory size to avoid MemoryError
+            if calculate_array_memory_size(stacked_data) >= 190111744:
+                raise MemoryError("The array is too large to fit in the GPU memory.")
+
+            tsne_embedded = TSNE_CUDA(
+                n_components=n_components, perplexity=perplexity, learning_rate=learning_rate, random_seed=random_state
+            ).fit_transform(stacked_data)
+        except MemoryError as e:
+            print(f"Failed to complete t-SNE with requested tsnecuda due to a MemoryError: {e}")
+            print("\tOpting for opentsne instead... ", end="")
+            tsnecuda_memoryerror = True
+        finally:
+            collect_garbage()  # Collect garbage
+            cuda_empty_cache()  # Clear CUDA cache before running t-SNE
+
+    if not use_tsnecuda or not TSNE_CUDA_AVAILABLE or tsnecuda_memoryerror:
         tsne_embedded = TSNE(
             n_components=n_components,
             n_jobs=32,
