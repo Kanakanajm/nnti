@@ -1,32 +1,38 @@
-from torch import inference_mode as torch_inference_mode, nonzero as torch_nonzero
-from torch.cuda import empty_cache as cuda_empty_cache
 from datetime import datetime
-from typing import Callable
+from functools import partial
 from gc import collect as collect_garbage
+from os.path import join as path_join
+from time import time
+from typing import Callable
+from warnings import warn
 
 from helpers import (
     TaskRunner,
-    flatten_all_but_last,
-    dict_to_hdf5,
-    files_from_pattern,
-    hdf5_to_dict,
-    random_subset_from_dict_arrays,
-    file_exists_in,
-    split_nested_dict_by_inner_keys,
-    print_dict_of_ndarrays,
     apply_pca,
     apply_tsne,
+    dict_to_hdf5,
+    file_exists_in,
+    files_from_pattern,
+    flatten_all_but_last,
+    hdf5_to_dict,
+    print_dict_of_ndarrays,
+    random_subset_from_dict_arrays,
     scatter_plot,
+    split_nested_dict_by_inner_keys,
 )
-from os.path import join as path_join
-from os.path import join as path_join
-from numpy import ndarray, vstack as np_vstack, mean as np_mean
-from warnings import warn
-from time import time
+from numpy import mean as np_mean
+from numpy import ndarray
+from numpy import vstack as np_vstack
+from torch import inference_mode as torch_inference_mode
+from torch import nonzero as torch_nonzero
+from torch.cuda import empty_cache as cuda_empty_cache
 
 # This is the minimal set of languages that you should analyze, feel free to experiment with additional lanuages
 # available in the flores+ dataset
 LANGUAGES = ["eng_Latn", "spa_Latn", "deu_Latn", "arb_Arab", "tam_Taml", "quy_Latn"]
+
+# In this folder, a representations folder must exist, otherwise it will be created
+RUNNER_CACHE_DIR = "/run/media/Camilo/Personal/Repositorios en Github/nnti/NNTIProject/cache/"
 
 ########################################################
 # Entry point
@@ -197,6 +203,7 @@ class Task2Plotter:
         only_langs: list[str] = None,
         cache_dir: str = None,
         plots_folder: str = "plots",
+        use_tsnecuda: bool = False,
     ) -> None:
         self.str_model_name = Task2Ran.str_model_name
         self.repr_folder = Task2Ran.repr_folder
@@ -229,6 +236,10 @@ class Task2Plotter:
         self.hdf5_files, self.lang_splits = files_from_pattern(
             self.repr_folder, self.repr_pattern, False, self.langs, self.splits
         )
+
+        # If the tsnecuda library is installed and use_tsnecuda is True, then use it for t-SNE, otherwise use the
+        # regular t-SNE from opentsne
+        self.use_tsnecuda = use_tsnecuda
 
         # Pattern for the filename of the plots, where the last 2 placeholders are intended for the layer number and
         # the dimensionality reduction technique, respectively
@@ -409,7 +420,9 @@ class Task2Plotter:
         if self.dim_reduction == "PCA":
             dim_reduction_func = apply_pca
         elif self.dim_reduction == "t-SNE":
-            dim_reduction_func = apply_tsne
+            # Create a partially applied version of apply_tsne function that includes the option self.use_tsnecuda
+            apply_tsne_cuda = partial(apply_tsne, use_tsnecuda=self.use_tsnecuda)
+            dim_reduction_func = apply_tsne_cuda
 
         # Perform dimensionality reduction on the token and sentence representations
         token_reprs_2d_array, sentence_reprs_2d_array = self._apply_func_to_stacked_reprs(
@@ -580,7 +593,7 @@ if __name__ == "__main__":
                 model_name,
                 seq_by_seq=True,
                 subset=200,
-                cache_dir="/run/media/Camilo/Personal/Repositorios en Github/nnti/NNTIProject/cache/",
+                cache_dir=RUNNER_CACHE_DIR,
                 perform_early_setup=False,
             )
             runner.run()

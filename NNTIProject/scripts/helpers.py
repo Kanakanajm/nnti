@@ -1,37 +1,48 @@
-import h5py
 from copy import deepcopy
-from typing import Hashable, Callable
 from functools import partial
-from transformers import AutoTokenizer, AutoModelForCausalLM, XGLMTokenizerFast
-from datasets import load_dataset
 from gc import collect as collect_garbage
-from torch.cuda import is_available as cuda_available, empty_cache as cuda_empty_cache
-from torch.utils.data import DataLoader
-from os.path import join as path_join, exists as path_exists
+from importlib.util import find_spec as importlib_find_spec
+from itertools import product
 from os import makedirs as make_dirs
-from matplotlib import pyplot as plt, rcParams
+from os.path import exists as path_exists
+from os.path import join as path_join
+from pathlib import Path
 from time import time
+from typing import Callable, Hashable
+from warnings import warn
+
+import h5py
+from datasets import load_dataset
+from matplotlib import pyplot as plt
+from matplotlib import rcParams
+from numpy import linspace as np_linspace
+from numpy import ndarray
+from numpy import pad as np_pad
+from numpy import random as np_random
+from numpy import squeeze as np_squeeze
+from numpy import stack as np_stack
+from sklearn.decomposition import PCA
+from torch.cuda import empty_cache as cuda_empty_cache
+from torch.cuda import is_available as cuda_available
+from torch.utils.data import DataLoader
+from transformers import AutoModelForCausalLM, AutoTokenizer, XGLMTokenizerFast
 
 # from sklearn.manifold import TSNE
 # Using opentsne instead of sklearn.manifold.TSNE because it is faster by using the FFT method
-# See: https://github.com/pavlin-policar/openTSNE/
 # Install with: conda install --channel conda-forge opentsne
+# See: https://github.com/pavlin-policar/openTSNE/
 from openTSNE import TSNE
 
-from sklearn.decomposition import PCA
-from numpy import (
-    ndarray,
-    stack as np_stack,
-    pad as np_pad,
-    squeeze as np_squeeze,
-    random as np_random,
-    linspace as np_linspace,
-)
-from warnings import warn
-from itertools import product
-from pathlib import Path
-
 CACHE_DIR = "../cache/"  # Path to the cache directory
+TSNE_CUDA_AVAILABLE = importlib_find_spec("tsnecuda") is not None  # Check if library tsnecuda is available
+
+if TSNE_CUDA_AVAILABLE:
+    # If `use_tsnecuda` is specified when calling `apply_tsne`, then we use the CUDA version of t-SNE
+    # See: https://github.com/CannyLab/tsne-cuda/blob/main/INSTALL.md
+    # Install with: conda install tsnecuda -c conda-forge
+    from tsnecuda import TSNE as TSNE_CUDA  # Import the CUDA version of t-SNE
+else:
+    warn("tsnecuda library is not available. Using opentsne instead.")
 
 
 def apply_tokenizer(tokenizer: XGLMTokenizerFast, example: dict, padding: str = None):
@@ -460,7 +471,13 @@ def apply_pca(stacked_data: ndarray, n_components: int = 2, random_state: int = 
     return pca_embedded
 
 
-def apply_tsne(stacked_data: ndarray, n_components: int = 2, random_state: int = 0, verbose: bool = True) -> ndarray:
+def apply_tsne(
+    stacked_data: ndarray,
+    n_components: int = 2,
+    random_state: int = 0,
+    use_tsnecuda: bool = False,
+    verbose: bool = True,
+) -> ndarray:
     """Apply t-SNE to reduce the dimensionality of the given high-dimensional array. NOTE that this method uses the
     `opentsne` package, which requires installing the package on the `conda` environment.
 
@@ -474,7 +491,7 @@ def apply_tsne(stacked_data: ndarray, n_components: int = 2, random_state: int =
     """
     n = stacked_data.shape[0]
     learning_rate = max(200, int(n / 12))
-    perplexity = 50
+    perplexity = max(30, int(n / 100))
 
     if verbose:
         print(f"\tApplying t-SNE (perplexity={perplexity}, learning_rate={learning_rate})... ", end="")
@@ -483,15 +500,20 @@ def apply_tsne(stacked_data: ndarray, n_components: int = 2, random_state: int =
     cuda_empty_cache()  # Clear CUDA cache before running t-SNE
 
     start_time = time()
-    tsne_embedded = TSNE(
-        n_components=n_components,
-        n_jobs=32,
-        perplexity=perplexity,
-        learning_rate=learning_rate,
-        initialization="pca",
-        negative_gradient_method="fft",
-        random_state=random_state,
-    ).fit(stacked_data)
+    if use_tsnecuda and TSNE_CUDA_AVAILABLE:
+        tsne_embedded = TSNE_CUDA(
+            n_components=n_components, perplexity=perplexity, learning_rate=learning_rate, random_seed=random_state
+        ).fit_transform(stacked_data)
+    else:
+        tsne_embedded = TSNE(
+            n_components=n_components,
+            n_jobs=32,
+            perplexity=perplexity,
+            learning_rate=learning_rate,
+            initialization="pca",
+            negative_gradient_method="fft",
+            random_state=random_state,
+        ).fit(stacked_data)
 
     if verbose:
         print(f"Done (took {time() - start_time} s)")
