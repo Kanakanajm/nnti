@@ -1,9 +1,87 @@
 % Use this file for citations not found in the ACL Anthology (contained in "anthology.bib").
-@misc{lin2022fewshot,
-      title={Few-shot Learning with Multilingual Language Models}, 
-      author={Xi Victoria Lin and Todor Mihaylov and Mikel Artetxe and Tianlu Wang and Shuohui Chen and Daniel Simig and Myle Ott and Naman Goyal and Shruti Bhosale and Jingfei Du and Ramakanth Pasunuru and Sam Shleifer and Punit Singh Koura and Vishrav Chaudhary and Brian O'Horo and Jeff Wang and Luke Zettlemoyer and Zornitsa Kozareva and Mona Diab and Veselin Stoyanov and Xian Li},
-      year={2022},
-      eprint={2112.10668},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
+@misc{liu2022fewshot,
+  title         = {Few-Shot Parameter-Efficient Fine-Tuning is Better and Cheaper than In-Context Learning},
+  author        = {Haokun Liu and Derek Tam and Mohammed Muqeeth and Jay Mohta and Tenghao Huang and Mohit Bansal and Colin Raffel},
+  year          = {2022},
+  eprint        = {2205.05638},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG}
+}
+
+@inproceedings{abdullah-etal-2020-rediscovering,
+  title     = {Rediscovering the {S}lavic Continuum in Representations Emerging from Neural Models of Spoken Language Identification},
+  author    = {Abdullah, Badr M.  and
+               Kudera, Jacek  and
+               Avgustinova, Tania  and
+               M{\"o}bius, Bernd  and
+               Klakow, Dietrich},
+  editor    = {Zampieri, Marcos  and
+               Nakov, Preslav  and
+               Ljube{\v{s}}i{\'c}, Nikola  and
+               Tiedemann, J{\"o}rg  and
+               Scherrer, Yves},
+  booktitle = {Proceedings of the 7th Workshop on NLP for Similar Languages, Varieties and Dialects},
+  month     = dec,
+  year      = {2020},
+  address   = {Barcelona, Spain (Online)},
+  publisher = {International Committee on Computational Linguistics (ICCL)},
+  url       = {https://aclanthology.org/2020.vardial-1.12},
+  pages     = {128--139},
+  abstract  = {Deep neural networks have been employed for various spoken language recognition tasks, including tasks that are multilingual by definition such as spoken language identification (LID). In this paper, we present a neural model for Slavic language identification in speech signals and analyze its emergent representations to investigate whether they reflect objective measures of language relatedness or non-linguists{'} perception of language similarity. While our analysis shows that the language representation space indeed captures language relatedness to a great extent, we find perceptual confusability to be the best predictor of the language representation similarity.}
+}
+
+@misc{zaken2022bitfit,
+  title         = {BitFit: Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models},
+  author        = {Elad Ben Zaken and Shauli Ravfogel and Yoav Goldberg},
+  year          = {2022},
+  eprint        = {2106.10199},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG}
+}
+
+@misc{hu2021lora,
+  title         = {LoRA: Low-Rank Adaptation of Large Language Models},
+  author        = {Edward J. Hu and Yelong Shen and Phillip Wallis and Zeyuan Allen-Zhu and Yuanzhi Li and Shean Wang and Lu Wang and Weizhu Chen},
+  year          = {2021},
+  eprint        = {2106.09685},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL}
+}
+
+@article{opentsne,
+  author    = {Poli{\v c}ar, Pavlin G. and Stra{\v z}ar, Martin and Zupan, Bla{\v z}},
+  title     = {openTSNE: a modular Python library for t-SNE dimensionality reduction and embedding},
+  year      = {2019},
+  doi       = {10.1101/731877},
+  publisher = {Cold Spring Harbor Laboratory},
+  url       = {https://www.biorxiv.org/content/early/2019/08/13/731877},
+  eprint    = {https://www.biorxiv.org/content/early/2019/08/13/731877.full.pdf},
+  journal   = {bioRxiv}
+}
+
+@article{GOVE202287,
+  title    = {New guidance for using t-SNE: Alternative defaults, hyperparameter selection automation, and comparative evaluation},
+  journal  = {Visual Informatics},
+  volume   = {6},
+  number   = {2},
+  pages    = {87-97},
+  year     = {2022},
+  issn     = {2468-502X},
+  doi      = {https://doi.org/10.1016/j.visinf.2022.04.003},
+  url      = {https://www.sciencedirect.com/science/article/pii/S2468502X22000201},
+  author   = {Robert Gove and Lucas Cadalzo and Nicholas Leiby and Jedediah M. Singer and Alexander Zaitzeff},
+  keywords = {Dimensionality reduction, Machine learning, t-SNE},
+  abstract = {We present new guidelines for choosing hyperparameters for t-SNE and an evaluation comparing these guidelines to current ones. These guidelines include a proposed empirically optimum guideline derived from a t-SNE hyperparameter grid search over a large collection of data sets. We also introduce a new method to featurize data sets using graph-based metrics called scagnostics; we use these features to train a neural network that predicts optimal t-SNE hyperparameters for the respective data set. This neural network has the potential to simplify the use of t-SNE by removing guesswork about which hyperparameters will produce the best embedding. We evaluate and compare our neural network-derived and empirically optimum hyperparameters to several other t-SNE hyperparameter guidelines from the literature on 68 data sets. The hyperparameters predicted by our neural network yield embeddings with similar accuracy as the best current t-SNE guidelines. Using our empirically optimum hyperparameters is simpler than following previously published guidelines but yields more accurate embeddings, in some cases by a statistically significant margin. We find that the useful ranges for t-SNE hyperparameters are narrower and include smaller values than previously reported in the literature. Importantly, we also quantify the potential for future improvements in this area: using data from a grid search of t-SNE hyperparameters we find that an optimal selection method could improve embedding accuracy by up to two percentage points over the methods examined in this paper.}
+}
+
+@mastersthesis{Weber2023,
+  author  = {Weber, Philipp},
+  title   = {Uncertain Choices in Method Comparisons: An Illustration with t-SNE and UMAP},
+  school  = {Ludwig-Maximilians-Universität München},
+  type    = {Bachelor's Thesis},
+  year    = 2023,
+  month   = apr,
+  address = {Munich, Germany},
+  note    = {Department of Statistics: Technical Reports},
+  url     = {https://epub.ub.uni-muenchen.de/107259/1/BA_Weber_Philipp.pdf}
 }
