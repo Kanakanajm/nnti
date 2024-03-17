@@ -1,0 +1,16 @@
+name: nnti
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - pytorch 
+  - torchvision 
+  - torchaudio 
+  - pytorch-cuda=11.8
+  - matplotlib
+  - pandas
+  - numpy
+  - notebook
+
