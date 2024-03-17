@@ -79,15 +79,42 @@ Hola
 On the other hand, for the t-SNE visualizations, we used the parameters on \cite{GOVE202287}.
 
 \subsection{Fine-tuning the XGLM-564M Model}
-
 \customsection{Full-finetuning} We implemented a full finetuning approach, where the entire model's weights are relearned on the target task from scratch.
+A full fine tuning on a pretrained model is a common practice in NLP. It is a simple and effective way to adapt a model to a specific task.
+To do a full fine tune, we first need to supply the existing model new data to train from.
+As its name suggested, a full fine tuning can be very time consuming and computationally expensive
+As the model is traning every parameters again specifically for the new task, it is also more prone to overfitting.
 
-\customsection{LoRA} We implemented a Low-Rank Adaptation of Large Language Models or LoRA, introduced in the paper \cite{hu2021lora}.
+We started Task 3 by finding a Quechua dataset on HuggingFace
+where we found a dataset with pure Quechua sentences.
+After the fine tuning, our model gained a significant drop in loss (5.5) with only 8192 data points.
+(The original dataset has 80k data points which is too big for our machine to handle)
+
+Although the loss is lower than the previous pretrained model,
+it takes a long time to train with the reason specified above.
 
 \customsection{BitFit} We implemented Simple Parameter efficient Fine-tuning
 for Transformer-based Masked Language-models, BitFit \cite{zaken2022bitfit}.
+BitFit is a simple method to fine tune a model. 
+Since it only performs gradient decent on bias term, it is much faster than full fine tuning.
+However, it is also result in a less accurate model with a higher loss.
 
-\customsection{(IA)\textsuperscript{3}} We implemented a PEFT method called (IA)\textsuperscript{3} that scales activations by learned vectors, attaining stronger performance while only introducing a relatively tiny amount of new parameters, as introduced in the paper \cite{liu2022fewshot}.
+\customsection{LoRA} We implemented a Low-Rank Adaptation of Large Language Models or LoRA, introduced in the paper \cite{hu2021lora}.
+Instead of training the whole matrix which has a size of $nxm$, LoRA only trains two smaller matrices with a size of $nxr$ and $mxr$
+where $r$ is the smaller than the rank of the original matrix.
+This results in a smaller number of trainable parameters and thus, a faster training time.
+Our model's training result corresponds to the paper's result.
+Since LoRA approximates the weight matrix, it still has a higher loss than the full fine tuning method but 
+a better result than BitFit.
+The training time is similar but slightly more than BitFit which is also caused by number of trainable parameters as expected.
+
+\customsection{} We implemented a PEFT method called (IA)\textsuperscript{3} that scales activations by learned vectors, attaining stronger performance while only introducing a relatively tiny amount of new parameters, as introduced in the paper \cite{liu2022fewshot}.
+(IA)\textsuperscript{3} is a method very similar to LoRA. Instead of training two smaller matrices to approximate the original one,
+it trains a vector to scale the activations of the model, i.e. a vector being multiplied to the output of activation function.
+Since an element-wise multiplication is also some sort of matrix transformation, it is an analog to LoRA.
+For each layer, IA3 trains three vectors which corresponds to scale the result of the key projection, the value projection and the activation function.
+Unfortuneately, due to a lack of computational resource and time, our IA3 model is not showing promising result.
+As the paper stated, we embeded three trainable vectors to each layer (one after self_attention.k_proj, one after self_attention.v_proj and one after self_attention.out_proj).
 
 \section{Conclusions}
 
