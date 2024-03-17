@@ -629,6 +629,7 @@ class TaskRunner:
         cache_dir: str = "../cache/",
         perform_early_setup: bool = True,
         verbose: bool = True,
+        checkpoint_path: str = None
     ) -> None:
         self.model_name = model_name
         self.str_model_name = "xglm-564M" if self.model_name == "facebook/xglm-564M" else self.model_name
@@ -642,7 +643,7 @@ class TaskRunner:
         self.cache_dir = cache_dir
         self.batch_size = batch_size
         self.setup_done = False
-
+        self.checkpoint_path = checkpoint_path
         # facebook/xglm-564M has 1-24 layers, gpt2 has 0-12 layers
         self.num_layers = 24 if self.model_name == "facebook/xglm-564M" else 12
 
@@ -661,8 +662,8 @@ class TaskRunner:
                 self.tokenizer.add_special_tokens({"pad_token": self.tokenizer.unk_token})
 
             # Load pre-trained model from the huggingface hub.
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name, cache_dir=path_join(self.cache_dir, "models")
+            self.model = AutoModelForCausalLM.from_pretrained(  
+                self.model_name if self.checkpoint_path == None else self.checkpoint_path, cache_dir=path_join(self.cache_dir, "models")
             )
 
             # Specify device on model and put the model into evaluation mode
