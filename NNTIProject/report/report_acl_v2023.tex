@@ -1,5 +1,4 @@
-% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
-\pdfoutput=1
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended. \pdfoutput=1
 % In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
 
 \documentclass[11pt]{article}
@@ -30,6 +29,9 @@
 % the typewriter font.
 \usepackage{inconsolata}
 
+\newcommand{\customsection}[1]{
+  \noindent\textbf{#1}.\vspace{2mm}
+}
 
 % If the title and author information does not fit in the area allocated, uncomment the following
 %
@@ -49,9 +51,9 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This document is a supplement to the general instructions for *ACL authors. It contains instructions for using the \LaTeX{} style file for ACL 2023.
-The document itself conforms to its own specifications, and is, therefore, an example of what your manuscript should look like.
-These instructions should be used both for papers submitted for review and for final versions of accepted papers.
+    This document is a supplement to the general instructions for *ACL authors. It contains instructions for using the \LaTeX{} style file for ACL 2023.
+    The document itself conforms to its own specifications, and is, therefore, an example of what your manuscript should look like.
+    These instructions should be used both for papers submitted for review and for final versions of accepted papers.
 \end{abstract}
 
 \section{Introduction}
@@ -60,7 +62,7 @@ These instructions.
 
 \section{Background}
 
-hola 
+hola
 
 \section{Experiments and Results}
 
@@ -72,60 +74,49 @@ Footnotes are inserted with the \verb|\footnote| command.\footnote{This is a foo
 
 Hola
 
-\subsection{t-SNE Visualizations}
+\subsection{Dimensionality Reduction Techniques}
 
-We used the parameters on \cite{GOVE202287}.
+On the other hand, for the t-SNE visualizations, we used the parameters on \cite{GOVE202287}.
 
-\subsection{Citations}
+\subsection{Fine-tuning the XGLM-564M Model}
 
+\customsection{Full-finetuning} We implemented a full-finetuning approach, where the entire model's weights are relearned on the target task from scratch.
 
+\customsection{LoRA} We implemented a Low-Rank Adaptation of Large Language Models or LoRA, introduced in the paper \cite{hu2021lora}.
 
-% Table~\ref{citation-guide} shows the syntax supported by the style files.
-% We encourage you to use the natbib styles.
-% You can use the command \verb|\citet| (cite in text) to get ``author (year)'' citations, like this citation to a paper by \citet{Gusfield:97}.
-% You can use the command \verb|\citep| (cite in parentheses) to get ``(author, year)'' citations \citep{Gusfield:97}.
-% You can use the command \verb|\citealp| (alternative cite without parentheses) to get ``author, year'' citations, which is useful for using citations within parentheses (e.g. \citealp{Gusfield:97}).
+\customsection{BitFit} We implemented Simple Parameter efficient Fine-tuning
+for Transformer-based Masked Language-models, BitFit \cite{zaken2022bitfit}.
 
-\subsection{References}
+\customsection{(IA)\textsuperscript{3}} We implemented a PEFT method called (IA)\textsuperscript{3} that scales activations by learned vectors, attaining stronger performance while only introducing a relatively tiny amount of new parameters, as introduced in the paper \cite{liu2022fewshot}.
 
-hola
+\section{Conclusions}
 
-\subsection{Appendices}
-
-hola
-
-\section{Bib\TeX{} Files}
-\label{sec:bibtex}
-
-HOla 
+JADFSJKJDA
 
 \section*{Limitations}
-ACL 2023 requires all submissions to have a section titled ``Limitations'', for discussing the limitations of the paper as a complement to the discussion of strengths in the main text. This section should occur after the conclusion, but before the references. It will not count towards the page limit.
-The discussion of limitations is mandatory. Papers without a limitation section will be desk-rejected without review.
+Due to the extensive computational requirements, the study was limited to a batch size of 2. This constraint could potentially affect the generalization of the findings. For instance, larger batch sizes may yield different embeddings and therefore, the representations of the hidden-layers of the model and potentially alter the provided PCA and t-SNE visualizations. Additionally, the analyses were focused on a selection of six languages: English, Spanish, German, Arabic, Tamil, and Quechua. Therefore, the results presented may not be universally applicable, particularly to languages with much different structures.
 
-While we are open to different types of limitations, just mentioning that a set of results have been shown for English only probably does not reflect what we expect. 
-Mentioning that the method works mostly for languages with limited morphology, like English, is a much better alternative.
-In addition, limitations such as low scalability to long text, the requirement of large GPU resources, or other things that inspire crucial further investigation are welcome.
+Furthermore, for the sensible feasibility of t-SNE computations on our datasets, we employed the fast implementation provided via the openTSNE library \cite{opentsne}, given our computational resources constraints. Although our study utilized the CS cluster, the requirement for substantial GPU resources limits the scalability of our methods, particularly for longer texts or larger datasets. This presents an avenue for further research to develop more resource-efficient algorithms capable of handling more extensive and linguistically diverse data without compromising on the fidelity of the representations.
 
 \section*{Ethics Statement}
-Our review work strictly adheres to the ACL Ethics Policy.\footnote{\url{https://www.aclweb.org/portal/content/acl-code-ethics}}. We acknowledge that while our evaluation contributes to the understanding of language model behaviors and their applications, it does not introduce novel methodologies or data. We have carefully considered the ethical implications of our work, ensuring that our analyses do not misrepresent capabilities, and we recognize the importance of responsible AI development and the potential impact of language technologies on society. Our work aims to provide a comprehensive, unbiased evaluation to foster informed discussions within the research community. This review has been conducted with an emphasis on transparency and reproducibility, encouraging the ethical advancement of natural language processing research.
+Our review work strictly adheres to the ACL Ethics Policy.\footnote{\url{https://www.aclweb.org/portal/content/acl-code-ethics}} We acknowledge that while our evaluation contributes to the understanding of language model behaviors and their applications, it does not introduce novel methodologies or data. We have carefully considered the ethical implications of our work, ensuring that our analyses do not misrepresent capabilities, and we recognize the importance of responsible AI development and the potential impact of language technologies on society. Our work aims to provide a comprehensive, unbiased evaluation to foster informed discussions within the research community. This review has been conducted with an emphasis on transparency and reproducibility, encouraging the ethical advancement of natural language processing research.
 
 \section*{Acknowledgements}
-This document has been adapted by Jordan Boyd-Graber, Naoaki Okazaki, Anna Rogers from the style files used for earlier ACL, EMNLP and NAACL proceedings, including those for
+This work was conducted as a final project for the course "Neural Networks: Theory and Implementation," instructed by Prof. Dietrich Klakow at Universität des Saarlandes. We extend our gratitude to the course's Team for their guidance on this project and to the University. This document format and styling has been adapted by Jordan Boyd-Graber, Naoaki Okazaki, Anna Rogers from the style files used for earlier ACL, EMNLP and NAACL proceedings, including those for
 EACL 2023 by Isabelle Augenstein and Andreas Vlachos,
 EMNLP 2022 by Yue Zhang, Ryan Cotterell and Lea Frermann,
 ACL 2020 by Steven Bethard, Ryan Cotterell and Rui Yan,
 ACL 2019 by Douwe Kiela and Ivan Vuli\'{c},
-NAACL 2019 by Stephanie Lukin and Alla Roskovskaya, 
-ACL 2018 by Shay Cohen, Kevin Gimpel, and Wei Lu, 
+NAACL 2019 by Stephanie Lukin and Alla Roskovskaya,
+ACL 2018 by Shay Cohen, Kevin Gimpel, and Wei Lu,
 NAACL 2018 by Margaret Mitchell and Stephanie Lukin,
 Bib\TeX{} suggestions for (NA)ACL 2017/2018 from Jason Eisner,
-ACL 2017 by Dan Gildea and Min-Yen Kan, NAACL 2017 by Margaret Mitchell, 
-ACL 2012 by Maggie Li and Michael White, 
-ACL 2010 by Jing-Shin Chang and Philipp Koehn, 
-ACL 2008 by Johanna D. Moore, Simone Teufel, James Allan, and Sadaoki Furui, 
-ACL 2005 by Hwee Tou Ng and Kemal Oflazer, 
-ACL 2002 by Eugene Charniak and Dekang Lin, 
+ACL 2017 by Dan Gildea and Min-Yen Kan, NAACL 2017 by Margaret Mitchell,
+ACL 2012 by Maggie Li and Michael White,
+ACL 2010 by Jing-Shin Chang and Philipp Koehn,
+ACL 2008 by Johanna D. Moore, Simone Teufel, James Allan, and Sadaoki Furui,
+ACL 2005 by Hwee Tou Ng and Kemal Oflazer,
+ACL 2002 by Eugene Charniak and Dekang Lin,
 and earlier ACL and EACL formats written by several people, including
 John Chen, Henry S. Thompson and Donald Walker.
 Additional elements were taken from the formatting instructions of the \emph{International Joint Conference on Artificial Intelligence} and the \emph{Conference on Computer Vision and Pattern Recognition}.
@@ -142,3 +133,9 @@ Additional elements were taken from the formatting instructions of the \emph{Int
 This is a section in the appendix.
 
 \end{document}
+
+% Table~\ref{citation-guide} shows the syntax supported by the style files.
+% We encourage you to use the natbib styles.
+% You can use the command \verb|\citet| (cite in text) to get ``author (year)'' citations, like this citation to a paper by \citet{Gusfield:97}.
+% You can use the command \verb|\citep| (cite in parentheses) to get ``(author, year)'' citations \citep{Gusfield:97}.
+% You can use the command \verb|\citealp| (alternative cite without parentheses) to get ``author, year'' citations, which is useful for using citations within parentheses (e.g. \citealp{Gusfield:97}).
