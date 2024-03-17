@@ -115,6 +115,7 @@ Since an element-wise multiplication is also some sort of matrix transformation,
 For each layer, IA3 trains three vectors which corresponds to scale the result of the key projection, the value projection and the activation function.
 Unfortuneately, due to a lack of computational resource and time, our IA3 model is not showing promising result.
 As the paper stated, we embeded three trainable vectors to each layer (one after self_attention.k_proj, one after self_attention.v_proj and one after self_attention.out_proj).
+but the loss is more than LoRA and BitFit.
 
 \section{Conclusions}
 
