@@ -23,5 +23,4 @@ dependencies:
   - diffusers
   - h5py
   - scikit-learn
-  - wandb
   - opentsne
