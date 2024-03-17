@@ -1,0 +1,24 @@
+
+PackagesNotFoundError: The following packages are not available from current channels:
+
+  - pytorch==2.3.0.dev20240227=py3.11_cuda12.1_cudnn8.9.2_0
+  - torchaudio==2.2.0.dev20240227=py311_cu121
+  - torchvision==0.18.0.dev20240227=py311_cu121
+
+Current channels:
+
+  - https://conda.anaconda.org/pytorch-nightly/linux-64
+  - https://conda.anaconda.org/huggingface/linux-64
+  - https://conda.anaconda.org/nvidia/linux-64
+  - https://repo.anaconda.com/pkgs/main/linux-64
+  - https://repo.anaconda.com/pkgs/r/linux-64
+  - https://conda.anaconda.org/conda-forge/linux-64
+
+To search for alternate channels that may provide the conda package you're
+looking for, navigate to
+
+    https://anaconda.org
+
+and use the search bar at the top of the page.
+
+
