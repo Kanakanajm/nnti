@@ -9,6 +9,7 @@
 % Standard package includes
 \usepackage{times}
 \usepackage{latexsym}
+\usepackage{graphicx} % Add the graphicx package for including images
 
 % For proper rendering and hyphenation of words containing Latin characters (including in bib files)
 \usepackage[T1]{fontenc}
@@ -51,32 +52,24 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-    This document is a supplement to the general instructions for *ACL authors. It contains instructions for using the \LaTeX{} style file for ACL 2023.
-    The document itself conforms to its own specifications, and is, therefore, an example of what your manuscript should look like.
-    These instructions should be used both for papers submitted for review and for final versions of accepted papers.
+    This paper presents a comprehensive evaluation of multilingual representation spaces using pre-trained models, conducted as part of the Neural Networks: Theory and Implementation at Universität des Saarlandes. We examine the hidden representations of language models across various languages. Our study focuses on a subset of six languages and employs dimensionality reduction techniques, PCA and t-SNE, to visualize and interpret high-dimensional spaces on the context of language embeddings. We acknowledge the limitations posed by computational resources, which restrict batch sizes and the number of languages analyzed. We fine-tuned the model xglm-564M on a Quechua dataset and compared the performance of the original model with the fine-tuned versions. We also implemented and compared the performance of different fine-tuning methods, including full fine-tuning, BitFit, LoRA, and (IA)\textsuperscript{3}.
 \end{abstract}
 
-\section{Introduction}
+% \section{Introduction}
 
-These instructions.
+% These instructions.
 
-\section{Background}
+% \section{Background}
 
-hola
+% hola
 
 \section{Experiments and Results}
 
-\subsection{Footnotes}
-
-Footnotes are inserted with the \verb|\footnote| command.\footnote{This is a footnote.}
-
-\subsection{Tables and figures}
-
-Hola
-
 \subsection{Dimensionality Reduction Techniques}
 
-On the other hand, for the t-SNE visualizations, we used the parameters recommended on various papers such as \cite{GOVE202287}, \cite{Weber2023}, where they recommended to try out perplexities on the range of [1, 50], focusing on bigger numbers for big datasets. ALso, for the learning-rate of the algorithm, they recommend to take $\max{(200, n / 12})$ as an appropriate value, where $n$ is the number of samples in the dataset.
+For PCA visualizations, we used the standard PCA implementation from the scikit-learn library. We used the default parameters for the PCA algorithm, recommended by the library's documentation. Unlike t-SNE, PCA does not need to be fine-tuned, as it is a deterministic algorithm.
+
+On the other hand, for the t-SNE visualizations, we used the parameters recommended on various papers such as \cite{GOVE202287}, \cite{Weber2023}, where they recommended to try out perplexities on the range of [1, 50], focusing on bigger numbers for big datasets. ALso, for the learning-rate of the algorithm, they recommend to take $\max{(200, n / 12)}$ as an appropriate value, where $n$ is the number of samples in the dataset.
 
 \subsection{Fine-tuning the XGLM-564M Model}
 \customsection{Full-finetuning} We implemented a full finetuning approach, where the entire model's weights are relearned on the target task from scratch.
@@ -114,7 +107,25 @@ it trains a vector to scale the activations of the model, i.e. a vector being mu
 Since an element-wise multiplication is also some sort of matrix transformation, it is an analog to LoRA.
 For each layer, IA3 trains three vectors which corresponds to scale the result of the key projection, the value projection and the activation function.
 Unfortuneately, due to a lack of computational resource and time, our IA3 model is not showing promising result.
-As the paper stated, we embeded three trainable vectors to each layer (one after self_attention.k_proj, one after self_attention.v_proj and one after self_attention.out_proj).
+% As the paper stated, we embeded three trainable vectors to each layer (one after self_attention.k_proj, one after self_attention.v_proj and one after self_attention.out_proj).
+
+\subsection{Plots}
+
+Some of the visualizations of the hidden representations of the sentences and tokens for the XGLM-564M model are shown in the Appendix.
+
+The model performance plots were as follows (the rest of the plots are in: \url{https://wandb.ai/hwga-cj/xglm-full})
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/xglm_vs_gpt2_mean_losses.png}
+    \caption{Loss of the XGLM-564M Model compared to GPT-2}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/xglm_vs_finetuned.png}
+    \caption{Loss of XGLM-564M Model compared to its fine-tuned versions}
+\end{figure}
 
 \section{Conclusions}
 
@@ -154,10 +165,50 @@ Additional elements were taken from the formatting instructions of the \emph{Int
 
 \appendix
 
-\section{Example Appendix}
+\section{Appendix: Plots}
 \label{sec:appendix}
 
-This is a section in the appendix.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/sentence_xglm-564M_layer_0_t-SNE.png}
+    \caption{t-SNE Visualization of Hidden Representations of Sentences for Layer 0 of the XGLM-564M Model}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/sentence_xglm-564M_layer_24_PCA.png}
+    \caption{PCA Visualization of Hidden Representations of Sentences for Layer 24 of the XGLM-564M Model}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/sentence_xglm-564M_layer_24_t-SNE.png}
+    \caption{t-SNE Visualization of Hidden Representations of Sentences for Layer 24 of the XGLM-564M Model}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/token_xglm-564M_layer_0_PCA.png}
+    \caption{PCA Visualization of Hidden Representations of Tokens for Layer 0 of the XGLM-564M Model}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/token_xglm-564M_layer_0_t-SNE.png}
+    \caption{t-SNE Visualization of Hidden Representations of Tokens for Layer 0 of the XGLM-564M Model}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/token_xglm-564M_layer_24_PCA.png}
+    \caption{PCA Visualization of Hidden Representations of Tokens for Layer 24 of the XGLM-564M Model}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/token_xglm-564M_layer_24_t-SNE.png}
+    \caption{t-SNE Visualization of Hidden Representations of Tokens for Layer 24 of the XGLM-564M Model}
+\end{figure}
+
 
 \end{document}
 
