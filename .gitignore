@@ -67,7 +67,6 @@ dkms.conf
 */sol/*.bcf
 */sol/*.blg
 */report/*.synctex.gz
-*/report/*.pdf
 */report/*.aux
 */report/*.bbl
 */report/*.fdb_latexmk
