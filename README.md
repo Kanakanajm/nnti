@@ -2,6 +2,20 @@
 
 This repository contains implementations of various assignments and a project related to the [Neural Networks: Theory and Implementation](https://www.lsv.uni-saarland.de/neural-networks-theory-and-implementation-nnti-winter-2023-2024/) course lectured by [Prof. Dr. Dietrich Klakow](https://www.lsv.uni-saarland.de/people/dietrich-klakow/) at [Saarland University](https://www.uni-saarland.de/) during the Winter Semester 2023/24. *All course materials and assignments outlines belong to the course's instructors*. *No guarantee is given to the correctness of the solution of the assignments, or any code implementation in this entire repository.*
 
+## Table of Contents
+- [Neural Networks: Theory and Implementation (NNTI)](#neural-networks-theory-and-implementation-nnti)
+  - [Table of Contents](#table-of-contents)
+  - [Assignments](#assignments)
+    - [Todos](#todos)
+  - [Project: Multilingual Language Models Representations and Fine-Tuning](#project-multilingual-language-models-representations-and-fine-tuning)
+    - [Introduction](#introduction)
+    - [Datasets](#datasets)
+    - [Methods](#methods)
+    - [Experiments and Analyses](#experiments-and-analyses)
+    - [Conclusion](#conclusion)
+    - [Limitations](#limitations)
+
+
 ## Assignments
 To pack an assignment
 ```sh
