@@ -121,6 +121,8 @@ Finally, the results for the fine-tuning of the XGLM-564M model on the Quechua d
   <figcaption><strong>Figure 10:</strong> Loss of the XGLM-564M Model compared to its Fine-tuned Versions.</figcaption>
 </figure>
 
+<p></p>
+
 <figure id="xglm-vs-finetuned">
   <img src="NNTIProject/cache/plots_task3/train_eval_metrics_finetuning.jpg" alt="Performance metrics comparison of finetuning methods in training and validation"/>
   <figcaption><strong>Figure 11:</strong> Performance metrics comparison of finetuning methods in training and validation.
